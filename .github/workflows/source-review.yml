@@ -1,0 +1,89 @@
+name: Historical source review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract nested historical archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          COMMIT="3a9492c85ca92a03d9a2b696ec8d351f380526bd"
+          TMP="$RUNNER_TEMP/historical_project"
+          mkdir -p "$TMP/unpacked"
+          git cat-file -e "$COMMIT^{commit}"
+          git show "$COMMIT:iLoveZIP_Create(1).zip" > "$TMP/outer.zip"
+          unzip -q -o "$TMP/outer.zip" -d "$TMP/unpacked"
+          for level in 1 2 3 4 5; do
+            found=0
+            while IFS= read -r -d '' z; do
+              found=1
+              d="$(dirname "$z")/__unzipped__"
+              mkdir -p "$d"
+              unzip -q -o "$z" -d "$d"
+              rm -f "$z"
+            done < <(find "$TMP/unpacked" -type f -iname '*.zip' -print0)
+            [ "$found" -eq 0 ] && break
+          done
+
+      - name: Analyze source
+        shell: bash
+        run: |
+          set +e
+          ROOT="$RUNNER_TEMP/historical_project/unpacked"
+          echo '=== FILE COUNT ==='
+          find "$ROOT" -type f | wc -l
+          echo
+          echo '=== PROJECT FILES ==='
+          find "$ROOT" -type f \( -iname '*.sln' -o -iname '*.csproj' -o -iname '*.fsproj' -o -iname '*.vbproj' -o -iname 'package.json' -o -iname 'pyproject.toml' -o -iname 'requirements.txt' \) -printf '%P\n' | sort
+          echo
+          echo '=== SOURCE COUNTS ==='
+          for ext in cs csproj xaml sql json config xml resx py js ts; do
+            printf '%-8s ' "$ext"
+            find "$ROOT" -type f -iname "*.$ext" | wc -l
+          done
+          echo
+          echo '=== INCOMPLETENESS MARKERS ==='
+          grep -RInE --exclude-dir=.git --exclude='*.min.js' --exclude='*.map' 'TODO|FIXME|NotImplementedException|NotSupportedException|throw new NotImplemented|PLACEHOLDER|coming soon|stub' "$ROOT" 2>/dev/null | head -n 1500 || true
+          echo
+          echo '=== EMPTY/TINY SOURCE FILES ==='
+          find "$ROOT" -type f \( -iname '*.cs' -o -iname '*.csproj' -o -iname '*.xaml' -o -iname '*.sql' -o -iname '*.json' \) -size -256c -printf '%P\t%s bytes\n' | sort | head -n 500
+          echo
+          echo '=== NESTED PROJECT TREE ==='
+          find "$ROOT" -maxdepth 4 -type f -printf '%P\n' | sort | head -n 2500
+          echo
+          echo '=== DOTNET BUILDS ==='
+          mapfile -t slns < <(find "$ROOT" -type f -iname '*.sln' | sort)
+          mapfile -t csprojs < <(find "$ROOT" -type f -iname '*.csproj' | sort)
+          for p in "${slns[@]}" "${csprojs[@]}"; do
+            [ -n "$p" ] || continue
+            echo "--- $p ---"
+            dotnet build "$p" --nologo 2>&1 | tail -n 180
+            echo
+          done
+          echo
+          echo '=== KEY SOURCE EXCERPTS ==='
+          mapfile -t keyfiles < <(find "$ROOT" -type f \( -iname 'Program.cs' -o -iname '*Form.cs' -o -iname '*Service.cs' -o -iname '*Repository.cs' -o -iname '*Executor.cs' -o -iname '*Router.cs' -o -iname '*.csproj' -o -iname '*.sln' -o -iname 'appsettings*.json' -o -iname '*.config' -o -iname '*.sql' \) | sort | head -n 80)
+          total=0
+          for f in "${keyfiles[@]}"; do
+            [ "$total" -ge 1200000 ] && break
+            size=$(wc -c < "$f")
+            take=10000
+            [ "$size" -lt "$take" ] && take="$size"
+            echo "--- $f ($size bytes; first $take bytes) ---"
+            head -c "$take" "$f"
+            echo
+            total=$((total + take))
+          done
