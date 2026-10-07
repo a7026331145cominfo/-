@@ -1,6 +1,8 @@
 name: Historical source review
 
 on:
+  push:
+    branches: [source-review]
   pull_request:
     branches: [main]
 
