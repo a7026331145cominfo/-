@@ -1,4 +1,4 @@
-name: Focused historical source review
+name: Focused build report review
 
 on:
   pull_request:
@@ -15,7 +15,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Extract nested historical archives
         shell: bash
         run: |
@@ -33,37 +32,30 @@ jobs:
             done < <(find "$TMP/unpacked" -type f -iname '*.zip' -print0)
             [ "$found" -eq 0 ] && break
           done
-
-      - name: Focused analysis
+      - name: Read build and comparison reports
         shell: bash
         run: |
           set +e
           ROOT="$RUNNER_TEMP/historical_project/unpacked"
-          pick() { find "$ROOT" -type f -name "$1" | head -n 1; }
-          show() {
-            f=$(pick "$1"); [ -f "$f" ] || return
-            echo "=== $1 | $f | $(wc -c < "$f") bytes ==="
+          show_utf16() {
+            f=$(find "$ROOT" -type f -name "$1" | head -n 1)
+            [ -f "$f" ] || return
+            echo "=== $1 ($f; $(wc -c < "$f") bytes) ==="
+            iconv -f UTF-16LE -t UTF-8 "$f" 2>/dev/null | head -n "$2"
+            echo
+          }
+          show_utf8() {
+            f=$(find "$ROOT" -type f -name "$1" | head -n 1)
+            [ -f "$f" ] || return
+            echo "=== $1 ($f; $(wc -c < "$f") bytes) ==="
             head -n "$2" "$f"
             echo
           }
-          show 'MajedSoft_Build_Report.txt' 350
-          show 'Project_Comparison.txt' 300
-          show 'Internal_Project_Structure_Report.txt' 300
-          show 'MajedSoft-TRUE-Screen-Mapping.txt' 300
-          show '05_CORE_SOURCE_REPORT.txt' 300
-          show '06_SALES_PURCHASE_CORE.txt' 300
-          show '07_ITEMS_ORDERS_REAL.txt' 300
-          show '08_TVP_ITEMS_DEFINITION.txt' 300
-          show 'GTS_Orders_BLL.txt' 500
-          show 'GTSErp_SOURCE_MAP.txt' 500
-          echo '=== PROJECT-SOURCE TODO / PLACEHOLDER / NOT IMPLEMENTED ==='
-          f=$(pick 'AlSaqar_Internal_Source_Map.txt')
+          show_utf16 'MajedSoft_Build_Report.txt' 500
+          show_utf16 'Project_Comparison.txt' 500
+          show_utf16 'Internal_Project_Structure_Report.txt' 450
+          echo '=== BUILD ERROR/SUCCESS LINES ==='
+          f=$(find "$ROOT" -type f -name 'MajedSoft_Build_Report.txt' | head -n 1)
           if [ -f "$f" ]; then
-            grep -nE 'GTSErpSystem_Source|TODO / PLACEHOLDER / NOT IMPLEMENTED|TODO:|FIXME|NOT IMPLEMENTED|PLACEHOLDER' "$f" 2>/dev/null | grep -E 'GTSErpSystem_Source|TODO / PLACEHOLDER / NOT IMPLEMENTED|TODO:|FIXME|NOT IMPLEMENTED|PLACEHOLDER' | head -n 1200
-            echo '=== GAP SECTION AROUND 376609 ==='
-            sed -n '376580,376660p' "$f"
+            iconv -f UTF-16LE -t UTF-8 "$f" 2>/dev/null | grep -nEi 'error|failed|failure|success|warning|build|restore|compile|missing|not found' | head -n 1200
           fi
-          echo '=== ORIGINAL SCREEN COUNTS / SUMMARY ==='
-          for n in 01_Screens.csv 06_Screen_Summary.csv; do
-            f=$(pick "$n"); [ -f "$f" ] && { echo "=== $n ==="; head -n 120 "$f"; echo; };
-          done
