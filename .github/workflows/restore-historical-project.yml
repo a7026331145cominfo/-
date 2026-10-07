@@ -1,4 +1,4 @@
-name: Restore historical project source
+name: Review historical project source
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  restore:
+  review:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout full history
@@ -17,47 +17,111 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore historical ZIP
+      - name: Extract historical project recursively
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f .legacy_source_restored ]; then
-            echo "Legacy source already restored."
-            exit 0
-          fi
-
           COMMIT="3a9492c85ca92a03d9a2b696ec8d351f380526bd"
           ARCHIVE="iLoveZIP_Create(1).zip"
-
+          TMP="$RUNNER_TEMP/historical_project"
+          rm -rf "$TMP"
+          mkdir -p "$TMP/unpacked"
           git cat-file -e "$COMMIT^{commit}"
-          mkdir -p legacy_project
-          git show "$COMMIT:$ARCHIVE" > /tmp/legacy_project.zip
-          unzip -q -o /tmp/legacy_project.zip -d legacy_project
+          git show "$COMMIT:$ARCHIVE" > "$TMP/outer.zip"
+          unzip -q -o "$TMP/outer.zip" -d "$TMP/unpacked"
+          for level in 1 2 3 4 5; do
+            found=0
+            while IFS= read -r -d '' z; do
+              found=1
+              d="$(dirname "$z")/__unzipped__"
+              mkdir -p "$d"
+              unzip -q -o "$z" -d "$d"
+              rm -f "$z"
+            done < <(find "$TMP/unpacked" -type f -iname '*.zip' -print0)
+            [ "$found" -eq 0 ] && break
+          done
 
+      - name: Analyze source and build
+        shell: bash
+        run: |
+          set -uo pipefail
+          ROOT="$RUNNER_TEMP/historical_project/unpacked"
+          REPORT="$RUNNER_TEMP/SOURCE_REVIEW_REPORT.md"
           {
-            echo "# Historical project restore"
+            echo '# Historical Source Review'
             echo
-            echo "Source restored from commit $COMMIT."
+            echo 'Historical source commit: 3a9492c85ca92a03d9a2b696ec8d351f380526bd'
             echo
-            echo "## Archive entries"
-            unzip -Z1 /tmp/legacy_project.zip
-          } > LEGACY_PROJECT_RESTORE_REPORT.md
+            echo '## File inventory'
+            echo
+            echo "$(find "$ROOT" -type f | wc -l) files extracted."
+            echo
+            find "$ROOT" -type f -printf '%P\t%s bytes\n' | sort | head -n 2000
+            echo
+            echo '## Project files'
+            echo
+            find "$ROOT" -type f \( -iname '*.sln' -o -iname '*.csproj' -o -iname '*.fsproj' -o -iname '*.vbproj' -o -iname 'package.json' -o -iname 'requirements.txt' -o -iname 'pyproject.toml' \) -printf '%P\t%s bytes\n' | sort
+            echo
+            echo '## Incompleteness markers'
+            echo
+            grep -RInE --exclude-dir=.git --exclude='*.min.js' --exclude='*.map' 'TODO|FIXME|NotImplementedException|NotSupportedException|throw new NotImplemented|PLACEHOLDER|coming soon|stub' "$ROOT" 2>/dev/null | head -n 1000 || true
+            echo
+            echo '## Empty or tiny source files'
+            echo
+            find "$ROOT" -type f \( -iname '*.cs' -o -iname '*.csproj' -o -iname '*.config' -o -iname '*.json' -o -iname '*.xml' -o -iname '*.sql' -o -iname '*.xaml' \) -size -256c -printf '%P\t%s bytes\n' | sort | head -n 500
+            echo
+          } > "$REPORT"
+          mapfile -t solutions < <(find "$ROOT" -type f -iname '*.sln' | sort)
+          if [ "\${#solutions[@]}" -gt 0 ]; then
+            echo '## .NET solution builds' >> "$REPORT"
+            for s in "\${solutions[@]}"; do
+              echo "### $s" >> "$REPORT"
+              if dotnet build "$s" --nologo --no-restore > "$RUNNER_TEMP/build.log" 2>&1; then
+                echo 'BUILD: PASS' >> "$REPORT"
+              else
+                echo 'BUILD: FAIL' >> "$REPORT"
+              fi
+              tail -n 250 "$RUNNER_TEMP/build.log" >> "$REPORT"
+              echo >> "$REPORT"
+            done
+          fi
+          mapfile -t projects < <(find "$ROOT" -type f \( -iname '*.csproj' -o -iname '*.fsproj' -o -iname '*.vbproj' \) | sort)
+          if [ "\${#projects[@]}" -gt 0 ]; then
+            echo '## Individual project builds' >> "$REPORT"
+            for p in "\${projects[@]}"; do
+              echo "### $p" >> "$REPORT"
+              if dotnet build "$p" --nologo --no-restore > "$RUNNER_TEMP/project-build.log" 2>&1; then
+                echo 'BUILD: PASS' >> "$REPORT"
+              else
+                echo 'BUILD: FAIL' >> "$REPORT"
+              fi
+              tail -n 200 "$RUNNER_TEMP/project-build.log" >> "$REPORT"
+              echo >> "$REPORT"
+            done
+          fi
+          echo '## Key source excerpts' >> "$REPORT"
+          echo >> "$REPORT"
+          mapfile -t keyfiles < <(find "$ROOT" -type f \( -iname '*.cs' -o -iname '*.csproj' -o -iname '*.xaml' -o -iname '*.sql' -o -iname 'README*' \) | sort | head -n 120)
+          total=0
+          for f in "\${keyfiles[@]}"; do
+            [ "$total" -ge 5000000 ] && break
+            bytes=$(wc -c < "$f")
+            take=12000
+            [ "$bytes" -lt "$take" ] && take="$bytes"
+            echo "### $f" >> "$REPORT"
+            head -c "$take" "$f" >> "$REPORT"
+            echo >> "$REPORT"
+            total=$((total + take))
+          done
+          cp "$REPORT" SOURCE_REVIEW_REPORT.md
 
-          printf '%s\n' "restored" > .legacy_source_restored
-
-      - name: Commit restored source
+      - name: Commit review report
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add legacy_project LEGACY_PROJECT_RESTORE_REPORT.md .legacy_source_restored
-
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
-
-          git commit -m "Restore historical project source for completion"
+          git add SOURCE_REVIEW_REPORT.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add historical source review report"
           git push origin HEAD:main
