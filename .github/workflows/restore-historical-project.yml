@@ -1,0 +1,63 @@
+name: Restore historical project source
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore historical ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f .legacy_source_restored ]; then
+            echo "Legacy source already restored."
+            exit 0
+          fi
+
+          COMMIT="3a9492c85ca92a03d9a2b696ec8d351f380526bd"
+          ARCHIVE="iLoveZIP_Create(1).zip"
+
+          git cat-file -e "$COMMIT^{commit}"
+          mkdir -p legacy_project
+          git show "$COMMIT:$ARCHIVE" > /tmp/legacy_project.zip
+          unzip -q -o /tmp/legacy_project.zip -d legacy_project
+
+          {
+            echo "# Historical project restore"
+            echo
+            echo "Source restored from commit $COMMIT."
+            echo
+            echo "## Archive entries"
+            unzip -Z1 /tmp/legacy_project.zip
+          } > LEGACY_PROJECT_RESTORE_REPORT.md
+
+          printf '%s\n' "restored" > .legacy_source_restored
+
+      - name: Commit restored source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add legacy_project LEGACY_PROJECT_RESTORE_REPORT.md .legacy_source_restored
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Restore historical project source for completion"
+          git push origin HEAD:main
