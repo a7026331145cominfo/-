@@ -1,8 +1,6 @@
-name: Historical source review
+name: Focused historical source review
 
 on:
-  push:
-    branches: [source-review]
   pull_request:
     branches: [main]
 
@@ -13,7 +11,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository history
+      - name: Checkout full history
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -25,73 +23,47 @@ jobs:
           COMMIT="3a9492c85ca92a03d9a2b696ec8d351f380526bd"
           TMP="$RUNNER_TEMP/historical_project"
           mkdir -p "$TMP/unpacked"
-          git cat-file -e "$COMMIT^{commit}"
           git show "$COMMIT:iLoveZIP_Create(1).zip" > "$TMP/outer.zip"
           unzip -q -o "$TMP/outer.zip" -d "$TMP/unpacked"
           for level in 1 2 3 4 5; do
             found=0
             while IFS= read -r -d '' z; do
-              found=1
-              d="$(dirname "$z")/__unzipped__"
-              mkdir -p "$d"
-              unzip -q -o "$z" -d "$d"
-              rm -f "$z"
+              found=1; d="$(dirname "$z")/__unzipped__"
+              mkdir -p "$d"; unzip -q -o "$z" -d "$d"; rm -f "$z"
             done < <(find "$TMP/unpacked" -type f -iname '*.zip' -print0)
             [ "$found" -eq 0 ] && break
           done
 
-      - name: Analyze source
+      - name: Focused analysis
         shell: bash
         run: |
           set +e
           ROOT="$RUNNER_TEMP/historical_project/unpacked"
-          echo '=== FILE COUNT ==='
-          find "$ROOT" -type f | wc -l
-          echo
-          echo '=== PROJECT FILES ==='
-          find "$ROOT" -type f \( -iname '*.sln' -o -iname '*.csproj' -o -iname '*.fsproj' -o -iname '*.vbproj' -o -iname 'package.json' -o -iname 'pyproject.toml' -o -iname 'requirements.txt' \) -printf '%P\n' | sort
-          echo
-          echo '=== SOURCE COUNTS ==='
-          for ext in cs csproj xaml sql json config xml resx py js ts; do
-            printf '%-8s ' "$ext"
-            find "$ROOT" -type f -iname "*.$ext" | wc -l
-          done
-          echo
-          echo '=== REPORT FILES ==='
-          find "$ROOT" -type f -iname '*.txt' -printf '%s\t%P\n' | sort -nr | head -n 120
-          echo
-          echo '=== INCOMPLETENESS MARKERS IN PROJECT REPORTS ==='
-          grep -RInE --exclude-dir=.git --exclude='*.xml' 'TODO / PLACEHOLDER|TODO:|FIXME|NOT IMPLEMENTED|NotImplementedException|NotSupportedException|stub|missing|incomplete|غير مكتمل|ناقص|لم يتم' "$ROOT" 2>/dev/null | head -n 2000 || true
-          echo
-          echo '=== BUILD REPORT ==='
-          for f in $(find "$ROOT" -type f -iname '*Build*Report*.txt' | sort); do
-            echo "--- $f ---"
-            cat "$f" | head -n 500
-          done
-          echo
-          echo '=== CORE SOURCE REPORT ==='
-          for f in "$ROOT"/$(find "$ROOT" -type f -printf '%P\n' | grep -E '^(05_CORE_SOURCE_REPORT|06_SALES_PURCHASE_CORE|07_ITEMS_ORDERS_REAL|08_TVP_ITEMS_DEFINITION|GTS_Orders_BLL|GTSErp_SOURCE_MAP|Internal_Project_Structure_Report|Project_Comparison|MajedSoft-TRUE-Screen-Mapping)' | head -n 20); do
-            [ -f "$f" ] || continue
-            echo "--- $f ---"
-            head -n 500 "$f"
-          done
-          echo
-          echo '=== ORIGINAL PROJECT TREE / SCREEN MAP ==='
-          for f in $(find "$ROOT" -type f -printf '%P\n' | grep -E '^(01_ORIGINAL_PROJECT_TREE|01_Screens|04_ORIGINAL_ERP_MODULE_FILES|06_Screen_Summary|MajedSoft-Screen-Architecture-Report|MajedSoft_Full_Project_Report)' | head -n 20); do
-            [ -f "$ROOT/$f" ] || continue
-            echo "--- $ROOT/$f ---"
-            head -n 500 "$ROOT/$f"
-          done
-          echo
-          echo '=== SOURCE MAP: REAL GAPS ==='
-          f=$(find "$ROOT" -type f -name 'AlSaqar_Internal_Source_Map.txt' | head -n 1)
+          pick() { find "$ROOT" -type f -name "$1" | head -n 1; }
+          show() {
+            f=$(pick "$1"); [ -f "$f" ] || return
+            echo "=== $1 | $f | $(wc -c < "$f") bytes ==="
+            head -n "$2" "$f"
+            echo
+          }
+          show 'MajedSoft_Build_Report.txt' 350
+          show 'Project_Comparison.txt' 300
+          show 'Internal_Project_Structure_Report.txt' 300
+          show 'MajedSoft-TRUE-Screen-Mapping.txt' 300
+          show '05_CORE_SOURCE_REPORT.txt' 300
+          show '06_SALES_PURCHASE_CORE.txt' 300
+          show '07_ITEMS_ORDERS_REAL.txt' 300
+          show '08_TVP_ITEMS_DEFINITION.txt' 300
+          show 'GTS_Orders_BLL.txt' 500
+          show 'GTSErp_SOURCE_MAP.txt' 500
+          echo '=== PROJECT-SOURCE TODO / PLACEHOLDER / NOT IMPLEMENTED ==='
+          f=$(pick 'AlSaqar_Internal_Source_Map.txt')
           if [ -f "$f" ]; then
-            grep -nE 'TODO / PLACEHOLDER|NOT IMPLEMENTED|IMPLEMENTATION|missing|Missing|NotFound|throw new' "$f" 2>/dev/null | head -n 1500 || true
+            grep -nE 'GTSErpSystem_Source|TODO / PLACEHOLDER / NOT IMPLEMENTED|TODO:|FIXME|NOT IMPLEMENTED|PLACEHOLDER' "$f" 2>/dev/null | grep -E 'GTSErpSystem_Source|TODO / PLACEHOLDER / NOT IMPLEMENTED|TODO:|FIXME|NOT IMPLEMENTED|PLACEHOLDER' | head -n 1200
+            echo '=== GAP SECTION AROUND 376609 ==='
+            sed -n '376580,376660p' "$f"
           fi
-          echo
-          echo '=== RELEVANT SOURCE EXCERPTS ==='
-          for f in $(find "$ROOT" -type f -printf '%P\n' | grep -E '(Form|Service|Repository|Executor|Router|Program)\.cs$|\.csproj$|\.sln$' | head -n 80); do
-            echo "--- $ROOT/$f ---"
-            head -n 120 "$ROOT/$f"
+          echo '=== ORIGINAL SCREEN COUNTS / SUMMARY ==='
+          for n in 01_Screens.csv 06_Screen_Summary.csv; do
+            f=$(pick "$n"); [ -f "$f" ] && { echo "=== $n ==="; head -n 120 "$f"; echo; };
           done
-          true
