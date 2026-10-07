@@ -57,35 +57,41 @@ jobs:
             find "$ROOT" -type f -iname "*.$ext" | wc -l
           done
           echo
-          echo '=== INCOMPLETENESS MARKERS ==='
-          grep -RInE --exclude-dir=.git --exclude='*.min.js' --exclude='*.map' 'TODO|FIXME|NotImplementedException|NotSupportedException|throw new NotImplemented|PLACEHOLDER|coming soon|stub' "$ROOT" 2>/dev/null | head -n 1500 || true
+          echo '=== REPORT FILES ==='
+          find "$ROOT" -type f -iname '*.txt' -printf '%s\t%P\n' | sort -nr | head -n 120
           echo
-          echo '=== EMPTY/TINY SOURCE FILES ==='
-          find "$ROOT" -type f \( -iname '*.cs' -o -iname '*.csproj' -o -iname '*.xaml' -o -iname '*.sql' -o -iname '*.json' \) -size -256c -printf '%P\t%s bytes\n' | sort | head -n 500
+          echo '=== INCOMPLETENESS MARKERS IN PROJECT REPORTS ==='
+          grep -RInE --exclude-dir=.git --exclude='*.xml' 'TODO / PLACEHOLDER|TODO:|FIXME|NOT IMPLEMENTED|NotImplementedException|NotSupportedException|stub|missing|incomplete|غير مكتمل|ناقص|لم يتم' "$ROOT" 2>/dev/null | head -n 2000 || true
           echo
-          echo '=== NESTED PROJECT TREE ==='
-          find "$ROOT" -maxdepth 4 -type f -printf '%P\n' | sort | head -n 2500
-          echo
-          echo '=== DOTNET BUILDS ==='
-          mapfile -t slns < <(find "$ROOT" -type f -iname '*.sln' | sort)
-          mapfile -t csprojs < <(find "$ROOT" -type f -iname '*.csproj' | sort)
-          for p in "${slns[@]}" "${csprojs[@]}"; do
-            [ -n "$p" ] || continue
-            echo "--- $p ---"
-            dotnet build "$p" --nologo 2>&1 | tail -n 180
-            echo
+          echo '=== BUILD REPORT ==='
+          for f in $(find "$ROOT" -type f -iname '*Build*Report*.txt' | sort); do
+            echo "--- $f ---"
+            cat "$f" | head -n 500
           done
           echo
-          echo '=== KEY SOURCE EXCERPTS ==='
-          mapfile -t keyfiles < <(find "$ROOT" -type f \( -iname 'Program.cs' -o -iname '*Form.cs' -o -iname '*Service.cs' -o -iname '*Repository.cs' -o -iname '*Executor.cs' -o -iname '*Router.cs' -o -iname '*.csproj' -o -iname '*.sln' -o -iname 'appsettings*.json' -o -iname '*.config' -o -iname '*.sql' \) | sort | head -n 80)
-          total=0
-          for f in "${keyfiles[@]}"; do
-            [ "$total" -ge 1200000 ] && break
-            size=$(wc -c < "$f")
-            take=10000
-            [ "$size" -lt "$take" ] && take="$size"
-            echo "--- $f ($size bytes; first $take bytes) ---"
-            head -c "$take" "$f"
-            echo
-            total=$((total + take))
+          echo '=== CORE SOURCE REPORT ==='
+          for f in "$ROOT"/$(find "$ROOT" -type f -printf '%P\n' | grep -E '^(05_CORE_SOURCE_REPORT|06_SALES_PURCHASE_CORE|07_ITEMS_ORDERS_REAL|08_TVP_ITEMS_DEFINITION|GTS_Orders_BLL|GTSErp_SOURCE_MAP|Internal_Project_Structure_Report|Project_Comparison|MajedSoft-TRUE-Screen-Mapping)' | head -n 20); do
+            [ -f "$f" ] || continue
+            echo "--- $f ---"
+            head -n 500 "$f"
           done
+          echo
+          echo '=== ORIGINAL PROJECT TREE / SCREEN MAP ==='
+          for f in $(find "$ROOT" -type f -printf '%P\n' | grep -E '^(01_ORIGINAL_PROJECT_TREE|01_Screens|04_ORIGINAL_ERP_MODULE_FILES|06_Screen_Summary|MajedSoft-Screen-Architecture-Report|MajedSoft_Full_Project_Report)' | head -n 20); do
+            [ -f "$ROOT/$f" ] || continue
+            echo "--- $ROOT/$f ---"
+            head -n 500 "$ROOT/$f"
+          done
+          echo
+          echo '=== SOURCE MAP: REAL GAPS ==='
+          f=$(find "$ROOT" -type f -name 'AlSaqar_Internal_Source_Map.txt' | head -n 1)
+          if [ -f "$f" ]; then
+            grep -nE 'TODO / PLACEHOLDER|NOT IMPLEMENTED|IMPLEMENTATION|missing|Missing|NotFound|throw new' "$f" 2>/dev/null | head -n 1500 || true
+          fi
+          echo
+          echo '=== RELEVANT SOURCE EXCERPTS ==='
+          for f in $(find "$ROOT" -type f -printf '%P\n' | grep -E '(Form|Service|Repository|Executor|Router|Program)\.cs$|\.csproj$|\.sln$' | head -n 80); do
+            echo "--- $ROOT/$f ---"
+            head -n 120 "$ROOT/$f"
+          done
+          true
