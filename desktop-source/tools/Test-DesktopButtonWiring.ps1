@@ -26,7 +26,7 @@ $checks = @(
     @{ Name = "Printer save/delete buttons are wired"; File = "Forms\PrinterSettingsForm.cs"; Pattern = 's\.Click\s*\+=\s*async\s*\(_\s*,\s*_\s*\)\s*=>\s*await\s+SavePrinter\(\).*d\.Click\s*\+=\s*async\s*\(_\s*,\s*_\s*\)\s*=>\s*await\s+DeletePrinter\(\)' },
     @{ Name = "Main navigation uses a right-side vertical module sidebar"; File = "Forms\MainForm.cs"; Pattern = '_servicesBar\.Dock\s*=\s*DockStyle\.Right' },
     @{ Name = "Dashboard shortcuts use the modern button style"; File = "Forms\MainForm.cs"; Pattern = 'ErpTheme\.ConfigureDashboardButton\(button\)' },
-    @{ Name = "ERP theme defines dashboard shortcut styling"; File = "..\src\AlSaqarAccounting\UI\ErpTheme.cs"; Pattern = 'ConfigureDashboardButton' },
+    @{ Name = "ERP theme defines dashboard shortcut styling"; File = "UI\ErpTheme.cs"; Pattern = 'ConfigureDashboardButton' },
     @{ Name = "Cashier VAT is loaded from current database settings"; File = "Forms\CashierForm.cs"; Pattern = '_taxRate\s*=\s*settings\.VatEnabled\s*\?\s*settings\.VatRate\s*:\s*0m' },
     @{ Name = "Cashier VAT covers the discounted line total"; File = "Forms\CashierForm.cs"; Pattern = 'VAT\s*=\s*Convert\.ToDecimal\(row\["Total"\]\)\s*\*\s*_taxRate' },
     @{ Name = "Cashier sale receipts can load branch-scoped saved details"; File = "Forms\CashierForm.cs"; Pattern = 'GetSaleDetailsForBranchAsync\(' },
