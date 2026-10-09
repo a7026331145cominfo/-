@@ -1,450 +1,185 @@
 # Native screen-link evidence extracted from historical source reports
 
-Generated from the historical archive in commit 3a9492c85ca92a03d9a2b696ec8d351f380526bd.
-This is evidence for implementation decisions, not a claim that the original project files were present as loose C# files.
+Generated from archive commit 3a9492c85ca92a03d9a2b696ec8d351f380526bd.
+The archive is a set of source-analysis reports rather than loose compilable project files; use the excerpts to ground route mappings.
 
 - Extracted files: 40
 - Loose C# files: 0
 - Loose project files: 0
 
-## Report inventory
-
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/00_REAL_INTERNAL_UI_DESIGN.txt — 110,666 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/01_ORIGINAL_PROJECT_TREE.txt — 274,509 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/03_ORIGINAL_SECURITY_TVP_FILES.txt — 3,583 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/04_ORIGINAL_ERP_MODULE_FILES.txt — 101,789 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/05_CORE_SOURCE_REPORT.txt — 9,283,296 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/06_SALES_PURCHASE_CORE.txt — 1,297,710 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/AlSaqar_Internal_Source_Map.txt — 51,203,572 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/GTSErp_SOURCE_MAP.txt — 31,022 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/MajedSoft-TRUE-Screen-Mapping.txt — 505,522 bytes
-- __unzipped__/╪к┘В╪з╪▒┘К╪▒/MajedSoft_Build_Report.txt — 361,548 bytes
-
-## Screen metadata and access checks
-
-### 01_ORIGINAL_PROJECT_TREE.txt — line 1338
-
-1336: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Groups.cs                                                          870 02/10/26 07:37:04 م .cs      
-1337: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Login.cs                                                          1233 02/10/26 07:37:04 م .cs      
-1338: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs                                                      871 02/10/26 07:37:04 م .cs      
-1339: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs                                                         302 02/10/26 07:37:04 م .cs      
-1340: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_SellPrice.cs                                                       129 02/10/26 07:37:04 م .cs      
-
-### 01_ORIGINAL_PROJECT_TREE.txt — line 1339
-
-1337: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Login.cs                                                          1233 02/10/26 07:37:04 م .cs      
-1338: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs                                                      871 02/10/26 07:37:04 م .cs      
-1339: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs                                                         302 02/10/26 07:37:04 م .cs      
-1340: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_SellPrice.cs                                                       129 02/10/26 07:37:04 م .cs      
-1341: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\View_AccountsLastLeve.cs                                               1259 02/10/26 07:37:04 م .cs      
-
-### 03_ORIGINAL_SECURITY_TVP_FILES.txt — line 19
-
-17: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\Select_Scaffold_ExitPermission_Result.cs              955
-18: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Login.cs                                        1233
-19: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs                                    871
-20: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs                                       302
-21: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Contract\Class_ScaffEntryPermission.cs          43229
-
-### 03_ORIGINAL_SECURITY_TVP_FILES.txt — line 20
-
-18: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Login.cs                                        1233
-19: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs                                    871
-20: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs                                       302
-21: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Contract\Class_ScaffEntryPermission.cs          43229
-22: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Contract\Class_ScaffExitPermission.cs           43106
-
-### 05_CORE_SOURCE_REPORT.txt — line 90
-
-88: 	public void DeletePermission(int GPID)
-89: 	{
-90: 		List<User_Permission> list = ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GPID).ToList();
-91: 		if (list == null)
-92: 		{
-
-### 05_CORE_SOURCE_REPORT.txt — line 95
-
-93: 			return;
-94: 		}
-95: 		foreach (User_Permission item in list)
-96: 		{
-97: 			db.User_Permission.Attach(item);
-
-### 05_CORE_SOURCE_REPORT.txt — line 97
-
-95: 		foreach (User_Permission item in list)
-96: 		{
-97: 			db.User_Permission.Attach(item);
-98: 			db.User_Permission.Remove(item);
-99: 		}
-
-### 05_CORE_SOURCE_REPORT.txt — line 98
-
-96: 		{
-97: 			db.User_Permission.Attach(item);
-98: 			db.User_Permission.Remove(item);
-99: 		}
-100: 		((DbContext)db).SaveChanges();
-
-### 05_CORE_SOURCE_REPORT.txt — line 135
-
-133: 	}
-134: 
-135: 	public List<User_Screens> GetAllGroupsPermaion()
-136: 	{
-137: 		return ((IQueryable<User_Screens>)db.User_Screens).Where((User_Screens x) => x.ISShow == (bool?)true).ToList();
-
-### 05_CORE_SOURCE_REPORT.txt — line 137
-
-135: 	public List<User_Screens> GetAllGroupsPermaion()
-136: 	{
-137: 		return ((IQueryable<User_Screens>)db.User_Screens).Where((User_Screens x) => x.ISShow == (bool?)true).ToList();
-138: 	}
-139: 
-
-### 05_CORE_SOURCE_REPORT.txt — line 140
-
-138: 	}
-139: 
-140: 	public List<User_Permission> GetPermassionByGroupID(int GroupId)
-141: 	{
-142: 		return ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GroupId).ToList();
+## Key report inventory
+
+- MajedSoft-TRUE-Screen-Mapping.txt: 505,522 bytes
+- 00_REAL_INTERNAL_UI_DESIGN.txt: 110,666 bytes
+- GTSErp_SOURCE_MAP.txt: 31,022 bytes
+- 05_CORE_SOURCE_REPORT.txt: 9,283,296 bytes
+- AlSaqar_Internal_Source_Map.txt: 51,203,572 bytes
+- 06_SALES_PURCHASE_CORE.txt: 1,297,710 bytes
+- 04_ORIGINAL_ERP_MODULE_FILES.txt: 101,789 bytes
+- 01_ORIGINAL_PROJECT_TREE.txt: 274,509 bytes
+
+### Opening of the exact screen map — MajedSoft-TRUE-Screen-Mapping.txt
+
+1: ============================================================
+2:  MAJEDSOFT - TRUE SCREEN MAPPING
+3: ============================================================
+4: DATE: 10/01/2026 11:30:08
+5: ROOT: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis
+6: 
+7: ============================================================
+8: 00 - SUMMARY
+9: ============================================================
+10: ============================================================
+11: GTSErpSystem FULL ANALYSIS
+12: ============================================================
+13: Path       : E:\ماجد سوفت\MajedSoft 04-08-2026\App
+14: EXE        : E:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem.exe
+15: Started    : 08/17/2026 16:45:20
+16: Computer   : DESKTOP-KBU5DH6
+17: User       : hp
+18: PowerShell : 5.1.19041.6456
+19: ============================================================
+20: ===== MAIN EXE =====
+21: Name          : GTSErpSystem.exe
+22: Full Path     : E:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem.exe
+23: Size          : 90.42 MB
+24: Created       : 08/17/2026 10:49:19
+25: Modified      : 08/04/2026 10:18:08
+26: File Version  : 1.0.0.0
+27: Product       : GTSErpSystem
+28: Product Ver   : 1.0.0.0
+29: Company       : 
+30: Description   : GTSErpSystem
+31: ===== ASSEMBLY =====
+32: Full Name : GTSErpSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+33: Location  : E:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem.exe
+34: Image Runtime Version : v4.0.30319
+35: 
+36: 
+37: ============================================================
+38: 01 - ALL REAL FORMS
+39: ============================================================
+40: ============================================================
+41: FORMS
+42: ============================================================
+43: Count: 349
+44: Name       : FrmCheckActivationCloseYear
+45: Full Name  : GTSErpSystem.FrmCheckActivationCloseYear
+46: Base Type  : DevExpress.XtraEditors.XtraForm
+47: Namespace  : GTSErpSystem
+48: Public     : True
+49: Abstract   : False
+50: --------------------------------------------
+51: Name       : FrmLogin
+52: Full Name  : GTSErpSystem.FrmLogin
+53: Base Type  : System.Windows.Forms.Form
+54: Namespace  : GTSErpSystem
+55: Public     : True
+56: Abstract   : False
+57: --------------------------------------------
+58: Name       : FrmCheckCollection
+59: Full Name  : GTSErpSystem.Frms.Account.Check.FrmCheckCollection
+60: Base Type  : DevExpress.XtraEditors.XtraForm
+61: Namespace  : GTSErpSystem.Frms.Account.Check
+62: Public     : True
+63: Abstract   : False
+64: --------------------------------------------
+65: Name       : FrmCheckCollectionIssued
+66: Full Name  : GTSErpSystem.Frms.Account.Check.FrmCheckCollectionIssued
+67: Base Type  : DevExpress.XtraEditors.XtraForm
+68: Namespace  : GTSErpSystem.Frms.Account.Check
+69: Public     : True
+70: Abstract   : False
+71: --------------------------------------------
+72: Name       : FrmCheckIssued
+73: Full Name  : GTSErpSystem.Frms.Account.Check.FrmCheckIssued
+74: Base Type  : DevExpress.XtraEditors.XtraForm
+75: Namespace  : GTSErpSystem.Frms.Account.Check
+76: Public     : True
+77: Abstract   : False
+78: --------------------------------------------
+79: Name       : FrmReceiptCheck
+80: Full Name  : GTSErpSystem.Frms.Account.Check.FrmReceiptCheck
+81: Base Type  : DevExpress.XtraEditors.XtraForm
+82: Namespace  : GTSErpSystem.Frms.Account.Check
+83: Public     : True
+84: Abstract   : False
+85: --------------------------------------------
+86: Name       : FrmSearchCheckIssued
+87: Full Name  : GTSErpSystem.Frms.Account.Check.Search.FrmSearchCheckIssued
+88: Base Type  : DevExpress.XtraEditors.XtraForm
+89: Namespace  : GTSErpSystem.Frms.Account.Check.Search
+90: Public     : True
+91: Abstract   : False
+92: --------------------------------------------
+93: Name       : FrmSearchCheckRecipt
+94: Full Name  : GTSErpSystem.Frms.Account.Check.Search.FrmSearchCheckRecipt
+95: Base Type  : DevExpress.XtraEditors.XtraForm
+96: Namespace  : GTSErpSystem.Frms.Account.Check.Search
+97: Public     : True
+98: Abstract   : False
+99: --------------------------------------------
+100: Name       : FrmAccountTree
 
-### 05_CORE_SOURCE_REPORT.txt — line 142
 
-140: 	public List<User_Permission> GetPermassionByGroupID(int GroupId)
-141: 	{
-142: 		return ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GroupId).ToList();
-143: 	}
-144: 
+## Sales Invoice — exact references
 
-### 06_SALES_PURCHASE_CORE.txt — line 4544
 
-4542: GTSErpSystem\User_Login.cs:19: public int? UserID_Add { get; set; }
-4543: GTSErpSystem\User_Login.cs:27: public int? UserID_Update { get; set; }
-4544: GTSErpSystem\User_Permission.cs:5: public class User_Permission
-4545: GTSErpSystem\User_Permission.cs:11: public int? GroupID { get; set; }
-4546: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
+### Match at line 1269 — MajedSoft-TRUE-Screen-Mapping.txt
 
-### 06_SALES_PURCHASE_CORE.txt — line 4545
+1267: Abstract   : False
+1268: --------------------------------------------
+1269: Name       : FrmCashir
+1270: Full Name  : GTSErpSystem.Frms.Orders.FrmCashir
+1271: Base Type  : DevExpress.XtraEditors.XtraForm
 
-4543: GTSErpSystem\User_Login.cs:27: public int? UserID_Update { get; set; }
-4544: GTSErpSystem\User_Permission.cs:5: public class User_Permission
-4545: GTSErpSystem\User_Permission.cs:11: public int? GroupID { get; set; }
-4546: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
-4547: GTSErpSystem\User_Permission.cs:35: public int? UserID_Update { get; set; }
 
-### 06_SALES_PURCHASE_CORE.txt — line 4546
+### Match at line 1270 — MajedSoft-TRUE-Screen-Mapping.txt
 
-4544: GTSErpSystem\User_Permission.cs:5: public class User_Permission
-4545: GTSErpSystem\User_Permission.cs:11: public int? GroupID { get; set; }
-4546: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
-4547: GTSErpSystem\User_Permission.cs:35: public int? UserID_Update { get; set; }
-4548: GTSErpSystem\User_Screens.cs:3: public class User_Screens
+1268: --------------------------------------------
+1269: Name       : FrmCashir
+1270: Full Name  : GTSErpSystem.Frms.Orders.FrmCashir
+1271: Base Type  : DevExpress.XtraEditors.XtraForm
+1272: Namespace  : GTSErpSystem.Frms.Orders
 
-### 06_SALES_PURCHASE_CORE.txt — line 4547
 
-4545: GTSErpSystem\User_Permission.cs:11: public int? GroupID { get; set; }
-4546: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
-4547: GTSErpSystem\User_Permission.cs:35: public int? UserID_Update { get; set; }
-4548: GTSErpSystem\User_Screens.cs:3: public class User_Screens
-4549: GTSErpSystem\ViewAccountsLastLeve.cs:45: public int? UserID_Add { get; set; }
+### Match at line 4484 — MajedSoft-TRUE-Screen-Mapping.txt
 
-### 06_SALES_PURCHASE_CORE.txt — line 4548
+4482: 15636: Class      : GTSErpSystem.Frms.Orders.FrmCachMoney.FrmMoneyCashier
+4483: 15643: Class      : GTSErpSystem.Frms.Orders.FrmCars
+4484: 15650: Class      : GTSErpSystem.Frms.Orders.FrmCashir
+4485: 15657: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c
+4486: 15664: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass110_0
 
-4546: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
-4547: GTSErpSystem\User_Permission.cs:35: public int? UserID_Update { get; set; }
-4548: GTSErpSystem\User_Screens.cs:3: public class User_Screens
-4549: GTSErpSystem\ViewAccountsLastLeve.cs:45: public int? UserID_Add { get; set; }
-4550: GTSErpSystem\ViewAccountsLastLeve.cs:47: public int? UserID_Update { get; set; }
 
-### 06_SALES_PURCHASE_CORE.txt — line 10191
+### Match at line 4485 — MajedSoft-TRUE-Screen-Mapping.txt
 
-10189: GTSErpSystem\User_Login.cs:19: public int? UserID_Add { get; set; }
-10190: GTSErpSystem\User_Login.cs:27: public int? UserID_Update { get; set; }
-10191: GTSErpSystem\User_Permission.cs:5: public class User_Permission
-10192: GTSErpSystem\User_Permission.cs:11: public int? GroupID { get; set; }
-10193: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
+4483: 15643: Class      : GTSErpSystem.Frms.Orders.FrmCars
+4484: 15650: Class      : GTSErpSystem.Frms.Orders.FrmCashir
+4485: 15657: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c
+4486: 15664: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass110_0
+4487: 15671: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass111_0
 
-### 06_SALES_PURCHASE_CORE.txt — line 10192
 
-10190: GTSErpSystem\User_Login.cs:27: public int? UserID_Update { get; set; }
-10191: GTSErpSystem\User_Permission.cs:5: public class User_Permission
-10192: GTSErpSystem\User_Permission.cs:11: public int? GroupID { get; set; }
-10193: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
-10194: GTSErpSystem\User_Permission.cs:35: public int? UserID_Update { get; set; }
+### Match at line 4486 — MajedSoft-TRUE-Screen-Mapping.txt
 
-### 06_SALES_PURCHASE_CORE.txt — line 10193
+4484: 15650: Class      : GTSErpSystem.Frms.Orders.FrmCashir
+4485: 15657: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c
+4486: 15664: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass110_0
+4487: 15671: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass111_0
+4488: 15678: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass111_1
 
-10191: GTSErpSystem\User_Permission.cs:5: public class User_Permission
-10192: GTSErpSystem\User_Permission.cs:11: public int? GroupID { get; set; }
-10193: GTSErpSystem\User_Permission.cs:27: public int? UserID_Add { get; set; }
-10194: GTSErpSystem\User_Permission.cs:35: public int? UserID_Update { get; set; }
-10195: GTSErpSystem\User_Screens.cs:3: public class User_Screens
 
-### AlSaqar_Internal_Source_Map.txt — line 1348
+### Match at line 4487 — MajedSoft-TRUE-Screen-Mapping.txt
 
-1346: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Groups.cs | 870 bytes
-1347: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Login.cs | 1233 bytes
-1348: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs | 871 bytes
-1349: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs | 302 bytes
-1350: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_SellPrice.cs | 129 bytes
+4485: 15657: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c
+4486: 15664: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass110_0
+4487: 15671: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass111_0
+4488: 15678: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass111_1
+4489: 15685: Class      : GTSErpSystem.Frms.Orders.FrmCashir+<>c__DisplayClass112_0
 
-### AlSaqar_Internal_Source_Map.txt — line 1349
 
-1347: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Login.cs | 1233 bytes
-1348: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs | 871 bytes
-1349: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs | 302 bytes
-1350: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_SellPrice.cs | 129 bytes
-1351: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\View_AccountsLastLeve.cs | 1259 bytes
-
-### AlSaqar_Internal_Source_Map.txt — line 3849
-
-3847:   LINE 5: public class User_Login
-3848: 
-3849: FILE: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs
-3850:   LINE 5: public class User_Permission
-3851: 
-
-### AlSaqar_Internal_Source_Map.txt — line 3850
-
-3848: 
-3849: FILE: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Permission.cs
-3850:   LINE 5: public class User_Permission
-3851: 
-3852: FILE: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs
-
-### AlSaqar_Internal_Source_Map.txt — line 3852
-
-3850:   LINE 5: public class User_Permission
-3851: 
-3852: FILE: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs
-3853:   LINE 3: public class User_Screens
-3854: 
-
-### AlSaqar_Internal_Source_Map.txt — line 3853
-
-3851: 
-3852: FILE: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_Screens.cs
-3853:   LINE 3: public class User_Screens
-3854: 
-3855: FILE: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\User_SellPrice.cs
-
-### AlSaqar_Internal_Source_Map.txt — line 7977
-
-7975: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Restaurant\Class_Table.cs:77 | public string GetUnitName(int Code)
-7976: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:7 | private GTSdbEntities db = new GTSdbEntities();
-7977: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:9 | public bool CheckUserPage(int GroupID, int ScreenID)
-7978: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:17 | public bool CheckUserPageEventSave(int GroupID, int ScreenID)
-7979: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:25 | public bool CheckUserPageEventEdit(int GroupID, int ScreenID)
-
-### AlSaqar_Internal_Source_Map.txt — line 7978
-
-7976: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:7 | private GTSdbEntities db = new GTSdbEntities();
-7977: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:9 | public bool CheckUserPage(int GroupID, int ScreenID)
-7978: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:17 | public bool CheckUserPageEventSave(int GroupID, int ScreenID)
-7979: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:25 | public bool CheckUserPageEventEdit(int GroupID, int ScreenID)
-7980: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Security\CheckPrvlg.cs:33 | public bool CheckUserPageEventDelete(int GroupID, int ScreenID)
-
-### GTSErp_SOURCE_MAP.txt — line 839
-
-837: \ufn_FindReports_Result.cs
-838: \User_Login.cs
-839: \User_Permission.cs
-840: \View_AccountsLastLeve.cs
-841: \View_Budget_Accounts.cs
-
-### MajedSoft-TRUE-Screen-Mapping.txt — line 5189
-
-5187: 21950: Class      : GTSErpSystem.User_Groups
-5188: 21957: Class      : GTSErpSystem.User_Login
-5189: 21964: Class      : GTSErpSystem.User_Permission
-5190: 21971: Class      : GTSErpSystem.User_Screens
-5191: 22027: Class      : GTSErpSystem.ViewAccount_Data
-
-### MajedSoft-TRUE-Screen-Mapping.txt — line 5190
-
-5188: 21957: Class      : GTSErpSystem.User_Login
-5189: 21964: Class      : GTSErpSystem.User_Permission
-5190: 21971: Class      : GTSErpSystem.User_Screens
-5191: 22027: Class      : GTSErpSystem.ViewAccount_Data
-5192: 22034: Class      : GTSErpSystem.ViewAccount_Data_Tree
-
-### MajedSoft-TRUE-Screen-Mapping.txt — line 7405
-
-7403: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\02-Classes.txt:21950: Class      : GTSErpSystem.User_Groups
-7404: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\02-Classes.txt:21957: Class      : GTSErpSystem.User_Login
-7405: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\02-Classes.txt:21964: Class      : GTSErpSystem.User_Permission
-7406: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\02-Classes.txt:21971: Class      : GTSErpSystem.User_Screens
-7407: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\03-Methods.txt:40: get_userId ->
-
-### MajedSoft-TRUE-Screen-Mapping.txt — line 7406
-
-7404: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\02-Classes.txt:21957: Class      : GTSErpSystem.User_Login
-7405: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\02-Classes.txt:21964: Class      : GTSErpSystem.User_Permission
-7406: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\02-Classes.txt:21971: Class      : GTSErpSystem.User_Screens
-7407: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\03-Methods.txt:40: get_userId ->
-7408: G:\ماجد سوفت\MajedSoft 04-08-2026\App\GTSErpSystem-Analysis\03-Methods.txt:72: get_AllowEdit -> System.Nullable`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]
-
-### MajedSoft-TRUE-Screen-Mapping.txt — line 7857
-
-7855: Screen / Menu
-7856:     ↓
-7857: User_Screens
-7858:     ↓
-7859: User_Permission / User_Groups
-
-### MajedSoft-TRUE-Screen-Mapping.txt — line 7859
-
-7857: User_Screens
-7858:     ↓
-7859: User_Permission / User_Groups
-7860:     ↓
-7861: BLL / DAL
-
-### MajedSoft_Build_Report.txt — line 407
-
-405: G:\ماجد سوفت\البرنامج\MajedSoft 08-07-2026\App\SourceCode\GTSErpSystem\User_Groups.cs                                                  
-406: G:\ماجد سوفت\البرنامج\MajedSoft 08-07-2026\App\SourceCode\GTSErpSystem\User_Login.cs                                                   
-407: G:\ماجد سوفت\البرنامج\MajedSoft 08-07-2026\App\SourceCode\GTSErpSystem\User_Permission.cs                                              
-408: G:\ماجد سوفت\البرنامج\MajedSoft 08-07-2026\App\SourceCode\GTSErpSystem\User_Screens.cs                                                 
-409: G:\ماجد سوفت\البرنامج\MajedSoft 08-07-2026\App\SourceCode\GTSErpSystem\User_SellPrice.cs                                               
-
-
-## Native type resolution and form launching
-
-### 05_CORE_SOURCE_REPORT.txt — line 235
-
-233: GTSErpSystem\FrmLogin.cs:519: select x).ToList();
-234: GTSErpSystem\FrmLogin.cs:532: select x).ToList();
-235: GTSErpSystem\FrmLogin.cs:545: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-236: GTSErpSystem\FrmLogin.cs:656: this.BtnDelete = new System.Windows.Forms.Button();
-237: GTSErpSystem\User_Groups.cs:35: public int? UserID_Update { get; set; }
-
-### 05_CORE_SOURCE_REPORT.txt — line 3410
-
-3408: ============================================================
-3409: GTSErpSystem\FrmActivtion.cs:77: FrmSqlConnection frmSqlConnection = new FrmSqlConnection();
-3410: GTSErpSystem\FrmLogin.cs:545: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3411: GTSErpSystem\FrmLogin3.cs:991: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3412: GTSErpSystem\Program.cs:54: Application.Run((Form)(object)new FrmSqlConnection());
-
-### 05_CORE_SOURCE_REPORT.txt — line 3411
-
-3409: GTSErpSystem\FrmActivtion.cs:77: FrmSqlConnection frmSqlConnection = new FrmSqlConnection();
-3410: GTSErpSystem\FrmLogin.cs:545: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3411: GTSErpSystem\FrmLogin3.cs:991: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3412: GTSErpSystem\Program.cs:54: Application.Run((Form)(object)new FrmSqlConnection());
-3413: GTSErpSystem\Frms\Account\FrmAccountTree.cs:338: NavDelete = new NavBarItem();
-
-### 05_CORE_SOURCE_REPORT.txt — line 3415
-
-3413: GTSErpSystem\Frms\Account\FrmAccountTree.cs:338: NavDelete = new NavBarItem();
-3414: GTSErpSystem\Frms\Account\FrmCostCenterTree.cs:385: NavDelete = new NavBarItem();
-3415: GTSErpSystem\Frms\FrmsHome\FrmActivation.cs:1729: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3416: GTSErpSystem\Frms\FrmsHome\FrmBlue.cs:1558: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3417: GTSErpSystem\Frms\FrmsHome\FrmGold.cs:1570: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-
-### 05_CORE_SOURCE_REPORT.txt — line 3416
-
-3414: GTSErpSystem\Frms\Account\FrmCostCenterTree.cs:385: NavDelete = new NavBarItem();
-3415: GTSErpSystem\Frms\FrmsHome\FrmActivation.cs:1729: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3416: GTSErpSystem\Frms\FrmsHome\FrmBlue.cs:1558: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3417: GTSErpSystem\Frms\FrmsHome\FrmGold.cs:1570: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3418: GTSErpSystem\Frms\FrmsHome\FrmGoldPlus.cs:1847: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-
-### 05_CORE_SOURCE_REPORT.txt — line 3417
-
-3415: GTSErpSystem\Frms\FrmsHome\FrmActivation.cs:1729: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3416: GTSErpSystem\Frms\FrmsHome\FrmBlue.cs:1558: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3417: GTSErpSystem\Frms\FrmsHome\FrmGold.cs:1570: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3418: GTSErpSystem\Frms\FrmsHome\FrmGoldPlus.cs:1847: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3419: GTSErpSystem\Frms\FrmsHome\FrmGoldPlusImportExport.cs:1715: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-
-### 05_CORE_SOURCE_REPORT.txt — line 3418
-
-3416: GTSErpSystem\Frms\FrmsHome\FrmBlue.cs:1558: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3417: GTSErpSystem\Frms\FrmsHome\FrmGold.cs:1570: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3418: GTSErpSystem\Frms\FrmsHome\FrmGoldPlus.cs:1847: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3419: GTSErpSystem\Frms\FrmsHome\FrmGoldPlusImportExport.cs:1715: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3420: GTSErpSystem\Frms\FrmsHome\FrmGoldPlusTransportation.cs:1740: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-
-### 05_CORE_SOURCE_REPORT.txt — line 3419
-
-3417: GTSErpSystem\Frms\FrmsHome\FrmGold.cs:1570: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3418: GTSErpSystem\Frms\FrmsHome\FrmGoldPlus.cs:1847: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3419: GTSErpSystem\Frms\FrmsHome\FrmGoldPlusImportExport.cs:1715: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3420: GTSErpSystem\Frms\FrmsHome\FrmGoldPlusTransportation.cs:1740: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-3421: GTSErpSystem\Frms\FrmsHome\FrmLight2.cs:1484: ((Form)(object)new FrmSqlConnection()).ShowDialog();
-
-### AlSaqar_Internal_Source_Map.txt — line 6890
-
-6888: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_Setting.cs:300 | public int DeleteRem(int id)
-6889: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_Setting.cs:312 | public int AddLoginLog(int userId, string macAddress, string appVersion, string databaseVersion)
-6890: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_WaitFormFunc.cs:13 | public void Show()
-6891: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_WaitFormFunc.cs:19 | public void Show(Form parent)
-6892: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_WaitFormFunc.cs:25 | public void Close()
-
-### AlSaqar_Internal_Source_Map.txt — line 6891
-
-6889: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_Setting.cs:312 | public int AddLoginLog(int userId, string macAddress, string appVersion, string databaseVersion)
-6890: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_WaitFormFunc.cs:13 | public void Show()
-6891: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_WaitFormFunc.cs:19 | public void Show(Form parent)
-6892: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_WaitFormFunc.cs:25 | public void Close()
-6893: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\BLL\Main\Class_WaitFormFunc.cs:35 | private void LoadingProcess()
-
-### AlSaqar_Internal_Source_Map.txt — line 22558
-
-22556: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\Frms\Reports\Account\FrmRPLeadgerSupp.cs:356 | private void SearchAccount()
-22557: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\Frms\Reports\Account\FrmRPLeadgerSupp.cs:377 | private void Print()
-22558: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\Frms\Reports\Account\FrmRPLeadgerSupp.cs:424 | private void OpenForm()
-22559: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\Frms\Reports\Account\FrmRPLeadgerSupp.cs:609 | private void MenuNew_Click(object sender, EventArgs e)
-22560: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem\Frms\Reports\Account\FrmRPLeadgerSupp.cs:614 | private void MenuSave_Click(object sender, EventArgs e)
-
-### AlSaqar_Internal_Source_Map.txt — line 41497
-
-41495:   LINE 18250: <member name="M:DevExpress.XtraEditors.XtraForm.ResumeLayout(System.Boolean)">
-41496:   LINE 18256: <member name="M:DevExpress.XtraEditors.XtraForm.ResumeRedraw">
-41497:   LINE 18261: <member name="M:DevExpress.XtraEditors.XtraForm.ShowDialog(System.Windows.Forms.IWin32Window)">
-41498:   LINE 18268: <member name="P:DevExpress.XtraEditors.XtraForm.ShowIcon">
-41499:   LINE 18270: <para>Gets or sets whether the <see cref="T:DevExpress.XtraEditors.XtraForm"/> shows its icon.</para>
-
-### AlSaqar_Internal_Source_Map.txt — line 44134
-
-44132:   LINE 9910: <para>Initializes a new instance of the <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> class with the specified settings.</para>
-44133:   LINE 9912: <param name="owner">A Form that will own the newly created <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/>.</param>
-44134:   LINE 9977: <member name="M:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog.Show(System.Windows.Forms.Form,System.String,System.String,System.Windows.Forms.MessageBoxButtons)">
-44135:   LINE 9984: <param name="buttons">A MessageBoxButtons enumerator value that specifies what buttons this <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> will display.</param>
-44136:   LINE 9987: <member name="M:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog.Show(System.Windows.Forms.Form,System.String,System.String,System.Windows.Forms.MessageBoxButtons,System.Windows.Forms.MessageBoxDefaultButton)">
-
-### AlSaqar_Internal_Source_Map.txt — line 44136
-
-44134:   LINE 9977: <member name="M:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog.Show(System.Windows.Forms.Form,System.String,System.String,System.Windows.Forms.MessageBoxButtons)">
-44135:   LINE 9984: <param name="buttons">A MessageBoxButtons enumerator value that specifies what buttons this <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> will display.</param>
-44136:   LINE 9987: <member name="M:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog.Show(System.Windows.Forms.Form,System.String,System.String,System.Windows.Forms.MessageBoxButtons,System.Windows.Forms.MessageBoxDefaultButton)">
-44137:   LINE 9994: <param name="buttons">A MessageBoxButtons enumerator value that specifies what buttons this <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> will display.</param>
-44138:   LINE 9995: <param name="defaultButton">A MessageBoxDefaultButton enumeration value that specifies which <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> button is the default one. A default button is considered as clicked when end-users press the Enter key as the <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> pops up.</param>
-
-### AlSaqar_Internal_Source_Map.txt — line 44139
-
-44137:   LINE 9994: <param name="buttons">A MessageBoxButtons enumerator value that specifies what buttons this <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> will display.</param>
-44138:   LINE 9995: <param name="defaultButton">A MessageBoxDefaultButton enumeration value that specifies which <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> button is the default one. A default button is considered as clicked when end-users press the Enter key as the <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> pops up.</param>
-44139:   LINE 9998: <member name="M:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog.Show(System.Windows.Forms.Form,System.String,System.Windows.Forms.Control,DevExpress.XtraBars.Docking2010.Views.WindowsUI.FlyoutProperties,System.Windows.Forms.MessageBoxButtons,System.Windows.Forms.MessageBoxDefaultButton)">
-44140:   LINE 10006: <param name="buttons">A MessageBoxButtons enumerator value that specifies what buttons this <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> will display.</param>
-44141:   LINE 10007: <param name="defaultButton">A MessageBoxDefaultButton enumeration value that specifies which <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> button is the default one. A default button is considered as clicked when end-users press the Enter key as the <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> pops up.</param>
-
-### AlSaqar_Internal_Source_Map.txt — line 44142
-
-44140:   LINE 10006: <param name="buttons">A MessageBoxButtons enumerator value that specifies what buttons this <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> will display.</param>
-44141:   LINE 10007: <param name="defaultButton">A MessageBoxDefaultButton enumeration value that specifies which <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> button is the default one. A default button is considered as clicked when end-users press the Enter key as the <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> pops up.</param>
-44142:   LINE 10010: <member name="M:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog.Show(System.Windows.Forms.Form,System.String,System.Windows.Forms.Control,System.Windows.Forms.MessageBoxButtons)">
-44143:   LINE 10017: <param name="buttons">A MessageBoxButtons enumerator value that specifies what buttons this <see cref="T:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog"/> will display.</param>
-44144:   LINE 10020: <member name="M:DevExpress.XtraBars.Docking2010.Customization.FlyoutDialog.Show(System.Windows.Forms.Form,System.String,System.Windows.Forms.Control,System.Windows.Forms.MessageBoxButtons,System.Windows.Forms.MessageBoxDefaultButton)">
-
-
-## High-value operational form names
-
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 690
+### Match at line 690 — 00_REAL_INTERNAL_UI_DESIGN.txt
 
 688: CONTROLS: 0
 689: 
@@ -452,7 +187,8 @@ This is evidence for implementation decisions, not a claim that the original pro
 691: NAMESPACE: GTSErpSystem.Frms.Orders
 692: TEXT: 
 
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 694
+
+### Match at line 694 — 00_REAL_INTERNAL_UI_DESIGN.txt
 
 692: TEXT: 
 693: SIZE:  x 
@@ -460,289 +196,1106 @@ This is evidence for implementation decisions, not a claim that the original pro
 695: CONTROLS: 0
 696: 
 
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 697
-
-695: CONTROLS: 0
-696: 
-697: SCREEN: FrmCashirPharm
-698: NAMESPACE: GTSErpSystem.Frms.Orders
-699: TEXT: 
 
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 701
-
-699: TEXT: 
-700: SIZE:  x 
-701: FILE: Frms\Orders\FrmCashirPharm.cs
-702: CONTROLS: 1
-703:   [GTSErpSystem.Frms.Orders.FrmOpenDay.FrmOpenDay] frmOpenDay | Text=[] | Location=[] | Size=[] | Dock=[] | Anchor=[]
+### Match at line 416 — GTSErp_SOURCE_MAP.txt
 
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 705
-
-703:   [GTSErpSystem.Frms.Orders.FrmOpenDay.FrmOpenDay] frmOpenDay | Text=[] | Location=[] | Size=[] | Dock=[] | Anchor=[]
-704: 
-705: SCREEN: FrmCashirRestaurant
-706: NAMESPACE: GTSErpSystem.Frms.FrmRestaurant
-707: TEXT: 
+414: \Frms\Orders\FrmCachMoney\FrmMoneyAjil.cs
+415: \Frms\Orders\FrmCachMoney\FrmMoneyCashier.cs
+416: \Frms\Orders\FrmCashir.cs
+417: \Frms\Orders\FrmCashirPharm.cs
+418: \Frms\Orders\FrmCashirWashing.cs
 
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 709
-
-707: TEXT: 
-708: SIZE:  x 
-709: FILE: Frms\FrmRestaurant\FrmCashirRestaurant.cs
-710: CONTROLS: 4
-711:   [Font] Font | Text=[] | Location=[] | Size=[] | Dock=[] | Anchor=[]
 
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 716
-
-714:   [TileItem] val | Text=[] | Location=[] | Size=[] | Dock=[] | Anchor=[]
-715: 
-716: SCREEN: FrmCashirWashing
-717: NAMESPACE: GTSErpSystem.Frms.Orders
-718: TEXT: 
+### Match at line 3038 — 05_CORE_SOURCE_REPORT.txt
 
-### 00_REAL_INTERNAL_UI_DESIGN.txt — line 720
-
-718: TEXT: 
-719: SIZE:  x 
-720: FILE: Frms\Orders\FrmCashirWashing.cs
-721: CONTROLS: 0
-722: 
+3036: GTSErpSystem\Frms\OrderRent\RentReports\FrmRentReports.cs:90: if (!CheckPermession.CheckUserPageEventPrint(LoginDetails.GroupID, 158))
+3037: GTSErpSystem\Frms\OrderRent\RentReports\FrmRentReports2.cs:69: if (!CheckPermession.CheckUserPageEventPrint(LoginDetails.GroupID, 158))
+3038: GTSErpSystem\Frms\Orders\FrmCashir.cs:2767: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 157);
+3039: GTSErpSystem\Frms\Orders\FrmCashir.cs:2768: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 157);
+3040: GTSErpSystem\Frms\Orders\FrmCashir.cs:3094: else if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 157))
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 96
-
-94: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenter.resx                                       52514 02/10/26 07:36:49 م .resx    
-95: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenterTree.resx                                   48306 02/10/26 07:36:49 م .resx    
-96: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictions.resx                               120289 02/10/26 07:36:49 م .resx    
-97: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest.resx                           115082 02/10/26 07:36:49 م .resx    
-98: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtAccount.resx                                   76316 02/10/26 07:36:49 م .resx    
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 97
-
-95: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenterTree.resx                                   48306 02/10/26 07:36:49 م .resx    
-96: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictions.resx                               120289 02/10/26 07:36:49 م .resx    
-97: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest.resx                           115082 02/10/26 07:36:49 م .resx    
-98: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtAccount.resx                                   76316 02/10/26 07:36:49 م .resx    
-99: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtCustomer.resx                                  63276 02/10/26 07:36:49 م .resx    
+### Match at line 3039 — 05_CORE_SOURCE_REPORT.txt
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 102
-
-100: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmOpenAccount.resx                                      44546 02/10/26 07:36:49 م .resx    
-101: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmPayment.resx                                          88665 02/10/26 07:36:49 م .resx    
-102: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmPaymentBig.resx                                      138106 02/10/26 07:36:49 م .resx    
-103: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmProjects.resx                                         78070 02/10/26 07:36:49 م .resx    
-104: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceipts.resx                                         92023 02/10/26 07:36:49 م .resx    
+3037: GTSErpSystem\Frms\OrderRent\RentReports\FrmRentReports2.cs:69: if (!CheckPermession.CheckUserPageEventPrint(LoginDetails.GroupID, 158))
+3038: GTSErpSystem\Frms\Orders\FrmCashir.cs:2767: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 157);
+3039: GTSErpSystem\Frms\Orders\FrmCashir.cs:2768: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 157);
+3040: GTSErpSystem\Frms\Orders\FrmCashir.cs:3094: else if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 157))
+3041: GTSErpSystem\Frms\Orders\FrmCashir.cs:3244: await resultElectronicInvoiceXmlService.AddResult(LoginDetails.UserID, LoginDetails.CsIdForUser, res, LoginDetails.BranchID, isSuccess, inv.OrderId, OrderDto.Purchases_Date.Value, inv.InvoiceTypeName, "مبيعات كاشير");
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 105
-
-103: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmProjects.resx                                         78070 02/10/26 07:36:49 م .resx    
-104: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceipts.resx                                         92023 02/10/26 07:36:49 م .resx    
-105: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceiptsBig.resx                                     140207 02/10/26 07:36:49 م .resx    
-106: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceiptsScaffolds.resx                                99298 02/10/26 07:36:50 م .resx    
-107: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.Search.FrmSearchAccount.resx                             21963 02/10/26 07:36:49 م .resx    
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 165
-
-163: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.ElctorncInvoic.SentInvoiceToZakat.resx                            5952 02/10/26 07:36:49 م .resx    
-164: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.FrmOthers.FrmRepair.resx                                          4818 02/10/26 07:36:49 م .resx    
-165: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.FrmRestaurant.FrmCashirRestaurant.resx                          326001 02/10/26 07:36:49 م .resx    
-166: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.FrmRestaurant.FrmDeliveryCollecting.resx                          6171 02/10/26 07:36:49 م .resx    
-167: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.FrmRestaurant.FrmEditRoom.resx                                    4194 02/10/26 07:36:49 م .resx    
+### Match at line 3040 — 05_CORE_SOURCE_REPORT.txt
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 242
-
-240: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderManufacturing.FrmSearch.FrmSearchManufacturing.resx         14536 02/10/26 07:36:50 م .resx    
-241: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderManufacturing.FrmSearch.FrmSearchManufacturingOrder.resx    14542 02/10/26 07:36:50 م .resx    
-242: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental.resx                              17262 02/10/26 07:36:50 م .resx    
-243: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderRent.FrmRecipt.resx                                         19809 02/10/26 07:36:50 م .resx    
-244: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderRent.FrmRecipt2.resx                                        18909 02/10/26 07:36:50 م .resx    
+3038: GTSErpSystem\Frms\Orders\FrmCashir.cs:2767: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 157);
+3039: GTSErpSystem\Frms\Orders\FrmCashir.cs:2768: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 157);
+3040: GTSErpSystem\Frms\Orders\FrmCashir.cs:3094: else if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 157))
+3041: GTSErpSystem\Frms\Orders\FrmCashir.cs:3244: await resultElectronicInvoiceXmlService.AddResult(LoginDetails.UserID, LoginDetails.CsIdForUser, res, LoginDetails.BranchID, isSuccess, inv.OrderId, OrderDto.Purchases_Date.Value, inv.InvoiceTypeName, "مبيعات كاشير");
+3042: GTSErpSystem\Frms\Orders\FrmCashir.cs:3344: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 157))
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 266
-
-264: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCachMoney.FrmMoneyCashier.resx                         82234 02/10/26 07:36:50 م .resx    
-265: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCars.resx                                               3408 02/10/26 07:36:50 م .resx    
-266: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashir.resx                                           577773 02/10/26 07:36:50 م .resx    
-267: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirPharm.resx                                       19174 02/10/26 07:36:50 م .resx    
-268: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWashing.resx                                    408207 02/10/26 07:36:50 م .resx    
 
-### 01_ORIGINAL_PROJECT_TREE.txt — line 267
-
-265: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCars.resx                                               3408 02/10/26 07:36:50 م .resx    
-266: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashir.resx                                           577773 02/10/26 07:36:50 م .resx    
-267: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirPharm.resx                                       19174 02/10/26 07:36:50 م .resx    
-268: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWashing.resx                                    408207 02/10/26 07:36:50 م .resx    
-269: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWithOutGroup.resx                               426010 02/10/26 07:36:50 م .resx    
+## Purchase Invoice — exact references
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 16
-
-14: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenter.resx                                     52514
-15: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenterTree.resx                                 48306
-16: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictions.resx                             120289
-17: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest.resx                         115082
-18: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtAccount.resx                                 76316
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 17
-
-15: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenterTree.resx                                 48306
-16: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictions.resx                             120289
-17: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest.resx                         115082
-18: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtAccount.resx                                 76316
-19: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtCustomer.resx                                63276
+### Match at line 1416 — MajedSoft-TRUE-Screen-Mapping.txt
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 22
-
-20: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmOpenAccount.resx                                    44546
-21: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmPayment.resx                                        88665
-22: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmPaymentBig.resx                                    138106
-23: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmProjects.resx                                       78070
-24: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceipts.resx                                       92023
+1414: Abstract   : False
+1415: --------------------------------------------
+1416: Name       : FrmPurchases
+1417: Full Name  : GTSErpSystem.Frms.Orders.FrmPurchases
+1418: Base Type  : DevExpress.XtraEditors.XtraForm
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 25
-
-23: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmProjects.resx                                       78070
-24: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceipts.resx                                       92023
-25: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceiptsBig.resx                                   140207
-26: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceiptsScaffolds.resx                              99298
-27: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.Search.FrmSearchAccount.resx                           21963
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 73
-
-71: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderManufacturing.FrmSearch.FrmSearchManufacturing.resx       14536
-72: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderManufacturing.FrmSearch.FrmSearchManufacturingOrder.resx  14542
-73: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental.resx                            17262
-74: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderRent.FrmRecipt.resx                                       19809
-75: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.OrderRent.FrmRecipt2.resx                                      18909
+### Match at line 1417 — MajedSoft-TRUE-Screen-Mapping.txt
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 97
-
-95: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCachMoney.FrmMoneyCashier.resx                       82234
-96: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCars.resx                                             3408
-97: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashir.resx                                         577773
-98: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirPharm.resx                                     19174
-99: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWashing.resx                                  408207
+1415: --------------------------------------------
+1416: Name       : FrmPurchases
+1417: Full Name  : GTSErpSystem.Frms.Orders.FrmPurchases
+1418: Base Type  : DevExpress.XtraEditors.XtraForm
+1419: Namespace  : GTSErpSystem.Frms.Orders
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 98
-
-96: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCars.resx                                             3408
-97: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashir.resx                                         577773
-98: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirPharm.resx                                     19174
-99: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWashing.resx                                  408207
-100: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWithOutGroup.resx                             426010
 
-### 04_ORIGINAL_ERP_MODULE_FILES.txt — line 99
-
-97: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashir.resx                                         577773
-98: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirPharm.resx                                     19174
-99: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWashing.resx                                  408207
-100: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCashirWithOutGroup.resx                             426010
-101: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Orders.FrmCheckOut.resx                                       170023
+### Match at line 4690 — MajedSoft-TRUE-Screen-Mapping.txt
 
-### 05_CORE_SOURCE_REPORT.txt — line 561
+4688: 17078: Class      : GTSErpSystem.Frms.Orders.FrmPurchaseOrder+<>c__DisplayClass73_0
+4689: 17085: Class      : GTSErpSystem.Frms.Orders.FrmPurchaseOrder+<>c__DisplayClass73_1
+4690: 17092: Class      : GTSErpSystem.Frms.Orders.FrmPurchases
+4691: 17099: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c
+4692: 17106: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass133_0
 
-559: GTSErpSystem\Frms\Account\FrmCostCenter.cs:368: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 2))
-560: GTSErpSystem\Frms\Account\FrmCostCenter.cs:419: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 2))
-561: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:244: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36);
-562: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:245: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36);
-563: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:719: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 36))
 
-### 05_CORE_SOURCE_REPORT.txt — line 562
+### Match at line 4691 — MajedSoft-TRUE-Screen-Mapping.txt
 
-560: GTSErpSystem\Frms\Account\FrmCostCenter.cs:419: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 2))
-561: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:244: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36);
-562: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:245: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36);
-563: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:719: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 36))
-564: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:779: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36))
+4689: 17085: Class      : GTSErpSystem.Frms.Orders.FrmPurchaseOrder+<>c__DisplayClass73_1
+4690: 17092: Class      : GTSErpSystem.Frms.Orders.FrmPurchases
+4691: 17099: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c
+4692: 17106: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass133_0
+4693: 17113: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass40_0
 
-### 05_CORE_SOURCE_REPORT.txt — line 563
 
-561: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:244: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36);
-562: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:245: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36);
-563: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:719: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 36))
-564: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:779: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36))
-565: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:850: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36))
+### Match at line 4692 — MajedSoft-TRUE-Screen-Mapping.txt
 
-### 05_CORE_SOURCE_REPORT.txt — line 564
+4690: 17092: Class      : GTSErpSystem.Frms.Orders.FrmPurchases
+4691: 17099: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c
+4692: 17106: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass133_0
+4693: 17113: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass40_0
+4694: 17120: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass57_0
 
-562: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:245: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36);
-563: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:719: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 36))
-564: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:779: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36))
-565: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:850: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36))
-566: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:953: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 36))
 
-### 05_CORE_SOURCE_REPORT.txt — line 565
+### Match at line 4693 — MajedSoft-TRUE-Screen-Mapping.txt
 
-563: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:719: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 36))
-564: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:779: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36))
-565: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:850: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36))
-566: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:953: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 36))
-567: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:1397: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 139))
+4691: 17099: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c
+4692: 17106: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass133_0
+4693: 17113: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass40_0
+4694: 17120: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass57_0
+4695: 17127: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass77_0
 
-### 05_CORE_SOURCE_REPORT.txt — line 566
 
-564: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:779: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 36))
-565: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:850: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36))
-566: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:953: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 36))
-567: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:1397: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 139))
-568: GTSErpSystem\Frms\Account\FrmDailyRestrictionsTest.cs:691: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 35))
+### Match at line 1727 — 00_REAL_INTERNAL_UI_DESIGN.txt
 
-### 05_CORE_SOURCE_REPORT.txt — line 567
+1725: CONTROLS: 0
+1726: 
+1727: SCREEN: FrmPurchases
+1728: NAMESPACE: GTSErpSystem.Frms.Orders
+1729: TEXT: 
 
-565: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:850: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 36))
-566: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:953: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 36))
-567: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:1397: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 139))
-568: GTSErpSystem\Frms\Account\FrmDailyRestrictionsTest.cs:691: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 35))
-569: GTSErpSystem\Frms\Account\FrmDailyRestrictionsTest.cs:751: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 35))
 
-### 05_CORE_SOURCE_REPORT.txt — line 568
+### Match at line 1731 — 00_REAL_INTERNAL_UI_DESIGN.txt
 
-566: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:953: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 36))
-567: GTSErpSystem\Frms\Account\FrmDailyRestrictions.cs:1397: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 139))
-568: GTSErpSystem\Frms\Account\FrmDailyRestrictionsTest.cs:691: if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 35))
-569: GTSErpSystem\Frms\Account\FrmDailyRestrictionsTest.cs:751: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 35))
-570: GTSErpSystem\Frms\Account\FrmDailyRestrictionsTest.cs:821: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 35))
+1729: TEXT: 
+1730: SIZE:  x 
+1731: FILE: Frms\Orders\FrmPurchases.cs
+1732: CONTROLS: 0
+1733: 
 
-### AlSaqar_Internal_Source_Map.txt — line 106
 
-104: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenter.resx | 52514 bytes
-105: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenterTree.resx | 48306 bytes
-106: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictions.resx | 120289 bytes
-107: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest.resx | 115082 bytes
-108: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtAccount.resx | 76316 bytes
+### Match at line 436 — GTSErp_SOURCE_MAP.txt
 
-### AlSaqar_Internal_Source_Map.txt — line 107
+434: \Frms\Orders\FrmPriceOffer.cs
+435: \Frms\Orders\FrmPurchaseOrder.cs
+436: \Frms\Orders\FrmPurchases.cs
+437: \Frms\Orders\FrmPurchasesReturn.cs
+438: \Frms\Orders\FrmPurchasesReturnNoPurchCode.cs
 
-105: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmCostCenterTree.resx | 48306 bytes
-106: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictions.resx | 120289 bytes
-107: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest.resx | 115082 bytes
-108: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtAccount.resx | 76316 bytes
-109: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmDefualtCustomer.resx | 63276 bytes
 
-### AlSaqar_Internal_Source_Map.txt — line 112
+### Match at line 3161 — 05_CORE_SOURCE_REPORT.txt
 
-110: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmOpenAccount.resx | 44546 bytes
-111: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmPayment.resx | 88665 bytes
-112: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmPaymentBig.resx | 138106 bytes
-113: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmProjects.resx | 78070 bytes
-114: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceipts.resx | 92023 bytes
+3159: GTSErpSystem\Frms\Orders\FrmPurchaseOrder.cs:2039: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 11))
+3160: GTSErpSystem\Frms\Orders\FrmPurchaseOrder.cs:2959: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 60))
+3161: GTSErpSystem\Frms\Orders\FrmPurchases.cs:740: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 13);
+3162: GTSErpSystem\Frms\Orders\FrmPurchases.cs:741: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 13);
+3163: GTSErpSystem\Frms\Orders\FrmPurchases.cs:2103: else if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 13))
 
-### AlSaqar_Internal_Source_Map.txt — line 115
 
-113: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmProjects.resx | 78070 bytes
-114: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceipts.resx | 92023 bytes
-115: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceiptsBig.resx | 140207 bytes
-116: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.FrmReceiptsScaffolds.resx | 99298 bytes
-117: G:\ماجد سوفت\MajedSoft 08-07-2026\App\GTSErpSystem_Source\GTSErpSystem.Frms.Account.Search.FrmSearchAccount.resx | 21963 bytes
+### Match at line 3162 — 05_CORE_SOURCE_REPORT.txt
 
+3160: GTSErpSystem\Frms\Orders\FrmPurchaseOrder.cs:2959: if (CheckPermession.CheckUserPage(LoginDetails.GroupID, 60))
+3161: GTSErpSystem\Frms\Orders\FrmPurchases.cs:740: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 13);
+3162: GTSErpSystem\Frms\Orders\FrmPurchases.cs:741: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 13);
+3163: GTSErpSystem\Frms\Orders\FrmPurchases.cs:2103: else if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 13))
+3164: GTSErpSystem\Frms\Orders\FrmPurchases.cs:2218: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 13))
 
-## Legacy route map keywords
 
-### MajedSoft-TRUE-Screen-Mapping.txt — line 2
+### Match at line 3163 — 05_CORE_SOURCE_REPORT.txt
 
-1: ============================================================
-2:  MAJEDSOFT - TRUE SCREEN MAPPING
-3: ============================================================
-4: DATE: 10/01/2026 11:30:08
+3161: GTSErpSystem\Frms\Orders\FrmPurchases.cs:740: bool flag = CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 13);
+3162: GTSErpSystem\Frms\Orders\FrmPurchases.cs:741: bool flag2 = CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 13);
+3163: GTSErpSystem\Frms\Orders\FrmPurchases.cs:2103: else if (CheckPermession.CheckUserPageEventSave(LoginDetails.GroupID, 13))
+3164: GTSErpSystem\Frms\Orders\FrmPurchases.cs:2218: if (CheckPermession.CheckUserPageEventEdit(LoginDetails.GroupID, 13))
+3165: GTSErpSystem\Frms\Orders\FrmPurchases.cs:2337: if (CheckPermession.CheckUserPageEventDelete(LoginDetails.GroupID, 13))
 
 
-## Interpretation guardrail
+## Sales Return — exact references
 
-Use exact names and parameters from these excerpts when mapping screens. Do not infer that a form works merely because its caption or type name resolves.
+
+### Match at line 1101 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1099: Abstract   : False
+1100: --------------------------------------------
+1101: Name       : FrmOrderReturnRental
+1102: Full Name  : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental
+1103: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 1102 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1100: --------------------------------------------
+1101: Name       : FrmOrderReturnRental
+1102: Full Name  : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental
+1103: Base Type  : DevExpress.XtraEditors.XtraForm
+1104: Namespace  : GTSErpSystem.Frms.OrderRent
+
+
+### Match at line 1360 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1358: Abstract   : False
+1359: --------------------------------------------
+1360: Name       : FrmOrderReturn
+1361: Full Name  : GTSErpSystem.Frms.Orders.FrmOrderReturn
+1362: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 1361 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1359: --------------------------------------------
+1360: Name       : FrmOrderReturn
+1361: Full Name  : GTSErpSystem.Frms.Orders.FrmOrderReturn
+1362: Base Type  : DevExpress.XtraEditors.XtraForm
+1363: Namespace  : GTSErpSystem.Frms.Orders
+
+
+### Match at line 4409 — MajedSoft-TRUE-Screen-Mapping.txt
+
+4407: 15111: Class      : GTSErpSystem.Frms.OrderManufacturing.FrmSearch.FrmSearchManufacturingOrder
+4408: 15118: Class      : GTSErpSystem.Frms.OrderRent.FrmItemRentDeatils
+4409: 15125: Class      : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental
+4410: 15132: Class      : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental+<>c
+4411: 15139: Class      : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental+<>c__DisplayClass24_0
+
+
+### Match at line 4410 — MajedSoft-TRUE-Screen-Mapping.txt
+
+4408: 15118: Class      : GTSErpSystem.Frms.OrderRent.FrmItemRentDeatils
+4409: 15125: Class      : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental
+4410: 15132: Class      : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental+<>c
+4411: 15139: Class      : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental+<>c__DisplayClass24_0
+4412: 15146: Class      : GTSErpSystem.Frms.OrderRent.FrmOrderReturnRental+<>c__DisplayClass27_0
+
+
+### Match at line 1484 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1482: CONTROLS: 0
+1483: 
+1484: SCREEN: FrmOrderReturn
+1485: NAMESPACE: GTSErpSystem.Frms.Orders
+1486: TEXT: 
+
+
+### Match at line 1488 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1486: TEXT: 
+1487: SIZE:  x 
+1488: FILE: Frms\Orders\FrmOrderReturn.cs
+1489: CONTROLS: 0
+1490: 
+
+
+### Match at line 1491 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1489: CONTROLS: 0
+1490: 
+1491: SCREEN: FrmOrderReturnRental
+1492: NAMESPACE: GTSErpSystem.Frms.OrderRent
+1493: TEXT: 
+
+
+### Match at line 1495 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1493: TEXT: 
+1494: SIZE:  x 
+1495: FILE: Frms\OrderRent\FrmOrderReturnRental.cs
+1496: CONTROLS: 0
+1497: 
+
+
+### Match at line 394 — GTSErp_SOURCE_MAP.txt
+
+392: \Frms\OrderManufacturing\FrmSearch\FrmSearchManufacturingOrder.cs
+393: \Frms\OrderRent\FrmItemRentDeatils.cs
+394: \Frms\OrderRent\FrmOrderReturnRental.cs
+395: \Frms\OrderRent\FrmRecipt.cs
+396: \Frms\OrderRent\FrmRecipt2.cs
+
+
+### Match at line 428 — GTSErp_SOURCE_MAP.txt
+
+426: \Frms\Orders\FrmOpenDay\FrmCloseDay.cs
+427: \Frms\Orders\FrmOpenQuantity.cs
+428: \Frms\Orders\FrmOrderReturn.cs
+429: \Frms\Orders\FrmOrders.cs
+430: \Frms\Orders\FrmOrdersDraft.cs
+
+
+## Purchase Return — exact references
+
+
+### Match at line 1423 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1421: Abstract   : False
+1422: --------------------------------------------
+1423: Name       : FrmPurchasesReturn
+1424: Full Name  : GTSErpSystem.Frms.Orders.FrmPurchasesReturn
+1425: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 1424 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1422: --------------------------------------------
+1423: Name       : FrmPurchasesReturn
+1424: Full Name  : GTSErpSystem.Frms.Orders.FrmPurchasesReturn
+1425: Base Type  : DevExpress.XtraEditors.XtraForm
+1426: Namespace  : GTSErpSystem.Frms.Orders
+
+
+### Match at line 1430 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1428: Abstract   : False
+1429: --------------------------------------------
+1430: Name       : FrmPurchasesReturnNoPurchCode
+1431: Full Name  : GTSErpSystem.Frms.Orders.FrmPurchasesReturnNoPurchCode
+1432: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 1431 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1429: --------------------------------------------
+1430: Name       : FrmPurchasesReturnNoPurchCode
+1431: Full Name  : GTSErpSystem.Frms.Orders.FrmPurchasesReturnNoPurchCode
+1432: Base Type  : DevExpress.XtraEditors.XtraForm
+1433: Namespace  : GTSErpSystem.Frms.Orders
+
+
+### Match at line 4705 — MajedSoft-TRUE-Screen-Mapping.txt
+
+4703: 17183: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass97_0
+4704: 17190: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass98_0
+4705: 17197: Class      : GTSErpSystem.Frms.Orders.FrmPurchasesReturn
+4706: 17204: Class      : GTSErpSystem.Frms.Orders.FrmPurchasesReturn+<>c
+4707: 17211: Class      : GTSErpSystem.Frms.Orders.FrmPurchasesReturn+<>c__DisplayClass34_0
+
+
+### Match at line 4706 — MajedSoft-TRUE-Screen-Mapping.txt
+
+4704: 17190: Class      : GTSErpSystem.Frms.Orders.FrmPurchases+<>c__DisplayClass98_0
+4705: 17197: Class      : GTSErpSystem.Frms.Orders.FrmPurchasesReturn
+4706: 17204: Class      : GTSErpSystem.Frms.Orders.FrmPurchasesReturn+<>c
+4707: 17211: Class      : GTSErpSystem.Frms.Orders.FrmPurchasesReturn+<>c__DisplayClass34_0
+4708: 17218: Class      : GTSErpSystem.Frms.Orders.FrmPurchasesReturn+<>c__DisplayClass42_0
+
+
+### Match at line 1734 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1732: CONTROLS: 0
+1733: 
+1734: SCREEN: FrmPurchasesReturn
+1735: NAMESPACE: GTSErpSystem.Frms.Orders
+1736: TEXT: 
+
+
+### Match at line 1738 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1736: TEXT: 
+1737: SIZE:  x 
+1738: FILE: Frms\Orders\FrmPurchasesReturn.cs
+1739: CONTROLS: 0
+1740: 
+
+
+### Match at line 1741 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1739: CONTROLS: 0
+1740: 
+1741: SCREEN: FrmPurchasesReturnNoPurchCode
+1742: NAMESPACE: GTSErpSystem.Frms.Orders
+1743: TEXT: 
+
+
+### Match at line 1745 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1743: TEXT: 
+1744: SIZE:  x 
+1745: FILE: Frms\Orders\FrmPurchasesReturnNoPurchCode.cs
+1746: CONTROLS: 0
+1747: 
+
+
+### Match at line 437 — GTSErp_SOURCE_MAP.txt
+
+435: \Frms\Orders\FrmPurchaseOrder.cs
+436: \Frms\Orders\FrmPurchases.cs
+437: \Frms\Orders\FrmPurchasesReturn.cs
+438: \Frms\Orders\FrmPurchasesReturnNoPurchCode.cs
+439: \Frms\Orders\FrmRecpItem.cs
+
+
+### Match at line 438 — GTSErp_SOURCE_MAP.txt
+
+436: \Frms\Orders\FrmPurchases.cs
+437: \Frms\Orders\FrmPurchasesReturn.cs
+438: \Frms\Orders\FrmPurchasesReturnNoPurchCode.cs
+439: \Frms\Orders\FrmRecpItem.cs
+440: \Frms\Orders\FrmReplace.cs
+
+
+## Receipt Voucher — exact references
+
+
+### Match at line 184 — MajedSoft-TRUE-Screen-Mapping.txt
+
+182: Abstract   : False
+183: --------------------------------------------
+184: Name       : FrmReceipts
+185: Full Name  : GTSErpSystem.Frms.Account.FrmReceipts
+186: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 185 — MajedSoft-TRUE-Screen-Mapping.txt
+
+183: --------------------------------------------
+184: Name       : FrmReceipts
+185: Full Name  : GTSErpSystem.Frms.Account.FrmReceipts
+186: Base Type  : DevExpress.XtraEditors.XtraForm
+187: Namespace  : GTSErpSystem.Frms.Account
+
+
+### Match at line 191 — MajedSoft-TRUE-Screen-Mapping.txt
+
+189: Abstract   : False
+190: --------------------------------------------
+191: Name       : FrmReceiptsBig
+192: Full Name  : GTSErpSystem.Frms.Account.FrmReceiptsBig
+193: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 192 — MajedSoft-TRUE-Screen-Mapping.txt
+
+190: --------------------------------------------
+191: Name       : FrmReceiptsBig
+192: Full Name  : GTSErpSystem.Frms.Account.FrmReceiptsBig
+193: Base Type  : DevExpress.XtraEditors.XtraForm
+194: Namespace  : GTSErpSystem.Frms.Account
+
+
+### Match at line 198 — MajedSoft-TRUE-Screen-Mapping.txt
+
+196: Abstract   : False
+197: --------------------------------------------
+198: Name       : FrmReceiptsScaffolds
+199: Full Name  : GTSErpSystem.Frms.Account.FrmReceiptsScaffolds
+200: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 199 — MajedSoft-TRUE-Screen-Mapping.txt
+
+197: --------------------------------------------
+198: Name       : FrmReceiptsScaffolds
+199: Full Name  : GTSErpSystem.Frms.Account.FrmReceiptsScaffolds
+200: Base Type  : DevExpress.XtraEditors.XtraForm
+201: Namespace  : GTSErpSystem.Frms.Account
+
+
+### Match at line 1781 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1779: CONTROLS: 0
+1780: 
+1781: SCREEN: FrmReceipts
+1782: NAMESPACE: GTSErpSystem.Frms.Account
+1783: TEXT: 
+
+
+### Match at line 1785 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1783: TEXT: 
+1784: SIZE:  x 
+1785: FILE: Frms\Account\FrmReceipts.cs
+1786: CONTROLS: 0
+1787: 
+
+
+### Match at line 1788 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1786: CONTROLS: 0
+1787: 
+1788: SCREEN: FrmReceiptsBig
+1789: NAMESPACE: GTSErpSystem.Frms.Account
+1790: TEXT: 
+
+
+### Match at line 1792 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1790: TEXT: 
+1791: SIZE:  x 
+1792: FILE: Frms\Account\FrmReceiptsBig.cs
+1793: CONTROLS: 0
+1794: 
+
+
+### Match at line 1795 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1793: CONTROLS: 0
+1794: 
+1795: SCREEN: FrmReceiptsScaffolds
+1796: NAMESPACE: GTSErpSystem.Frms.Account
+1797: TEXT: 
+
+
+### Match at line 1799 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1797: TEXT: 
+1798: SIZE:  x 
+1799: FILE: Frms\Account\FrmReceiptsScaffolds.cs
+1800: CONTROLS: 0
+1801: 
+
+
+## Payment Voucher — exact references
+
+
+### Match at line 163 — MajedSoft-TRUE-Screen-Mapping.txt
+
+161: Abstract   : False
+162: --------------------------------------------
+163: Name       : FrmPayment
+164: Full Name  : GTSErpSystem.Frms.Account.FrmPayment
+165: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 164 — MajedSoft-TRUE-Screen-Mapping.txt
+
+162: --------------------------------------------
+163: Name       : FrmPayment
+164: Full Name  : GTSErpSystem.Frms.Account.FrmPayment
+165: Base Type  : DevExpress.XtraEditors.XtraForm
+166: Namespace  : GTSErpSystem.Frms.Account
+
+
+### Match at line 170 — MajedSoft-TRUE-Screen-Mapping.txt
+
+168: Abstract   : False
+169: --------------------------------------------
+170: Name       : FrmPaymentBig
+171: Full Name  : GTSErpSystem.Frms.Account.FrmPaymentBig
+172: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 171 — MajedSoft-TRUE-Screen-Mapping.txt
+
+169: --------------------------------------------
+170: Name       : FrmPaymentBig
+171: Full Name  : GTSErpSystem.Frms.Account.FrmPaymentBig
+172: Base Type  : DevExpress.XtraEditors.XtraForm
+173: Namespace  : GTSErpSystem.Frms.Account
+
+
+### Match at line 1395 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1393: Abstract   : False
+1394: --------------------------------------------
+1395: Name       : FrmPaymentItem
+1396: Full Name  : GTSErpSystem.Frms.Orders.FrmPaymentItem
+1397: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 1396 — MajedSoft-TRUE-Screen-Mapping.txt
+
+1394: --------------------------------------------
+1395: Name       : FrmPaymentItem
+1396: Full Name  : GTSErpSystem.Frms.Orders.FrmPaymentItem
+1397: Base Type  : DevExpress.XtraEditors.XtraForm
+1398: Namespace  : GTSErpSystem.Frms.Orders
+
+
+### Match at line 1620 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1618: CONTROLS: 0
+1619: 
+1620: SCREEN: FrmPayment
+1621: NAMESPACE: GTSErpSystem.Frms.Account
+1622: TEXT: 
+
+
+### Match at line 1624 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1622: TEXT: 
+1623: SIZE:  x 
+1624: FILE: Frms\Account\FrmPayment.cs
+1625: CONTROLS: 0
+1626: 
+
+
+### Match at line 1627 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1625: CONTROLS: 0
+1626: 
+1627: SCREEN: FrmPaymentBig
+1628: NAMESPACE: GTSErpSystem.Frms.Account
+1629: TEXT: 
+
+
+### Match at line 1631 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1629: TEXT: 
+1630: SIZE:  x 
+1631: FILE: Frms\Account\FrmPaymentBig.cs
+1632: CONTROLS: 0
+1633: 
+
+
+### Match at line 1634 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1632: CONTROLS: 0
+1633: 
+1634: SCREEN: FrmPaymentItem
+1635: NAMESPACE: GTSErpSystem.Frms.Orders
+1636: TEXT: 
+
+
+### Match at line 1638 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+1636: TEXT: 
+1637: SIZE:  x 
+1638: FILE: Frms\Orders\FrmPaymentItem.cs
+1639: CONTROLS: 0
+1640: 
+
+
+## Journal Entry — exact references
+
+
+### Match at line 128 — MajedSoft-TRUE-Screen-Mapping.txt
+
+126: Abstract   : False
+127: --------------------------------------------
+128: Name       : FrmDailyRestrictions
+129: Full Name  : GTSErpSystem.Frms.Account.FrmDailyRestrictions
+130: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 129 — MajedSoft-TRUE-Screen-Mapping.txt
+
+127: --------------------------------------------
+128: Name       : FrmDailyRestrictions
+129: Full Name  : GTSErpSystem.Frms.Account.FrmDailyRestrictions
+130: Base Type  : DevExpress.XtraEditors.XtraForm
+131: Namespace  : GTSErpSystem.Frms.Account
+
+
+### Match at line 135 — MajedSoft-TRUE-Screen-Mapping.txt
+
+133: Abstract   : False
+134: --------------------------------------------
+135: Name       : FrmDailyRestrictionsTest
+136: Full Name  : GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest
+137: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 136 — MajedSoft-TRUE-Screen-Mapping.txt
+
+134: --------------------------------------------
+135: Name       : FrmDailyRestrictionsTest
+136: Full Name  : GTSErpSystem.Frms.Account.FrmDailyRestrictionsTest
+137: Base Type  : DevExpress.XtraEditors.XtraForm
+138: Namespace  : GTSErpSystem.Frms.Account
+
+
+### Match at line 3934 — MajedSoft-TRUE-Screen-Mapping.txt
+
+3932: 11786: Class      : GTSErpSystem.Frms.Account.FrmCostCenterTree+<>c__DisplayClass22_0
+3933: 11793: Class      : GTSErpSystem.Frms.Account.FrmCostCenterTree+<>c__DisplayClass5_0
+3934: 11800: Class      : GTSErpSystem.Frms.Account.FrmDailyRestrictions
+3935: 11807: Class      : GTSErpSystem.Frms.Account.FrmDailyRestrictions+<>c
+3936: 11814: Class      : GTSErpSystem.Frms.Account.FrmDailyRestrictions+<>c__DisplayClass24_0
+
+
+### Match at line 3935 — MajedSoft-TRUE-Screen-Mapping.txt
+
+3933: 11793: Class      : GTSErpSystem.Frms.Account.FrmCostCenterTree+<>c__DisplayClass5_0
+3934: 11800: Class      : GTSErpSystem.Frms.Account.FrmDailyRestrictions
+3935: 11807: Class      : GTSErpSystem.Frms.Account.FrmDailyRestrictions+<>c
+3936: 11814: Class      : GTSErpSystem.Frms.Account.FrmDailyRestrictions+<>c__DisplayClass24_0
+3937: 11821: Class      : GTSErpSystem.Frms.Account.FrmDailyRestrictions+<>c__DisplayClass46_0
+
+
+### Match at line 898 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+896: CONTROLS: 0
+897: 
+898: SCREEN: FrmDailyRestrictions
+899: NAMESPACE: GTSErpSystem.Frms.Account
+900: TEXT: 
+
+
+### Match at line 902 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+900: TEXT: 
+901: SIZE:  x 
+902: FILE: Frms\Account\FrmDailyRestrictions.cs
+903: CONTROLS: 0
+904: 
+
+
+### Match at line 905 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+903: CONTROLS: 0
+904: 
+905: SCREEN: FrmDailyRestrictionsTest
+906: NAMESPACE: GTSErpSystem.Frms.Account
+907: TEXT: 
+
+
+### Match at line 909 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+907: TEXT: 
+908: SIZE:  x 
+909: FILE: Frms\Account\FrmDailyRestrictionsTest.cs
+910: CONTROLS: 0
+911: 
+
+
+### Match at line 257 — GTSErp_SOURCE_MAP.txt
+
+255: \Frms\Account\FrmCostCenter.cs
+256: \Frms\Account\FrmCostCenterTree.cs
+257: \Frms\Account\FrmDailyRestrictions.cs
+258: \Frms\Account\FrmDailyRestrictionsTest.cs
+259: \Frms\Account\FrmDefualtAccount.cs
+
+
+### Match at line 258 — GTSErp_SOURCE_MAP.txt
+
+256: \Frms\Account\FrmCostCenterTree.cs
+257: \Frms\Account\FrmDailyRestrictions.cs
+258: \Frms\Account\FrmDailyRestrictionsTest.cs
+259: \Frms\Account\FrmDefualtAccount.cs
+260: \Frms\Account\FrmDefualtCustomer.cs
+
+
+## Item Movement Report — exact references
+
+
+### Match at line 2298 — MajedSoft-TRUE-Screen-Mapping.txt
+
+2296: Abstract   : False
+2297: --------------------------------------------
+2298: Name       : FrmRPMovementItem
+2299: Full Name  : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItem
+2300: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 2299 — MajedSoft-TRUE-Screen-Mapping.txt
+
+2297: --------------------------------------------
+2298: Name       : FrmRPMovementItem
+2299: Full Name  : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItem
+2300: Base Type  : DevExpress.XtraEditors.XtraForm
+2301: Namespace  : GTSErpSystem.Frms.Reports.Stores
+
+
+### Match at line 2305 — MajedSoft-TRUE-Screen-Mapping.txt
+
+2303: Abstract   : False
+2304: --------------------------------------------
+2305: Name       : FrmRPMovementItemActive
+2306: Full Name  : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItemActive
+2307: Base Type  : DevExpress.XtraEditors.XtraForm
+
+
+### Match at line 2306 — MajedSoft-TRUE-Screen-Mapping.txt
+
+2304: --------------------------------------------
+2305: Name       : FrmRPMovementItemActive
+2306: Full Name  : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItemActive
+2307: Base Type  : DevExpress.XtraEditors.XtraForm
+2308: Namespace  : GTSErpSystem.Frms.Reports.Stores
+
+
+### Match at line 4965 — MajedSoft-TRUE-Screen-Mapping.txt
+
+4963: 19003: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPItemLimit
+4964: 19010: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementAllItemActive
+4965: 19017: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItem
+4966: 19024: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItemActive
+4967: 19031: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPStoresGard
+
+
+### Match at line 4966 — MajedSoft-TRUE-Screen-Mapping.txt
+
+4964: 19010: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementAllItemActive
+4965: 19017: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItem
+4966: 19024: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPMovementItemActive
+4967: 19031: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPStoresGard
+4968: 19038: Class      : GTSErpSystem.Frms.Reports.Stores.FrmRPStoresGardbyProperties
+
+
+### Match at line 2127 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+2125: CONTROLS: 0
+2126: 
+2127: SCREEN: FrmRPMovementItem
+2128: NAMESPACE: GTSErpSystem.Frms.Reports.Stores
+2129: TEXT: 
+
+
+### Match at line 2131 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+2129: TEXT: 
+2130: SIZE:  x 
+2131: FILE: Frms\Reports\Stores\FrmRPMovementItem.cs
+2132: CONTROLS: 6
+2133:   [SqlDataAdapter] sqlDataAdapter | Text=[] | Location=[] | Size=[] | Dock=[] | Anchor=[]
+
+
+### Match at line 2140 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+2138:   [StiReport] val | Text=[] | Location=[] | Size=[] | Dock=[] | Anchor=[]
+2139: 
+2140: SCREEN: FrmRPMovementItemActive
+2141: NAMESPACE: GTSErpSystem.Frms.Reports.Stores
+2142: TEXT: 
+
+
+### Match at line 2144 — 00_REAL_INTERNAL_UI_DESIGN.txt
+
+2142: TEXT: 
+2143: SIZE:  x 
+2144: FILE: Frms\Reports\Stores\FrmRPMovementItemActive.cs
+2145: CONTROLS: 6
+2146:   [SqlDataAdapter] sqlDataAdapter | Text=[] | Location=[] | Size=[] | Dock=[] | Anchor=[]
+
+
+### Match at line 559 — GTSErp_SOURCE_MAP.txt
+
+557: \Frms\Reports\Stores\FrmRPItemLimit.cs
+558: \Frms\Reports\Stores\FrmRPMovementAllItemActive.cs
+559: \Frms\Reports\Stores\FrmRPMovementItem.cs
+560: \Frms\Reports\Stores\FrmRPMovementItemActive.cs
+561: \Frms\Reports\Stores\FrmRPStoresGard.cs
+
+
+### Match at line 560 — GTSErp_SOURCE_MAP.txt
+
+558: \Frms\Reports\Stores\FrmRPMovementAllItemActive.cs
+559: \Frms\Reports\Stores\FrmRPMovementItem.cs
+560: \Frms\Reports\Stores\FrmRPMovementItemActive.cs
+561: \Frms\Reports\Stores\FrmRPStoresGard.cs
+562: \Frms\Reports\Stores\FrmRPStoresGardbyProperties.cs
+
+
+## Routing and permission implementation references
+
+
+### Routing match at line 90 — 05_CORE_SOURCE_REPORT.txt
+
+88: 	public void DeletePermission(int GPID)
+89: 	{
+90: 		List<User_Permission> list = ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GPID).ToList();
+91: 		if (list == null)
+92: 		{
+
+
+### Routing match at line 95 — 05_CORE_SOURCE_REPORT.txt
+
+93: 			return;
+94: 		}
+95: 		foreach (User_Permission item in list)
+96: 		{
+97: 			db.User_Permission.Attach(item);
+
+
+### Routing match at line 97 — 05_CORE_SOURCE_REPORT.txt
+
+95: 		foreach (User_Permission item in list)
+96: 		{
+97: 			db.User_Permission.Attach(item);
+98: 			db.User_Permission.Remove(item);
+99: 		}
+
+
+### Routing match at line 98 — 05_CORE_SOURCE_REPORT.txt
+
+96: 		{
+97: 			db.User_Permission.Attach(item);
+98: 			db.User_Permission.Remove(item);
+99: 		}
+100: 		((DbContext)db).SaveChanges();
+
+
+### Routing match at line 135 — 05_CORE_SOURCE_REPORT.txt
+
+133: 	}
+134: 
+135: 	public List<User_Screens> GetAllGroupsPermaion()
+136: 	{
+137: 		return ((IQueryable<User_Screens>)db.User_Screens).Where((User_Screens x) => x.ISShow == (bool?)true).ToList();
+
+
+### Routing match at line 137 — 05_CORE_SOURCE_REPORT.txt
+
+135: 	public List<User_Screens> GetAllGroupsPermaion()
+136: 	{
+137: 		return ((IQueryable<User_Screens>)db.User_Screens).Where((User_Screens x) => x.ISShow == (bool?)true).ToList();
+138: 	}
+139: 
+
+
+### Routing match at line 140 — 05_CORE_SOURCE_REPORT.txt
+
+138: 	}
+139: 
+140: 	public List<User_Permission> GetPermassionByGroupID(int GroupId)
+141: 	{
+142: 		return ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GroupId).ToList();
+
+
+### Routing match at line 142 — 05_CORE_SOURCE_REPORT.txt
+
+140: 	public List<User_Permission> GetPermassionByGroupID(int GroupId)
+141: 	{
+142: 		return ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GroupId).ToList();
+143: 	}
+144: 
+
+
+### Routing match at line 153 — 05_CORE_SOURCE_REPORT.txt
+
+151: 	{
+152: 		int num = 0;
+153: 		User_Permission user_Permission = ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GroupID && x.ScreenID == (int?)ScreenID).FirstOrDefault();
+154: 		if (user_Permission == null)
+155: 		{
+
+
+### Routing match at line 154 — 05_CORE_SOURCE_REPORT.txt
+
+152: 		int num = 0;
+153: 		User_Permission user_Permission = ((IQueryable<User_Permission>)db.User_Permission).Where((User_Permission x) => x.GroupID == (int?)GroupID && x.ScreenID == (int?)ScreenID).FirstOrDefault();
+154: 		if (user_Permission == null)
+155: 		{
+156: 			int iD = Convert.ToInt32(((IQueryable<User_Permission>)db.User_Permission).Select((User_Permission p) => p.ID).DefaultIfEmpty(0).Max()) + 1;
+
+
+### Routing match at line 156 — 05_CORE_SOURCE_REPORT.txt
+
+154: 		if (user_Permission == null)
+155: 		{
+156: 			int iD = Convert.ToInt32(((IQueryable<User_Permission>)db.User_Permission).Select((User_Permission p) => p.ID).DefaultIfEmpty(0).Max()) + 1;
+157: 			User_Permission user_Permission2 = new User_Permission();
+158: 			user_Permission2.ID = iD;
+
+
+### Routing match at line 157 — 05_CORE_SOURCE_REPORT.txt
+
+155: 		{
+156: 			int iD = Convert.ToInt32(((IQueryable<User_Permission>)db.User_Permission).Select((User_Permission p) => p.ID).DefaultIfEmpty(0).Max()) + 1;
+157: 			User_Permission user_Permission2 = new User_Permission();
+158: 			user_Permission2.ID = iD;
+159: 			user_Permission2.GroupID = GroupID;
+
+
+### Routing match at line 158 — 05_CORE_SOURCE_REPORT.txt
+
+156: 			int iD = Convert.ToInt32(((IQueryable<User_Permission>)db.User_Permission).Select((User_Permission p) => p.ID).DefaultIfEmpty(0).Max()) + 1;
+157: 			User_Permission user_Permission2 = new User_Permission();
+158: 			user_Permission2.ID = iD;
+159: 			user_Permission2.GroupID = GroupID;
+160: 			user_Permission2.ScreenID = ScreenID;
+
+
+### Routing match at line 159 — 05_CORE_SOURCE_REPORT.txt
+
+157: 			User_Permission user_Permission2 = new User_Permission();
+158: 			user_Permission2.ID = iD;
+159: 			user_Permission2.GroupID = GroupID;
+160: 			user_Permission2.ScreenID = ScreenID;
+161: 			user_Permission2.Allow_Enter = Allow_Enter;
+
+
+### Routing match at line 160 — 05_CORE_SOURCE_REPORT.txt
+
+158: 			user_Permission2.ID = iD;
+159: 			user_Permission2.GroupID = GroupID;
+160: 			user_Permission2.ScreenID = ScreenID;
+161: 			user_Permission2.Allow_Enter = Allow_Enter;
+162: 			user_Permission2.Allow_Save = Allow_Save;
+
+
+### Routing match at line 161 — 05_CORE_SOURCE_REPORT.txt
+
+159: 			user_Permission2.GroupID = GroupID;
+160: 			user_Permission2.ScreenID = ScreenID;
+161: 			user_Permission2.Allow_Enter = Allow_Enter;
+162: 			user_Permission2.Allow_Save = Allow_Save;
+163: 			user_Permission2.Allow_Edit = Allow_Edit;
+
+
+### Routing match at line 162 — 05_CORE_SOURCE_REPORT.txt
+
+160: 			user_Permission2.ScreenID = ScreenID;
+161: 			user_Permission2.Allow_Enter = Allow_Enter;
+162: 			user_Permission2.Allow_Save = Allow_Save;
+163: 			user_Permission2.Allow_Edit = Allow_Edit;
+164: 			user_Permission2.Allow_Delete = Allow_Delete;
+
+
+### Routing match at line 163 — 05_CORE_SOURCE_REPORT.txt
+
+161: 			user_Permission2.Allow_Enter = Allow_Enter;
+162: 			user_Permission2.Allow_Save = Allow_Save;
+163: 			user_Permission2.Allow_Edit = Allow_Edit;
+164: 			user_Permission2.Allow_Delete = Allow_Delete;
+165: 			user_Permission2.Allow_Print = Allow_Print;
+
+
+### Routing match at line 164 — 05_CORE_SOURCE_REPORT.txt
+
+162: 			user_Permission2.Allow_Save = Allow_Save;
+163: 			user_Permission2.Allow_Edit = Allow_Edit;
+164: 			user_Permission2.Allow_Delete = Allow_Delete;
+165: 			user_Permission2.Allow_Print = Allow_Print;
+166: 			user_Permission2.Allow_Export = Allow_Export;
+
+
+### Routing match at line 165 — 05_CORE_SOURCE_REPORT.txt
+
+163: 			user_Permission2.Allow_Edit = Allow_Edit;
+164: 			user_Permission2.Allow_Delete = Allow_Delete;
+165: 			user_Permission2.Allow_Print = Allow_Print;
+166: 			user_Permission2.Allow_Export = Allow_Export;
+167: 			user_Permission2.UserID_Add = LoginDetails.UserID;
+
+
+### Routing match at line 166 — 05_CORE_SOURCE_REPORT.txt
+
+164: 			user_Permission2.Allow_Delete = Allow_Delete;
+165: 			user_Permission2.Allow_Print = Allow_Print;
+166: 			user_Permission2.Allow_Export = Allow_Export;
+167: 			user_Permission2.UserID_Add = LoginDetails.UserID;
+168: 			user_Permission2.UserBranch_Add = LoginDetails.BranchID;
+
+
+### Routing match at line 167 — 05_CORE_SOURCE_REPORT.txt
+
+165: 			user_Permission2.Allow_Print = Allow_Print;
+166: 			user_Permission2.Allow_Export = Allow_Export;
+167: 			user_Permission2.UserID_Add = LoginDetails.UserID;
+168: 			user_Permission2.UserBranch_Add = LoginDetails.BranchID;
+169: 			user_Permission2.UserMacAddress_Add = LoginDetails.macAddress;
+
+
+### Routing match at line 168 — 05_CORE_SOURCE_REPORT.txt
+
+166: 			user_Permission2.Allow_Export = Allow_Export;
+167: 			user_Permission2.UserID_Add = LoginDetails.UserID;
+168: 			user_Permission2.UserBranch_Add = LoginDetails.BranchID;
+169: 			user_Permission2.UserMacAddress_Add = LoginDetails.macAddress;
+170: 			user_Permission2.UserDate_Add = DateTime.Now;
+
+
+### Routing match at line 169 — 05_CORE_SOURCE_REPORT.txt
+
+167: 			user_Permission2.UserID_Add = LoginDetails.UserID;
+168: 			user_Permission2.UserBranch_Add = LoginDetails.BranchID;
+169: 			user_Permission2.UserMacAddress_Add = LoginDetails.macAddress;
+170: 			user_Permission2.UserDate_Add = DateTime.Now;
+171: 			db.User_Permission.Add(user_Permission2);
+
+
+### Routing match at line 170 — 05_CORE_SOURCE_REPORT.txt
+
+168: 			user_Permission2.UserBranch_Add = LoginDetails.BranchID;
+169: 			user_Permission2.UserMacAddress_Add = LoginDetails.macAddress;
+170: 			user_Permission2.UserDate_Add = DateTime.Now;
+171: 			db.User_Permission.Add(user_Permission2);
+172: 			return ((DbContext)db).SaveChanges();
+
+
+### Routing match at line 171 — 05_CORE_SOURCE_REPORT.txt
+
+169: 			user_Permission2.UserMacAddress_Add = LoginDetails.macAddress;
+170: 			user_Permission2.UserDate_Add = DateTime.Now;
+171: 			db.User_Permission.Add(user_Permission2);
+172: 			return ((DbContext)db).SaveChanges();
+173: 		}
+
+
+### Routing match at line 174 — 05_CORE_SOURCE_REPORT.txt
+
+172: 			return ((DbContext)db).SaveChanges();
+173: 		}
+174: 		user_Permission.Allow_Enter = Allow_Enter;
+175: 		user_Permission.Allow_Save = Allow_Save;
+176: 		user_Permission.Allow_Edit = Allow_Edit;
+
+
+### Routing match at line 175 — 05_CORE_SOURCE_REPORT.txt
+
+173: 		}
+174: 		user_Permission.Allow_Enter = Allow_Enter;
+175: 		user_Permission.Allow_Save = Allow_Save;
+176: 		user_Permission.Allow_Edit = Allow_Edit;
+177: 		user_Permission.Allow_Delete = Allow_Delete;
+
+
+### Routing match at line 176 — 05_CORE_SOURCE_REPORT.txt
+
+174: 		user_Permission.Allow_Enter = Allow_Enter;
+175: 		user_Permission.Allow_Save = Allow_Save;
+176: 		user_Permission.Allow_Edit = Allow_Edit;
+177: 		user_Permission.Allow_Delete = Allow_Delete;
+178: 		user_Permission.Allow_Print = Allow_Print;
+
+
+### Routing match at line 177 — 05_CORE_SOURCE_REPORT.txt
+
+175: 		user_Permission.Allow_Save = Allow_Save;
+176: 		user_Permission.Allow_Edit = Allow_Edit;
+177: 		user_Permission.Allow_Delete = Allow_Delete;
+178: 		user_Permission.Allow_Print = Allow_Print;
+179: 		user_Permission.Allow_Export = Allow_Export;
+
+
+### Routing match at line 178 — 05_CORE_SOURCE_REPORT.txt
+
+176: 		user_Permission.Allow_Edit = Allow_Edit;
+177: 		user_Permission.Allow_Delete = Allow_Delete;
+178: 		user_Permission.Allow_Print = Allow_Print;
+179: 		user_Permission.Allow_Export = Allow_Export;
+180: 		user_Permission.UserID_Update = LoginDetails.UserID;
+
+
+### Routing match at line 179 — 05_CORE_SOURCE_REPORT.txt
+
+177: 		user_Permission.Allow_Delete = Allow_Delete;
+178: 		user_Permission.Allow_Print = Allow_Print;
+179: 		user_Permission.Allow_Export = Allow_Export;
+180: 		user_Permission.UserID_Update = LoginDetails.UserID;
+181: 		user_Permission.UserBranch_Update = LoginDetails.GroupID;
