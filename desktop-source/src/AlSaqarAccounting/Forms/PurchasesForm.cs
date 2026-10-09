@@ -51,7 +51,7 @@ public sealed class PurchasesForm : BrowseScreenBase
         AddButton(toolbar, "مورد جديد", Access.AllowEnter, async () => await OpenRelatedAsync("الموردون"));
 
         AddButton(toolbar, "طباعة", Access.AllowPrint, async () => await PrintSelectedInvoiceAsync());
-        AddButton(toolbar, "تعديل الفاتورة", Access.AllowSave, async () => await EditSelectedInvoiceAsync());
+        AddButton(toolbar, "تعديل الفاتورة", Access.AllowEdit, async () => await EditSelectedInvoiceAsync());
 
 
         AddButton(toolbar, "مرتجع مشتريات", Access.AllowEnter, async () => await OpenRelatedAsync("مرتجعات المشتريات بفاتورة"));
