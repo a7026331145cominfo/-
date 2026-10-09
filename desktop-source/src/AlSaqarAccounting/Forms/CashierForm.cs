@@ -548,10 +548,18 @@ public sealed class CashierForm : Form
         }
 
         if (!decimal.TryParse(_quantityText.Text, out var quantity))
-            quantity = 1m;
+        {
+            MessageBox.Show(this, "أدخل كمية رقمية صحيحة.", "كمية الصنف",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
 
         if (!decimal.TryParse(_discountText.Text, out var discount))
-            discount = 0m;
+        {
+            MessageBox.Show(this, "أدخل خصماً رقمياً صحيحاً.", "خصم الصنف",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
 
         if (quantity <= 0m)
         {
