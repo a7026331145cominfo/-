@@ -25,6 +25,11 @@ public sealed class MainForm : Form
     private readonly ToolStripStatusLabel _clock = new();
 
     private readonly Panel _header = new();
+    private readonly Panel _body = new()
+    {
+        Dock = DockStyle.Fill,
+        BackColor = ErpTheme.SurfaceSoft
+    };
     // Keep the dashboard separate from the MDI client so child screens are visible and clickable.
     private readonly Panel _workspace = new()
     {
@@ -97,8 +102,12 @@ public sealed class MainForm : Form
         BuildStatus();
 
         _workspace.Controls.Add(_home);
-        Controls.Add(_workspace);
-        Controls.Add(_screenBar);
+        _body.Controls.Add(_workspace);
+        _body.Controls.Add(_screenBar);
+
+        // Right-to-left ERP shell: fixed module sidebar, top application header,
+        // and a dedicated body that contains the module screens and dashboard.
+        Controls.Add(_body);
         Controls.Add(_servicesBar);
         Controls.Add(_header);
         Controls.Add(_statusStrip);
@@ -119,7 +128,7 @@ public sealed class MainForm : Form
         _header.Padding = new Padding(18, 10, 18, 10);
         _header.BorderStyle = BorderStyle.None;
 
-        var brandPanel = new Panel { Dock = DockStyle.Right, Width = 300, Padding = new Padding(4) };
+        var brandPanel = new Panel { Dock = DockStyle.Right, Width = 238, Padding = new Padding(4) };
         var brand = new Label
         {
             Text = "الصقر للمحاسبة",
@@ -141,7 +150,7 @@ public sealed class MainForm : Form
         brandPanel.Controls.Add(subtitle);
         brandPanel.Controls.Add(brand);
 
-        var userPanel = new Panel { Dock = DockStyle.Left, Width = 305, Padding = new Padding(6, 2, 6, 2) };
+        var userPanel = new Panel { Dock = DockStyle.Left, Width = 208, Padding = new Padding(6, 2, 6, 2) };
         var userLine = new Label
         {
             Text = $"المستخدم: {_session.UserName}",
@@ -181,7 +190,7 @@ public sealed class MainForm : Form
             Margin = new Padding(4, 10, 18, 0)
         };
 
-        _search.Width = 320;
+        _search.Width = 220;
         _search.Height = 28;
         _search.Font = new Font("Tahoma", 9.5f);
         _search.RightToLeft = RightToLeft.Yes;
@@ -215,28 +224,29 @@ public sealed class MainForm : Form
 
     private void BuildServicesBar()
     {
-        _servicesBar.Dock = DockStyle.Top;
-        _servicesBar.Height = 58;
-        _servicesBar.FlowDirection = FlowDirection.RightToLeft;
+        _servicesBar.Dock = DockStyle.Right;
+        _servicesBar.Width = 246;
+        _servicesBar.FlowDirection = FlowDirection.TopDown;
         _servicesBar.WrapContents = false;
         _servicesBar.AutoScroll = true;
-        _servicesBar.Padding = new Padding(10, 7, 10, 7);
-        _servicesBar.BackColor = Color.White;
+        _servicesBar.Padding = new Padding(10, 14, 10, 12);
+        _servicesBar.BackColor = ErpTheme.Navigation;
         _servicesBar.RightToLeft = RightToLeft.Yes;
-        _servicesBar.BorderStyle = BorderStyle.FixedSingle;
+        _servicesBar.BorderStyle = BorderStyle.None;
     }
 
     private void BuildScreenBar()
     {
         _screenBar.Dock = DockStyle.Top;
-        _screenBar.Height = 50;
+        _screenBar.Height = 52;
         _screenBar.FlowDirection = FlowDirection.RightToLeft;
         _screenBar.WrapContents = false;
         _screenBar.AutoScroll = true;
-        _screenBar.Padding = new Padding(10, 5, 10, 5);
-        _screenBar.BackColor = Color.White;
+        _screenBar.Padding = new Padding(12, 7, 12, 7);
+        _screenBar.BackColor = ErpTheme.Surface;
         _screenBar.RightToLeft = RightToLeft.Yes;
         _screenBar.BorderStyle = BorderStyle.FixedSingle;
+        _screenBar.Visible = false;
     }
 
     private void BuildStatus()
@@ -248,7 +258,8 @@ public sealed class MainForm : Form
         _clock.Spring = true;
         _clock.TextAlign = ContentAlignment.MiddleLeft;
         _statusStrip.BackColor = Color.White;
-        _statusStrip.ForeColor = Color.Black;
+        _statusStrip.ForeColor = ErpTheme.Text;
+        _statusStrip.SizingGrip = false;
 
         _statusStrip.Items.Add(_status);
         _statusStrip.Items.Add(new ToolStripStatusLabel { Text = "│", ForeColor = Color.Black });
@@ -278,7 +289,30 @@ public sealed class MainForm : Form
 
     private void RebuildServicesBar()
     {
+        _servicesBar.SuspendLayout();
         _servicesBar.Controls.Clear();
+
+        _servicesBar.Controls.Add(new Label
+        {
+            Text = "القائمة الرئيسية",
+            Width = 214,
+            Height = 34,
+            Margin = new Padding(2, 0, 2, 8),
+            Font = new Font("Tahoma", 11f, FontStyle.Bold),
+            ForeColor = Color.White,
+            TextAlign = ContentAlignment.MiddleRight
+        });
+        _servicesBar.Controls.Add(new Label
+        {
+            Text = "الأقسام والوحدات",
+            Width = 214,
+            Height = 24,
+            Margin = new Padding(2, 0, 2, 8),
+            Font = new Font("Tahoma", 8.5f, FontStyle.Regular),
+            ForeColor = ErpTheme.NavigationMuted,
+            TextAlign = ContentAlignment.MiddleRight
+        });
+
         var available = _screens.Where(s => s.AllowEnter)
             .Select(s => s.ModuleDisplayName)
             .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -296,12 +330,14 @@ public sealed class MainForm : Form
             var active = string.Equals(service, _selectedService, StringComparison.OrdinalIgnoreCase);
             var button = new Button
             {
-                Text = $"{GetServiceIcon(service)}  {service}",
+                Text = $"{GetServiceIcon(service)}    {service}",
                 Tag = service,
-                Width = Math.Max(118, Math.Min(180, 34 + (service.Length * 8))),
-                Height = 40,
-                Margin = new Padding(4, 2, 4, 2),
-                Font = new Font("Tahoma", 9f, FontStyle.Bold)
+                Width = 214,
+                Height = 44,
+                Margin = new Padding(2, 3, 2, 3),
+                Font = new Font("Tahoma", 9.5f, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleRight,
+                RightToLeft = RightToLeft.Yes
             };
 
             ConfigureServiceButton(button, active);
@@ -315,19 +351,21 @@ public sealed class MainForm : Form
             };
             _servicesBar.Controls.Add(button);
         }
+
+        _servicesBar.ResumeLayout(true);
     }
 
     private void ConfigureServiceButton(Button button, bool active)
     {
         button.FlatStyle = FlatStyle.Flat;
-        button.FlatAppearance.BorderSize = 1;
-        button.FlatAppearance.BorderColor = active ? ErpTheme.Accent : ErpTheme.Border;
-        button.FlatAppearance.MouseOverBackColor = ErpTheme.AccentSoft;
-        button.BackColor = active ? ErpTheme.AccentSoft : ErpTheme.Surface;
-        button.ForeColor = active ? ErpTheme.Accent : ErpTheme.Text;
+        button.FlatAppearance.BorderSize = 0;
+        button.FlatAppearance.BorderColor = active ? ErpTheme.Accent : ErpTheme.Navigation;
+        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 58, 91);
+        button.BackColor = active ? ErpTheme.Accent : ErpTheme.Navigation;
+        button.ForeColor = Color.White;
         button.Cursor = Cursors.Hand;
-        button.TextAlign = ContentAlignment.MiddleCenter;
-        button.Padding = new Padding(8, 0, 8, 0);
+        button.TextAlign = ContentAlignment.MiddleRight;
+        button.Padding = new Padding(12, 0, 12, 0);
     }
 
     private string GetServiceIcon(string service)
@@ -336,7 +374,13 @@ public sealed class MainForm : Form
     private void RebuildScreenBar()
     {
         _screenBar.Controls.Clear();
-        if (string.IsNullOrWhiteSpace(_selectedService) || _selectedService == "الرئيسية") return;
+        if (string.IsNullOrWhiteSpace(_selectedService) || _selectedService == "الرئيسية")
+        {
+            _screenBar.Visible = false;
+            return;
+        }
+
+        _screenBar.Visible = true;
 
         var filter = _search.Text.Trim();
         var screens = _screens.Where(s => s.AllowEnter)
@@ -354,10 +398,10 @@ public sealed class MainForm : Form
                 Text = name,
                 Tag = screen,
                 AutoSize = false,
-                Width = Math.Max(130, Math.Min(230, 36 + (name.Length * 9))),
-                Height = 34,
-                Margin = new Padding(4, 2, 4, 2),
-                Font = new Font("Tahoma", 8.5f, FontStyle.Bold)
+                Width = Math.Max(126, Math.Min(210, 36 + (name.Length * 8))),
+                Height = 36,
+                Margin = new Padding(4, 1, 4, 1),
+                Font = new Font("Tahoma", 9f, FontStyle.Bold)
             };
             ErpTheme.ConfigureToolbarButton(button);
             button.Click += (_, _) => OpenAccessScreen(screen);
@@ -535,28 +579,28 @@ public sealed class MainForm : Form
             Dock = DockStyle.Fill,
             ColumnCount = 1,
             RowCount = 5,
-            Padding = new Padding(24),
+            Padding = new Padding(20),
             BackColor = ErpTheme.SurfaceSoft
         };
 
-        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
-        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
-        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 146));
-        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 44));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 142));
+        outer.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         outer.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
         var title = new Label
         {
-            Text = "لوحة التحكم الرئيسية",
+            Text = $"مرحباً {_session.UserName} — لوحة التحكم",
             Dock = DockStyle.Fill,
-            Font = new Font("Tahoma", 23f, FontStyle.Bold),
+            Font = new Font("Tahoma", 22f, FontStyle.Bold),
             ForeColor = ErpTheme.Text,
             TextAlign = ContentAlignment.MiddleRight
         };
 
         var subtitle = new Label
         {
-            Text = $"ملخص حي من قاعدة البيانات — آخر تحديث: {DateTime.Now:yyyy/MM/dd HH:mm}",
+            Text = $"نظرة سريعة على أعمال المنشأة   •   آخر تحديث: {DateTime.Now:yyyy/MM/dd HH:mm}",
             Dock = DockStyle.Fill,
             Font = new Font("Tahoma", 10f),
             ForeColor = ErpTheme.Muted,
@@ -614,13 +658,16 @@ public sealed class MainForm : Form
 
             var button = new Button
             {
-                Text = name,
-                Width = 155,
-                Height = 44,
+                Text = $"{GetServiceIcon(name == "الكاشير" ? "المبيعات والمشتريات" : name)}   {name}",
+                Width = 190,
+                Height = 54,
                 Margin = new Padding(5),
-                Font = new Font("Tahoma", 9f, FontStyle.Bold)
+                Font = new Font("Tahoma", 9.5f, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleRight,
+                RightToLeft = RightToLeft.Yes,
+                Padding = new Padding(12, 0, 12, 0)
             };
-            ErpTheme.ConfigureToolbarButton(button, true);
+            ErpTheme.ConfigureDashboardButton(button);
             button.Click += (_, _) => OpenAccessScreen(screen);
             quick.Controls.Add(button);
         }
