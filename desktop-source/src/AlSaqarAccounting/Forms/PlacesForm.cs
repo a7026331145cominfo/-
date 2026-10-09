@@ -138,10 +138,15 @@ public sealed class PlacesForm : Form
         Controls.Add(header);
 
         _grid.SelectionChanged += (_, _) => LoadSelected();
-        _grid.CellDoubleClick += async (_, _) =>
+        _grid.CellDoubleClick += (_, e) =>
         {
-            if (_access.AllowEdit)
-                await Task.CompletedTask;
+            if (e.RowIndex < 0 || !_access.AllowEdit)
+                return;
+
+            LoadSelected();
+            _name.Focus();
+            _name.SelectAll();
+            _status.Text = "عدّل اسم المنطقة ثم اضغط حفظ.";
         };
     }
 
