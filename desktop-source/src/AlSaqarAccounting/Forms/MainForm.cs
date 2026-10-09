@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using AlSaqarAccounting.Core;
@@ -105,7 +106,7 @@ public sealed class MainForm : Form
 
     private void BuildShell()
     {
-        BuildHiddenMenu();
+        BuildMenuStrip();
         BuildHeader();
         BuildServicesBar();
         BuildQuickBar();
@@ -123,26 +124,122 @@ public sealed class MainForm : Form
         Controls.Add(_screenBar);
         Controls.Add(_quickBar);
         Controls.Add(_servicesBar);
+        Controls.Add(_menu);
         Controls.Add(_header);
         Controls.Add(_statusStrip);
         MainMenuStrip = _menu;
     }
 
-    private void BuildHiddenMenu()
+    private void BuildMenuStrip()
     {
-        _menu.Visible = false;
-        _menu.Items.Add(new ToolStripMenuItem("النظام"));
+        _menu.Visible = true;
+        _menu.Dock = DockStyle.Top;
+        _menu.GripStyle = ToolStripGripStyle.Hidden;
+        _menu.AutoSize = false;
+        _menu.Height = 28;
+        _menu.Padding = new Padding(8, 2, 8, 2);
+        _menu.BackColor = Color.FromArgb(248, 250, 252);
+        _menu.ForeColor = ErpTheme.Text;
+        _menu.RenderMode = ToolStripRenderMode.Professional;
+        _menu.RightToLeft = RightToLeft.Yes;
+        _menu.Items.Clear();
+        _menu.Items.Add(CreateFileMenu());
+    }
+
+    private ToolStripMenuItem CreateFileMenu()
+    {
+        var file = new ToolStripMenuItem("ملف");
+        file.DropDownItems.Add("لوحة التشغيل الرئيسية", null, (_, _) => ShowHome());
+        file.DropDownItems.Add("تحديث الصلاحيات", null, async (_, _) => await LoadSecurityAsync());
+        file.DropDownItems.Add("اختبار اتصال قاعدة البيانات", null, async (_, _) => await CheckConnectionAsync());
+        file.DropDownItems.Add(new ToolStripSeparator());
+        file.DropDownItems.Add("إغلاق الشاشة الحالية", null, (_, _) => CloseCurrentScreen());
+        file.DropDownItems.Add("خروج", null, (_, _) => Close());
+        return file;
+    }
+
+    private void RebuildMenuStrip()
+    {
+        _menu.SuspendLayout();
+        try
+        {
+            _menu.Items.Clear();
+            _menu.Items.Add(CreateFileMenu());
+
+            var groups = _screens
+                .Where(screen => screen.AllowEnter &&
+                                 !string.IsNullOrWhiteSpace(screen.ModuleDisplayName))
+                .GroupBy(screen => screen.ModuleDisplayName.Trim(),
+                    StringComparer.CurrentCultureIgnoreCase)
+                .OrderBy(group =>
+                {
+                    var index = Array.FindIndex(PreferredServices,
+                        preferred => string.Equals(preferred, group.Key, StringComparison.OrdinalIgnoreCase));
+                    return index < 0 ? int.MaxValue : index;
+                })
+                .ThenBy(group => group.Key, StringComparer.CurrentCultureIgnoreCase);
+
+            foreach (var group in groups)
+            {
+                var menu = new ToolStripMenuItem(group.Key);
+                foreach (var screen in group
+                    .OrderBy(item => item.ScreenNum ?? int.MaxValue)
+                    .ThenBy(item => ScreenAccess.CleanScreenName(item.ScreenName),
+                        StringComparer.CurrentCultureIgnoreCase))
+                {
+                    var label = ScreenAccess.CleanScreenName(screen.ScreenName);
+                    if (string.IsNullOrWhiteSpace(label))
+                        label = $"شاشة #{screen.Id}";
+
+                    var item = new ToolStripMenuItem(label);
+                    item.Click += (_, _) => OpenAccessScreen(screen);
+                    menu.DropDownItems.Add(item);
+                }
+
+                if (menu.DropDownItems.Count > 0)
+                    _menu.Items.Add(menu);
+            }
+
+            var search = new ToolStripMenuItem("بحث الشاشات");
+            search.ShortcutKeys = Keys.Control | Keys.K;
+            search.ShowShortcutKeys = true;
+            search.Click += (_, _) =>
+            {
+                _search.Focus();
+                _search.SelectAll();
+            };
+            _menu.Items.Add(search);
+
+            if (_session.GroupId == 1)
+                _menu.Items.Add(new ToolStripMenuItem("التراخيص", null,
+                    (_, _) => OpenLicenseManagement()));
+        }
+        finally
+        {
+            _menu.ResumeLayout(true);
+        }
     }
 
     private void BuildHeader()
     {
         _header.Dock = DockStyle.Top;
-        _header.Height = 82;
-        _header.BackColor = ErpTheme.Navigation;
-        _header.Padding = new Padding(18, 10, 18, 10);
+        _header.Height = 72;
+        _header.BackColor = Color.FromArgb(0, 90, 158);
+        _header.Paint += (_, e) =>
+        {
+            if (_header.ClientSize.Width <= 0 || _header.ClientSize.Height <= 0)
+                return;
+            using var brush = new LinearGradientBrush(
+                _header.ClientRectangle,
+                Color.FromArgb(0, 90, 158),
+                Color.FromArgb(0, 120, 215),
+                LinearGradientMode.Horizontal);
+            e.Graphics.FillRectangle(brush, _header.ClientRectangle);
+        };
+        _header.Padding = new Padding(16, 6, 16, 6);
         _header.BorderStyle = BorderStyle.None;
 
-        var brandPanel = new Panel { Dock = DockStyle.Right, Width = 230, Padding = new Padding(4) };
+        var brandPanel = new Panel { Dock = DockStyle.Right, Width = 230, Padding = new Padding(4), BackColor = Color.Transparent };
         var brand = new Label
         {
             Text = "الصقر للمحاسبة",
@@ -150,7 +247,8 @@ public sealed class MainForm : Form
             Height = 34,
             Font = new Font("Tahoma", 17f, FontStyle.Bold),
             ForeColor = Color.White,
-            TextAlign = ContentAlignment.MiddleRight
+            TextAlign = ContentAlignment.MiddleRight,
+            BackColor = Color.Transparent
         };
         var subtitle = new Label
         {
@@ -159,12 +257,13 @@ public sealed class MainForm : Form
             Height = 24,
             Font = new Font("Tahoma", 9f),
             ForeColor = Color.White,
-            TextAlign = ContentAlignment.MiddleRight
+            TextAlign = ContentAlignment.MiddleRight,
+            BackColor = Color.Transparent
         };
         brandPanel.Controls.Add(subtitle);
         brandPanel.Controls.Add(brand);
 
-        var userPanel = new Panel { Dock = DockStyle.Left, Width = 175, Padding = new Padding(6, 2, 6, 2) };
+        var userPanel = new Panel { Dock = DockStyle.Left, Width = 175, Padding = new Padding(6, 2, 6, 2), BackColor = Color.Transparent };
         var userLine = new Label
         {
             Text = $"المستخدم: {_session.UserName}",
@@ -172,15 +271,17 @@ public sealed class MainForm : Form
             Height = 28,
             Font = new Font("Tahoma", 9.5f, FontStyle.Bold),
             ForeColor = Color.White,
-            TextAlign = ContentAlignment.MiddleLeft
+            TextAlign = ContentAlignment.MiddleLeft,
+            BackColor = Color.Transparent
         };
         var branchLine = new Label
         {
             Text = $"الفرع: {_session.BranchId?.ToString() ?? "-"}    |    المجموعة: {_session.GroupId?.ToString() ?? "-"}",
             Dock = DockStyle.Top,
             Height = 22,
-            ForeColor = ErpTheme.NavigationMuted,
-            TextAlign = ContentAlignment.MiddleLeft
+            ForeColor = Color.FromArgb(228, 240, 255),
+            TextAlign = ContentAlignment.MiddleLeft,
+            BackColor = Color.Transparent
         };
         userPanel.Controls.Add(branchLine);
         userPanel.Controls.Add(userLine);
@@ -191,7 +292,7 @@ public sealed class MainForm : Form
             FlowDirection = FlowDirection.RightToLeft,
             WrapContents = false,
             Padding = new Padding(12, 6, 12, 6),
-            BackColor = ErpTheme.Navigation,
+            BackColor = Color.Transparent,
             Margin = new Padding(8, 0, 8, 0)
         };
 
@@ -229,12 +330,12 @@ public sealed class MainForm : Form
     private void BuildServicesBar()
     {
         _servicesBar.Dock = DockStyle.Right;
-        _servicesBar.Width = 246;
+        _servicesBar.Width = 250;
         _servicesBar.FlowDirection = FlowDirection.TopDown;
         _servicesBar.WrapContents = false;
         _servicesBar.AutoScroll = true;
         _servicesBar.Padding = new Padding(10, 14, 10, 12);
-        _servicesBar.BackColor = ErpTheme.Navigation;
+        _servicesBar.BackColor = Color.FromArgb(248, 250, 252);
         _servicesBar.RightToLeft = RightToLeft.Yes;
         _servicesBar.BorderStyle = BorderStyle.None;
     }
@@ -458,8 +559,9 @@ public sealed class MainForm : Form
             Height = 34,
             Margin = new Padding(2, 0, 2, 8),
             Font = new Font("Tahoma", 11f, FontStyle.Bold),
-            ForeColor = Color.White,
-            TextAlign = ContentAlignment.MiddleRight
+            ForeColor = Color.FromArgb(0, 90, 158),
+            TextAlign = ContentAlignment.MiddleRight,
+            BackColor = Color.Transparent
         });
         _servicesBar.Controls.Add(new Label
         {
@@ -468,8 +570,9 @@ public sealed class MainForm : Form
             Height = 24,
             Margin = new Padding(2, 0, 2, 8),
             Font = new Font("Tahoma", 8.5f, FontStyle.Regular),
-            ForeColor = ErpTheme.NavigationMuted,
-            TextAlign = ContentAlignment.MiddleRight
+            ForeColor = Color.FromArgb(100, 116, 139),
+            TextAlign = ContentAlignment.MiddleRight,
+            BackColor = Color.Transparent
         });
 
         var available = _screens.Where(s => s.AllowEnter)
@@ -517,11 +620,11 @@ public sealed class MainForm : Form
     private void ConfigureServiceButton(Button button, bool active)
     {
         button.FlatStyle = FlatStyle.Flat;
-        button.FlatAppearance.BorderSize = 0;
-        button.FlatAppearance.BorderColor = active ? ErpTheme.Accent : ErpTheme.Navigation;
-        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(35, 58, 91);
-        button.BackColor = active ? ErpTheme.Accent : ErpTheme.Navigation;
-        button.ForeColor = Color.White;
+        button.FlatAppearance.BorderSize = 1;
+        button.FlatAppearance.BorderColor = active ? ErpTheme.Accent : ErpTheme.Border;
+        button.FlatAppearance.MouseOverBackColor = ErpTheme.AccentSoft;
+        button.BackColor = active ? ErpTheme.Accent : Color.White;
+        button.ForeColor = active ? Color.White : ErpTheme.Text;
         button.Cursor = Cursors.Hand;
         button.TextAlign = ContentAlignment.MiddleRight;
         button.Padding = new Padding(12, 0, 12, 0);
@@ -634,6 +737,7 @@ public sealed class MainForm : Form
                 $"المجموعة: {groupName ?? _session.GroupId?.ToString() ?? "-"}";
 
             if (string.IsNullOrWhiteSpace(_selectedService)) _selectedService = "الرئيسية";
+            RebuildMenuStrip();
             RebuildServicesBar();
             RebuildQuickBar();
             RebuildScreenBar();
