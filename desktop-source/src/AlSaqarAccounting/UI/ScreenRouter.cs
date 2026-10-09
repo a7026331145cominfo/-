@@ -1,0 +1,248 @@
+using AlSaqarAccounting.Core;
+using AlSaqarAccounting.Services;
+using AlSaqarAccounting.Forms;
+using System.Linq;
+
+namespace AlSaqarAccounting.UI;
+
+public sealed class ScreenRouter
+{
+    private readonly string _connectionString;
+    private readonly AppSession _session;
+
+    public ScreenRouter(string connectionString, AppSession session)
+    { _connectionString = connectionString; _session = session; }
+
+    public bool TryOpen(Form owner, ScreenAccess access, out string message)
+    {
+        message = string.Empty;
+        if (!access.AllowEnter) { message = "لا تملك صلاحية فتح هذه الشاشة."; return false; }
+
+        // Re-check the current permission in the database immediately before
+        // opening the form. The menu is only a cached view of the user's access;
+        // it must never become an authorization bypass after permissions change.
+        try
+        {
+            var authorization = new AuthorizationService(
+                new DbExecutor(new SqlConnectionFactory(_connectionString)));
+            var allowedNow = authorization
+                .CanAsync(_session, access.Id, PermissionAction.Enter)
+                .GetAwaiter()
+                .GetResult();
+
+            if (!allowedNow)
+            {
+                message = "تم تغيير صلاحياتك أو إيقاف هذه الشاشة. أعد تحميل الصلاحيات ثم حاول مرة أخرى.";
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = "تعذر التحقق من صلاحية الشاشة من قاعدة البيانات: " + ex.GetBaseException().Message;
+            return false;
+        }
+
+        var screenName = ScreenAccess.CleanScreenName(access.ScreenName);
+        if (string.IsNullOrWhiteSpace(screenName))
+        {
+            message = "اسم الشاشة غير صالح.";
+            return false;
+        }
+
+        var db = new DbExecutor(new SqlConnectionFactory(_connectionString));
+
+        if (string.Equals(screenName, "إدارة التراخيص", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(screenName, "التراخيص", StringComparison.OrdinalIgnoreCase))
+        {
+            using var form = new LicenseManagementForm(_session, new LicenseService(db)) { StartPosition = FormStartPosition.CenterParent };
+            form.ShowDialog(owner); return true;
+        }
+
+        if (IsPasswordScreen(screenName))
+        {
+            using var form = new ChangePasswordForm(_session, new SecurityAdministrationService(db))
+            { StartPosition = FormStartPosition.CenterParent };
+            form.ShowDialog(owner); return true;
+        }
+
+        if (IsScreenCatalogScreen(screenName))
+        {
+            using var form = new UserScreensForm(_session, access, new SecurityAdministrationService(db))
+            { StartPosition = FormStartPosition.CenterParent };
+            form.ShowDialog(owner); return true;
+        }
+
+        if (IsPermissionScreen(screenName))
+        {
+            using var form = new UserPermissionsForm(_session, access, new SecurityAdministrationService(db))
+            { StartPosition = FormStartPosition.CenterParent };
+            form.ShowDialog(owner); return true;
+        }
+
+        // Original GTSErpSystem places user-management screens in the Security
+        // module. Keep those separate from item groups.
+        if (IsUserScreen(screenName))
+        {
+            using var form = new UserManagementForm(_session, access, new UserManagementService(db)) { StartPosition = FormStartPosition.CenterParent };
+            form.ShowDialog(owner); return true;
+        }
+
+        if (IsSecurityGroupPermissionScreen(screenName))
+        {
+            using var form = new UserPermissionsForm(_session, access, new SecurityAdministrationService(db))
+            { StartPosition = FormStartPosition.CenterParent };
+            form.ShowDialog(owner); return true;
+        }
+
+        if (IsUserGroupScreen(screenName))
+        {
+            using var form = new UserGroupsForm(_session, access, new UserGroupsService(db)) { StartPosition = FormStartPosition.CenterParent };
+            form.ShowDialog(owner); return true;
+        }
+
+        if (string.Equals(screenName, "FrmUnit", StringComparison.OrdinalIgnoreCase))
+        {
+            var form = new ItemUnitForm(_session, access, new ItemUnitService(db));
+            return OpenMdi(owner, form);
+        }
+        if (TryResolveItemMaster(screenName, out var tableName, out var displayName))
+        {
+            var form = new ItemMasterForm(_session, access, new ItemMasterService(db), tableName, displayName);
+            return OpenMdi(owner, form);
+        }
+        if (string.Equals(screenName, "FrmItems", StringComparison.OrdinalIgnoreCase))
+        {
+            var form = new ItemsForm(_session, access, new ItemsService(db));
+            return OpenMdi(owner, form);
+        }
+        if (string.Equals(screenName, "InvoicesForm", StringComparison.OrdinalIgnoreCase) || string.Equals(screenName, "الفواتير", StringComparison.OrdinalIgnoreCase))
+        {
+            var form = new InvoicesForm(_session, access, new InvoiceService(db), new SalesService(db), new StoresService(db), new CustomerService(db), new SupplierService(db), new ItemsService(db), new PurchasesService(db), new CustSupService(db));
+            return OpenMdi(owner, form);
+        }
+        // Bind verified legacy ERP screens before the generic catalog/fallback.
+        // These mappings use the original GTSdb2026 SELECT procedures and therefore
+        // show real database data instead of DynamicErpScreenForm placeholders.
+        if (LegacyScreenCatalog.TryCreate(screenName, _connectionString, _session, access, out var legacyScreen)
+            && legacyScreen is not null)
+        {
+            return OpenMdi(owner, legacyScreen);
+        }
+
+        if (RealScreenCatalog.TryCreate(screenName, _connectionString, _session, access, out var realScreen) && realScreen is not null)
+        {
+            return OpenMdi(owner, realScreen);
+        }
+        // لا توجد شاشة تجريبية/شكلية كخيار أخير.
+        // أي شاشة لم تُربط بعد بشاشة ERP تشغيلية حقيقية تُرفض بوضوح
+        // بدل عرض DynamicErpScreenForm أو أي صفحة وهمية.
+        message = $"الشاشة «{screenName}» لم تُربط بعد بشاشة تشغيلية حقيقية.";
+        return false;
+    }
+
+    private static bool OpenMdi(Form owner, Form form)
+    {
+        if (!owner.IsMdiContainer)
+        {
+            form.StartPosition = FormStartPosition.CenterParent;
+            form.Show(owner);
+            return true;
+        }
+
+        var existing = owner.MdiChildren.FirstOrDefault(x =>
+            string.Equals(x.GetType().FullName, form.GetType().FullName, StringComparison.Ordinal));
+
+        if (existing is not null)
+        {
+            form.Dispose();
+            existing.Activate();
+            existing.BringToFront();
+            return true;
+        }
+
+        form.MdiParent = owner;
+        form.StartPosition = FormStartPosition.CenterScreen;
+        form.WindowState = FormWindowState.Maximized;
+        form.Show();
+        form.BringToFront();
+        return true;
+    }
+
+    private static bool IsPasswordScreen(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.Trim();
+        return n.Equals("FrmPassword", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("كلمة المرور", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("تغيير كلمة المرور", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("ChangePasswordForm", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsScreenCatalogScreen(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.Trim();
+        return n.Equals("FrmScreens", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("الشاشات", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("شاشات النظام", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("UserScreensForm", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsPermissionScreen(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.Trim();
+        return n.Equals("FrmPermission", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("FrmPermissions", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("الصلاحيات", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("صلاحيات الشاشات", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("UserPermissionsForm", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsUserScreen(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.Trim();
+        return n.Equals("مستخدم جديد", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("إضافة مستخدم", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("تعديل مستخدم", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("المستخدمون", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("المستخدمين", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("المستخدمون النظام", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("FrmUsers", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("FrmEditUser", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("UserManagementForm", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsSecurityGroupPermissionScreen(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.Trim();
+        return n.Equals("FrmSecurityGroup", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsUserGroupScreen(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.Trim();
+        return n.Equals("مجموعات المستخدمين", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("مجموعة المستخدمين", StringComparison.OrdinalIgnoreCase) ||
+               n.Equals("UserGroupsForm", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryResolveItemMaster(string screenName, out string tableName, out string displayName)
+    {
+        tableName = string.Empty; displayName = string.Empty;
+        switch (screenName.Trim())
+        {
+            case "FrmCompany": tableName = "Item_Company"; displayName = "الشركات"; return true;
+            case "FrmClass": tableName = "Item_Class"; displayName = "الفئات"; return true;
+            case "FrmGroups": tableName = "Item_Groups"; displayName = "المجموعات"; return true;
+            case "GroupsForm": tableName = "Item_Groups"; displayName = "المجموعات"; return true;
+            case "FrmCountry": tableName = "Item_Country"; displayName = "الدول"; return true;
+            case "FrmDoctor": tableName = "Item_Doctor"; displayName = "الأطباء"; return true;
+            default: return false;
+        }
+    }
+
+}

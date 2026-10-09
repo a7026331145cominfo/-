@@ -1,0 +1,40 @@
+name: Verify Desktop Source Buttons
+
+on:
+  push:
+    branches:
+      - 'ai-desktop-source-*'
+    paths:
+      - 'desktop-source/**'
+      - '.github/workflows/desktop-source-qa.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'desktop-source/**'
+      - '.github/workflows/desktop-source-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-wiring-and-build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Check button wiring and permissions
+        shell: pwsh
+        run: ./desktop-source/tools/Test-DesktopButtonWiring.ps1
+
+      - name: Build WinForms desktop application
+        shell: pwsh
+        run: dotnet build desktop-source/src/AlSaqarAccounting/AlSaqarAccounting.csproj --configuration Release
