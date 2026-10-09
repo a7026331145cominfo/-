@@ -34,6 +34,7 @@ public sealed class MainForm : Form
     };
     private readonly FlowLayoutPanel _servicesBar = new();
     private readonly FlowLayoutPanel _screenBar = new();
+    private readonly FlowLayoutPanel _openTabsBar = new();
     private readonly Panel _home = new()
     {
         Dock = DockStyle.Fill,
@@ -97,11 +98,13 @@ public sealed class MainForm : Form
         BuildStatus();
 
         _workspace.Controls.Add(_home);
+        BuildOpenTabsBar();
 
-        // Keep the fill-docked dashboard and the top screen bar as siblings of
-        // the MDI client. Hiding _workspace then reveals real MDI forms without
-        // hiding the module's screen buttons.
+        // Keep the fill-docked dashboard and the ribbon/tab bars as siblings of
+        // the MDI client. Hiding _workspace reveals real MDI forms while both
+        // navigation and open-screen tabs remain available.
         Controls.Add(_workspace);
+        Controls.Add(_openTabsBar);
         Controls.Add(_screenBar);
         Controls.Add(_servicesBar);
         Controls.Add(_header);
@@ -232,6 +235,96 @@ public sealed class MainForm : Form
         _screenBar.RightToLeft = RightToLeft.Yes;
         _screenBar.BorderStyle = BorderStyle.FixedSingle;
         _screenBar.Visible = false;
+    }
+
+    private void BuildOpenTabsBar()
+    {
+        _openTabsBar.Dock = DockStyle.Top;
+        _openTabsBar.Height = 36;
+        _openTabsBar.FlowDirection = FlowDirection.RightToLeft;
+        _openTabsBar.WrapContents = false;
+        _openTabsBar.AutoScroll = true;
+        _openTabsBar.Padding = new Padding(8, 3, 8, 3);
+        _openTabsBar.BackColor = Color.FromArgb(232, 238, 247);
+        _openTabsBar.RightToLeft = RightToLeft.Yes;
+        _openTabsBar.Visible = false;
+    }
+
+    private void RebuildOpenTabs()
+    {
+        _openTabsBar.SuspendLayout();
+        try
+        {
+            _openTabsBar.Controls.Clear();
+            var children = MdiChildren
+                .Where(child => !child.IsDisposed)
+                .OrderBy(child => child.Text, StringComparer.CurrentCultureIgnoreCase)
+                .ToArray();
+
+            _openTabsBar.Visible = children.Length > 0;
+            foreach (var child in children)
+            {
+                var active = ReferenceEquals(child, ActiveMdiChild);
+                var tab = new Panel
+                {
+                    Width = Math.Max(150, Math.Min(255, 38 + child.Text.Length * 8)),
+                    Height = 28,
+                    Margin = new Padding(3, 0, 3, 0),
+                    Padding = new Padding(0),
+                    BackColor = active ? ErpTheme.AccentSoft : Color.White,
+                    BorderStyle = BorderStyle.FixedSingle
+                };
+
+                var select = new Button
+                {
+                    Dock = DockStyle.Fill,
+                    Text = child.Text,
+                    TextAlign = ContentAlignment.MiddleRight,
+                    Padding = new Padding(8, 0, 8, 0),
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = active ? ErpTheme.AccentSoft : Color.White,
+                    ForeColor = active ? ErpTheme.Accent : ErpTheme.Text,
+                    Font = new Font("Tahoma", 8.5f, active ? FontStyle.Bold : FontStyle.Regular),
+                    Cursor = Cursors.Hand
+                };
+                select.FlatAppearance.BorderSize = 0;
+                select.Click += (_, _) =>
+                {
+                    if (!child.IsDisposed)
+                    {
+                        child.Activate();
+                        child.BringToFront();
+                    }
+                };
+
+                var close = new Button
+                {
+                    Dock = DockStyle.Right,
+                    Width = 26,
+                    Text = "×",
+                    FlatStyle = FlatStyle.Flat,
+                    BackColor = Color.White,
+                    ForeColor = ErpTheme.Muted,
+                    Font = new Font("Tahoma", 10f, FontStyle.Bold),
+                    Cursor = Cursors.Hand
+                };
+                close.FlatAppearance.BorderSize = 0;
+                close.Click += (_, _) =>
+                {
+                    if (!child.IsDisposed)
+                        child.Close();
+                    RebuildOpenTabs();
+                };
+
+                tab.Controls.Add(select);
+                tab.Controls.Add(close);
+                _openTabsBar.Controls.Add(tab);
+            }
+        }
+        finally
+        {
+            _openTabsBar.ResumeLayout(true);
+        }
     }
 
     private void BuildStatus()
@@ -416,6 +509,7 @@ public sealed class MainForm : Form
     private void WireEvents()
     {
         Shown += async (_, _) => await LoadSecurityAsync();
+        MdiChildActivate += (_, _) => RebuildOpenTabs();
         _search.TextChanged += (_, _) =>
         {
             if (_selectedService == "الرئيسية") BuildDashboard();
@@ -505,6 +599,8 @@ public sealed class MainForm : Form
                 ShowHome();
             else if (opened)
                 _status.Text = $"تم فتح الشاشة: {ScreenAccess.CleanScreenName(access.ScreenName)}";
+
+            RebuildOpenTabs();
         }
         catch (Exception ex)
         {
@@ -547,6 +643,7 @@ public sealed class MainForm : Form
     {
         _selectedService = "الرئيسية";
         foreach (var child in MdiChildren) child.Close();
+        _openTabsBar.Visible = false;
         _workspace.Visible = true;
         _home.Visible = true;
         _home.BringToFront();
