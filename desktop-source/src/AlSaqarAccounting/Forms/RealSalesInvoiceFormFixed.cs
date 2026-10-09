@@ -138,10 +138,11 @@ public sealed class RealSalesInvoiceFormFixed : Form
             TextAlign = ContentAlignment.MiddleRight
         });
 
-        var body = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3, Padding = new Padding(8) };
+        var body = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(8) };
         body.RowStyles.Add(new RowStyle(SizeType.Absolute, 122));
         body.RowStyles.Add(new RowStyle(SizeType.Absolute, 92));
         body.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        body.RowStyles.Add(new RowStyle(SizeType.Absolute, 108));
 
         var head = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 6, RowCount = 2 };
         for (var i = 0; i < 6; i++) head.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.6667f));
@@ -203,7 +204,7 @@ public sealed class RealSalesInvoiceFormFixed : Form
         _paid.Width = 120;
         discountBar.Controls.Add(_paid);
         bottom.Controls.Add(discountBar);
-        body.Controls.Add(bottom, 0, 2);
+        body.Controls.Add(bottom, 0, 3);
 
         Controls.Add(body);
         Controls.Add(buttons);

@@ -40,7 +40,7 @@ public sealed class CashierForm : Form
     private decimal _total = 0;
     private decimal _tax = 0;
     private decimal _net = 0;
-    private const decimal _taxRate = 0m;
+    private decimal _taxRate = 0m;
 
     public CashierForm(AppSession session, ScreenAccess access, CashierService cashierService, ItemsService itemsService, CustomerService customerService)
     {
@@ -124,7 +124,7 @@ public sealed class CashierForm : Form
         _cartGrid.RightToLeft = RightToLeft.Yes;
         _cartGrid.RowHeadersVisible = false;
         _cartGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        _cartGrid.CellClick += (_, e) => { if (e.RowIndex >= 0 && _cartGrid.Columns[e.ColumnIndex].Name == "Delete") RemoveFromCart(e.RowIndex); };
+        _cartGrid.CellClick += (_, e) => { if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && _cartGrid.Columns[e.ColumnIndex].Name == "Delete") RemoveFromCart(e.RowIndex); };
         
         // Add columns to cart grid
         _cartGrid.Columns.Add("Delete", "حذف");
@@ -146,13 +146,16 @@ public sealed class CashierForm : Form
         
         // Cart Controls Panel
         var cartControls = new Panel { Dock = DockStyle.Bottom, Height = 60, Padding = new Padding(8), BackColor = Color.FromArgb(240, 248, 255) };
-        var itemLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 6, RowCount = 1 };
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        var itemLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 9, RowCount = 1 };
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 88));
         itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 52));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 64));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 48));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 68));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 48));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 68));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 102));
         
         var barcodeLabel = new Label { Text = "باركود:", Width = 100, TextAlign = ContentAlignment.MiddleRight };
         _barcodeText.Dock = DockStyle.Fill;
@@ -167,8 +170,8 @@ public sealed class CashierForm : Form
         var priceLabel = new Label { Text = "سعر:", Width = 60, TextAlign = ContentAlignment.MiddleRight };
         _priceText.Width = 60;
         _priceText.TextAlign = HorizontalAlignment.Right;
-        
-        var discountLabel = new Label { Text = "خصم:", Width = 60, TextAlign = ContentAlignment.MiddleRight };
+
+        var discountLabel = new Label { Text = "خصم:", Width = 48, TextAlign = ContentAlignment.MiddleRight };
         _discountText.Width = 60;
         _discountText.Text = "0";
         _discountText.TextAlign = HorizontalAlignment.Right;
@@ -182,6 +185,9 @@ public sealed class CashierForm : Form
         itemLayout.Controls.Add(_quantityText, 3, 0);
         itemLayout.Controls.Add(priceLabel, 4, 0);
         itemLayout.Controls.Add(_priceText, 5, 0);
+        itemLayout.Controls.Add(discountLabel, 6, 0);
+        itemLayout.Controls.Add(_discountText, 7, 0);
+        itemLayout.Controls.Add(addBtn, 8, 0);
         cartControls.Controls.Add(itemLayout);
         cartPanel.Controls.Add(cartControls);
         
@@ -251,7 +257,7 @@ public sealed class CashierForm : Form
         completeBtn.Click += async (_, _) => await CompleteSaleAsync();
         
         var printBtn = new Button { Text = "طباعة", Width = 100, Height = 40, Enabled = _access.AllowPrint };
-        printBtn.Click += (_, _) => PrintReceipt();
+        printBtn.Click += async (_, _) => await PrintReceiptAsync();
         
         var clearBtn = new Button { Text = "مسح السلة", Width = 100, Height = 40 };
         clearBtn.Click += (_, _) => ClearCart();
@@ -305,6 +311,12 @@ public sealed class CashierForm : Form
         try
         {
             UseWaitCursor = true;
+            if (!_session.BranchId.HasValue)
+                throw new InvalidOperationException("الكاشير يحتاج إلى فرع فعّال.");
+
+            var settings = await _cashierService.GetEntrySettingsAsync(_session.BranchId.Value);
+            _taxRate = settings.VatEnabled ? settings.VatRate : 0m;
+
             _itemsData = await _itemsService.ListAsync();
             _customersData = await _customerService.ListAsync(_session.BranchId);
             await LoadSalesAsync();
@@ -437,38 +449,78 @@ public sealed class CashierForm : Form
     private void AddItemByBarcode()
     {
         var barcode = _barcodeText.Text.Trim();
-        if (string.IsNullOrWhiteSpace(barcode)) return;
-        
-        if (_itemsData == null) return;
-        
-        var row = _itemsData.Select("Item_code = '" + barcode.Replace("'", "''") + "'").FirstOrDefault();
-        if (row != null)
+        if (string.IsNullOrWhiteSpace(barcode) || _itemsData is null) return;
+
+        var rows = FindItemsByBarcode(barcode);
+        if (rows.Length > 0)
         {
-            AddItemToCart(row);
+            AddItemToCart(rows[0]);
+            return;
         }
-        else
-        {
-            MessageBox.Show(this, "الباركود غير موجود", "البحث", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
+
+        MessageBox.Show(this, "الباركود غير موجود", "البحث", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
 
     private void AddItemToCart()
     {
-        if (_itemsData == null) return;
-        
-        var itemName = _barcodeText.Text.Trim();
-        if (string.IsNullOrWhiteSpace(itemName)) return;
-        
-        // Search by name
-        var rows = _itemsData.Select("item_Name LIKE '%" + itemName.Replace("'", "''") + "%'");
-        if (rows.Length == 0)
+        if (_itemsData is null) return;
+
+        var search = _barcodeText.Text.Trim();
+        if (string.IsNullOrWhiteSpace(search)) return;
+
+        // A cashier may scan a barcode or type a product name into the same field.
+        var exactBarcodeMatches = FindItemsByBarcode(search);
+        if (exactBarcodeMatches.Length > 0)
         {
-            MessageBox.Show(this, "المنتج غير موجود", "البحث", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            AddItemToCart(exactBarcodeMatches[0]);
             return;
         }
-        
-        // Use first match
+
+        var escaped = search.Replace("'", "''");
+        var rows = _itemsData.Columns.Contains("item_Name")
+            ? _itemsData.Select("item_Name LIKE '%" + escaped + "%'")
+            : Array.Empty<DataRow>();
+
+        if (rows.Length == 0)
+        {
+            MessageBox.Show(this, "لم يتم العثور على الصنف بالباركود أو الاسم.", "البحث",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (rows.Length > 1)
+        {
+            MessageBox.Show(this, "وجدت عدة أصناف مطابقة؛ استخدم الباركود لتحديد الصنف بدقة.",
+                "اختيار الصنف", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
         AddItemToCart(rows[0]);
+    }
+
+    private DataRow[] FindItemsByBarcode(string barcode)
+    {
+        if (_itemsData is null || string.IsNullOrWhiteSpace(barcode))
+            return Array.Empty<DataRow>();
+
+        var escaped = barcode.Trim().Replace("'", "''");
+        var columns = new[]
+        {
+            "Item_code", "SmallBarCode1", "SmallBarCode2", "SmallBarCode3",
+            "MediumBarCode1", "MediumBarCode2", "MediumBarCode3",
+            "BigBarCode1", "BigBarCode2", "BigBarCode3"
+        };
+
+        var predicates = columns
+            .Where(name => _itemsData.Columns.Contains(name) &&
+                           _itemsData.Columns[name]!.DataType == typeof(string))
+            .Select(name => name + " = '" + escaped + "'")
+            .ToArray();
+
+        if (predicates.Length == 0)
+            return Array.Empty<DataRow>();
+
+        return _itemsData.Select(string.Join(" OR ", predicates));
     }
 
     private void AddItemToCart(DataRow itemRow)
@@ -480,24 +532,67 @@ public sealed class CashierForm : Form
         var barcode = Convert.ToString(itemRow["Item_code"]);
         
         decimal price = 0;
-        if (itemRow["SellPriceSmall"] != DBNull.Value)
+        if (itemRow.Table.Columns.Contains("SellPriceSmall") &&
+            itemRow["SellPriceSmall"] is not DBNull)
             price = Convert.ToDecimal(itemRow["SellPriceSmall"]);
-        
-        decimal quantity = 1;
-        if (!string.IsNullOrWhiteSpace(_quantityText.Text) && decimal.TryParse(_quantityText.Text, out var qty))
-            quantity = qty;
-        
-        decimal discount = 0;
-        if (!string.IsNullOrWhiteSpace(_discountText.Text) && decimal.TryParse(_discountText.Text, out var disc))
-            discount = disc;
-        
-        // Check if item already in cart
+
+        if (!string.IsNullOrWhiteSpace(_priceText.Text))
+        {
+            if (!decimal.TryParse(_priceText.Text, out var enteredPrice))
+            {
+                MessageBox.Show(this, "أدخل سعرًا رقميًا صحيحًا.", "سعر الصنف",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            price = enteredPrice;
+        }
+
+        if (!decimal.TryParse(_quantityText.Text, out var quantity))
+        {
+            MessageBox.Show(this, "أدخل كمية رقمية صحيحة.", "كمية الصنف",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (!decimal.TryParse(_discountText.Text, out var discount))
+        {
+            MessageBox.Show(this, "أدخل خصماً رقمياً صحيحاً.", "خصم الصنف",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (quantity <= 0m)
+        {
+            MessageBox.Show(this, "الكمية يجب أن تكون أكبر من صفر.", "إضافة صنف",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (price < 0m || discount < 0m || discount > price * quantity)
+        {
+            MessageBox.Show(this, "تحقق من السعر والخصم؛ لا يمكن أن يتجاوز الخصم إجمالي السطر.",
+                "إضافة صنف", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        // Merge only when both item and unit price match; different prices stay on separate lines.
         foreach (DataRow cartRow in _cartData.Rows)
         {
-            if (Convert.ToInt32(cartRow["ItemID"]) == itemId)
+            if (Convert.ToInt32(cartRow["ItemID"]) == itemId &&
+                Convert.ToDecimal(cartRow["Price"]) == price)
             {
-                cartRow["Quantity"] = Convert.ToDecimal(cartRow["Quantity"]) + quantity;
-                cartRow["Total"] = CalculateItemTotal(price, Convert.ToDecimal(cartRow["Quantity"]), discount);
+                var combinedQuantity = Convert.ToDecimal(cartRow["Quantity"]) + quantity;
+                var combinedDiscount = Convert.ToDecimal(cartRow["Discount"]) + discount;
+                if (combinedDiscount > price * combinedQuantity)
+                {
+                    MessageBox.Show(this, "مجموع الخصم أكبر من إجمالي السطر.", "خصم الصنف",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                cartRow["Quantity"] = combinedQuantity;
+                cartRow["Discount"] = combinedDiscount;
+                cartRow["Total"] = CalculateItemTotal(price, combinedQuantity, combinedDiscount);
                 UpdateTotals();
                 ClearItemInputs();
                 return;
@@ -622,7 +717,7 @@ public sealed class CashierForm : Form
                 Quantity = Convert.ToDecimal(row["Quantity"]),
                 UnitPrice = Convert.ToDecimal(row["Price"]),
                 TotalPrice = Convert.ToDecimal(row["Total"]),
-                VAT = Convert.ToDecimal(row["Price"]) * _taxRate, // VAT per item
+                VAT = Convert.ToDecimal(row["Total"]) * _taxRate, // VAT applies to the full discounted line amount
                 ItemUnitType = "قطعة",
                 IsPrint = true
             });
@@ -634,7 +729,7 @@ public sealed class CashierForm : Form
             var saleId = await _cashierService.CreateSaleAsync(order, details, _session);
             
             // Print receipt
-            PrintReceipt(saleId);
+            await PrintReceiptAsync(saleId);
             
             // Clear and reload
             ClearCart();
@@ -656,7 +751,10 @@ public sealed class CashierForm : Form
             return;
         
         var saleId = Convert.ToInt32(row.Row["ID"]);
-        var details = await _cashierService.GetSaleDetailsAsync(saleId);
+        if (!_session.BranchId.HasValue)
+            throw new InvalidOperationException("لا يوجد فرع محدد لعرض تفاصيل البيع.");
+
+        var details = await _cashierService.GetSaleDetailsForBranchAsync(saleId, _session.BranchId.Value);
         
         using var form = new Form
         {
@@ -687,79 +785,207 @@ public sealed class CashierForm : Form
         form.ShowDialog(this);
     }
 
-    private void PrintReceipt(int? saleId = null)
+    private async Task PrintReceiptAsync(int? saleId = null)
     {
         try
         {
-            var printDoc = new PrintDocument();
-            printDoc.PrintPage += (sender, e) =>
+            var hasCart = _cartData is not null && _cartData.Rows.Count > 0;
+            var printDraft = saleId.HasValue && hasCart;
+            DataRow? saleHeader = null;
+            DataTable? savedLines = null;
+
+            if (!printDraft)
             {
-                var font = new Font("Tahoma", 12);
-                var boldFont = new Font("Tahoma", 14, FontStyle.Bold);
-                var smallFont = new Font("Tahoma", 10);
-                
-                float yPos = 20;
+                if (!saleId.HasValue && _salesGrid.CurrentRow?.DataBoundItem is DataRowView selected)
+                {
+                    saleHeader = selected.Row;
+                    saleId = ReadRowInt(selected.Row, "ID", "PurBranchID");
+                }
+
+                if (!saleId.HasValue && hasCart)
+                {
+                    printDraft = true;
+                }
+                else
+                {
+                    if (!saleId.HasValue || !_session.BranchId.HasValue)
+                    {
+                        MessageBox.Show(this, "حدد فاتورة محفوظة من القائمة أو أضف أصنافاً إلى السلة أولاً.",
+                            "طباعة إيصال", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    savedLines = await _cashierService.GetSaleDetailsForBranchAsync(
+                        saleId.Value, _session.BranchId.Value);
+
+                    if (savedLines.Rows.Count == 0)
+                    {
+                        MessageBox.Show(this, "لا توجد تفاصيل لهذه الفاتورة في الفرع الحالي.",
+                            "طباعة إيصال", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    if (saleHeader is null)
+                    {
+                        var sales = await _cashierService.GetSalesAsync(_session.BranchId);
+                        saleHeader = sales.Rows.Cast<DataRow>().FirstOrDefault(row =>
+                            ReadRowInt(row, "ID", "PurBranchID") == saleId.Value);
+                    }
+
+                    if (saleHeader is null)
+                    {
+                        MessageBox.Show(this, "تعذر العثور على بيانات رأس الفاتورة المحددة.",
+                            "طباعة إيصال", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+            }
+
+            if (printDraft && !hasCart)
+            {
+                MessageBox.Show(this, "السلة فارغة.", "طباعة إيصال",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var rows = printDraft
+                ? _cartData!.Rows.Cast<DataRow>().ToArray()
+                : savedLines!.Rows.Cast<DataRow>().ToArray();
+
+            var customerName = printDraft
+                ? _customerLabel.Text
+                : ReadRowText(saleHeader!, "SupplierName", "CustSuppName", "CustomerName");
+
+            var invoiceNumber = printDraft
+                ? (saleId?.ToString() ?? string.Empty)
+                : ReadRowText(saleHeader!, "NoteNum", "PurBranchID", "ID");
+
+            var invoiceDate = DateTime.Now;
+            var total = _total;
+            var tax = _tax;
+            var net = _net;
+
+            if (!printDraft)
+            {
+                var dateValue = ReadRowText(saleHeader!, "Purchases_Date", "InvoiceDate");
+                if (DateTime.TryParse(dateValue, out var parsedDate))
+                    invoiceDate = parsedDate;
+
+                total = ReadRowDecimal(saleHeader!, "TotalPrices", "CostOrder");
+                tax = ReadRowDecimal(saleHeader!, "Tax");
+                net = ReadRowDecimal(saleHeader!, "Net");
+
+                if (total == 0m)
+                    total = rows.Sum(row => ReadRowDecimal(row, "Total", "TotalPrice", "NetTotalPrice"));
+                if (net == 0m)
+                    net = total + tax;
+            }
+
+            using var printDoc = new PrintDocument();
+            printDoc.DocumentName = $"إيصال بيع {invoiceNumber}".Trim();
+
+            printDoc.PrintPage += (_, e) =>
+            {
+                using var font = new Font("Tahoma", 11);
+                using var boldFont = new Font("Tahoma", 13, FontStyle.Bold);
+                using var smallFont = new Font("Tahoma", 9);
+
                 float x = e.MarginBounds.Left;
-                float y = yPos;
-                
-                // Header
+                float y = e.MarginBounds.Top;
+
                 e.Graphics.DrawString("شركة الصقر", boldFont, Brushes.Black, x, y);
                 y += 30;
                 e.Graphics.DrawString("فاتورة بيع", font, Brushes.Black, x, y);
-                y += 25;
-                e.Graphics.DrawString($"التاريخ: {DateTime.Now:yyyy-MM-dd HH:mm}", smallFont, Brushes.Black, x, y);
+                y += 24;
+                e.Graphics.DrawString($"رقم الفاتورة: {invoiceNumber}", smallFont, Brushes.Black, x, y);
                 y += 20;
-                e.Graphics.DrawString($"العميل: {_customerLabel.Text}", font, Brushes.Black, x, y);
-                y += 25;
-                
-                // Items
-                e.Graphics.DrawString("المنتج", font, Brushes.Black, x, y);
-                e.Graphics.DrawString("الكمية", font, Brushes.Black, x + 300, y);
-                e.Graphics.DrawString("السعر", font, Brushes.Black, x + 400, y);
-                e.Graphics.DrawString("الإجمالي", font, Brushes.Black, x + 500, y);
-                y += 25;
-                
-                if (_cartData != null)
+                e.Graphics.DrawString($"التاريخ: {invoiceDate:yyyy-MM-dd HH:mm}", smallFont, Brushes.Black, x, y);
+                y += 20;
+                e.Graphics.DrawString($"العميل: {customerName}", font, Brushes.Black, x, y);
+                y += 28;
+
+                e.Graphics.DrawString("الصنف", font, Brushes.Black, x, y);
+                e.Graphics.DrawString("الكمية", font, Brushes.Black, x + 290, y);
+                e.Graphics.DrawString("السعر", font, Brushes.Black, x + 380, y);
+                e.Graphics.DrawString("الإجمالي", font, Brushes.Black, x + 475, y);
+                y += 24;
+
+                foreach (var row in rows)
                 {
-                    foreach (DataRow row in _cartData.Rows)
-                    {
-                        var itemName = Convert.ToString(row["ItemName"]);
-                        var quantity = Convert.ToString(row["Quantity"]);
-                        var price = Convert.ToDecimal(row["Price"]).ToString("N2");
-                        var total = Convert.ToDecimal(row["Total"]).ToString("N2");
-                        
-                        e.Graphics.DrawString(itemName, smallFont, Brushes.Black, x, y);
-                        e.Graphics.DrawString(quantity, smallFont, Brushes.Black, x + 300, y);
-                        e.Graphics.DrawString(price, smallFont, Brushes.Black, x + 400, y);
-                        e.Graphics.DrawString(total, smallFont, Brushes.Black, x + 500, y);
-                        y += 20;
-                    }
+                    var name = ReadRowText(row, "ItemName", "item_Name", "ItemID", "ItemId");
+                    var quantity = ReadRowDecimal(row, "Quantity").ToString("N3");
+                    var price = ReadRowDecimal(row, "Price", "UnitPrice", "SmallUnitPrice").ToString("N2");
+                    var lineTotal = ReadRowDecimal(row, "Total", "TotalPrice", "NetTotalPrice").ToString("N2");
+
+                    e.Graphics.DrawString(name, smallFont, Brushes.Black, x, y);
+                    e.Graphics.DrawString(quantity, smallFont, Brushes.Black, x + 290, y);
+                    e.Graphics.DrawString(price, smallFont, Brushes.Black, x + 380, y);
+                    e.Graphics.DrawString(lineTotal, smallFont, Brushes.Black, x + 475, y);
+                    y += 20;
                 }
-                
-                y += 20;
+
+                y += 18;
                 e.Graphics.DrawString("الإجمالي:", font, Brushes.Black, x, y);
-                e.Graphics.DrawString(_total.ToString("N2"), font, Brushes.Black, x + 500, y);
-                y += 25;
+                e.Graphics.DrawString(total.ToString("N2"), font, Brushes.Black, x + 475, y);
+                y += 23;
                 e.Graphics.DrawString("الضريبة:", font, Brushes.Black, x, y);
-                e.Graphics.DrawString(_tax.ToString("N2"), font, Brushes.Black, x + 500, y);
-                y += 25;
+                e.Graphics.DrawString(tax.ToString("N2"), font, Brushes.Black, x + 475, y);
+                y += 23;
                 e.Graphics.DrawString("الصافي:", boldFont, Brushes.Black, x, y);
-                e.Graphics.DrawString(_net.ToString("N2"), boldFont, Brushes.Black, x + 500, y);
-                
-                y += 40;
+                e.Graphics.DrawString(net.ToString("N2"), boldFont, Brushes.Black, x + 475, y);
+                y += 34;
                 e.Graphics.DrawString("شكراً لثقتكم", smallFont, Brushes.Black, x, y);
+                e.HasMorePages = false;
             };
-            
-            var printDialog = new PrintDialog { Document = printDoc };
+
+            using var printDialog = new PrintDialog { Document = printDoc };
             if (printDialog.ShowDialog(this) == DialogResult.OK)
-            {
                 printDoc.Print();
-            }
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, ex.GetBaseException().Message, "خطأ في الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, "تعذر طباعة الإيصال:\r\n" + ex.GetBaseException().Message,
+                "الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private static int? ReadRowInt(DataRow row, params string[] columns)
+    {
+        foreach (var column in columns)
+        {
+            if (row.Table.Columns.Contains(column) &&
+                int.TryParse(Convert.ToString(row[column]), out var value))
+                return value;
+        }
+
+        return null;
+    }
+
+    private static string ReadRowText(DataRow row, params string[] columns)
+    {
+        foreach (var column in columns)
+        {
+            if (row.Table.Columns.Contains(column) && row[column] is not DBNull)
+            {
+                var value = Convert.ToString(row[column]);
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static decimal ReadRowDecimal(DataRow row, params string[] columns)
+    {
+        foreach (var column in columns)
+        {
+            if (row.Table.Columns.Contains(column) && row[column] is not DBNull &&
+                decimal.TryParse(Convert.ToString(row[column]), out var value))
+                return value;
+        }
+
+        return 0m;
     }
 
     private static string GetMachineMac()

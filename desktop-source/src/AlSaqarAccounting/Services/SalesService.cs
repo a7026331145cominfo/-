@@ -148,7 +148,7 @@ public sealed class SalesService
             .Set("@BounsAmount", 0m)
             .Set("@Charge", 0m)
             .Set("@IsWaiting", false)
-            .Set("@OrderCashierType", false)
+            .Set("@OrderCashierType", invoice.OrderCashierType)
             .Set("@DateHold", DBNull.Value)
             .Set("@UserID_Add", session.UserId)
             .Set("@UserBranch_Add", branchId)
@@ -226,6 +226,8 @@ public sealed class SalesInvoice
 
     /// <summary>1 نقدي، 2 بنك، 3 آجل — يطابق Order_Paymant_Type الأصلي.</summary>
     public int PaymentType { get; set; } = 1;
+
+    public bool OrderCashierType { get; set; }
 
     public int? CustomerId { get; set; }
     public string? CustomerName { get; set; }

@@ -422,7 +422,17 @@ public sealed class AdvancedItemsForm : Form
 
     private async void SaveItem()
     {
-        if (!_access.AllowSave) return;
+        var mayWrite = _selectedItemId.HasValue ? _access.AllowEdit : _access.AllowSave;
+        if (!mayWrite)
+        {
+            MessageBox.Show(this,
+                _selectedItemId.HasValue
+                    ? "لا تملك صلاحية تعديل الأصناف."
+                    : "لا تملك صلاحية إضافة أصناف.",
+                "الصلاحيات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
         try
         {
             var item = BuildItemFromEditor();

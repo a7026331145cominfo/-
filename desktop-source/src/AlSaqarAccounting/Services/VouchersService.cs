@@ -75,56 +75,97 @@ public sealed class VouchersService
                 $"السند غير متوازن: إجمالي المدين {totalDebit:N2} وإجمالي الدائن {totalCredit:N2}.");
 
         var branchId = session.BranchId.Value;
-        var referenceCode = await NextReferenceCodeAsync(
-            branchId, voucher.TranTypeId, cancellationToken).ConfigureAwait(false);
 
-        var headerSerialValue = await _db.ExecuteStoredProcedureOutputAsync(
-            "dbo.Insert_Tran_Tran",
-            p =>
-            {
-                p.Add("@ReferenceCode", SqlDbType.Int).Value = referenceCode;
-                p.Add("@ProjectId", SqlDbType.Int).Value = (object?)voucher.ProjectId ?? DBNull.Value;
-                var transn = p.Add("@Transn", SqlDbType.Int);
-                transn.Direction = ParameterDirection.Output;
-                p.Add("@TranTypeID", SqlDbType.Int).Value = voucher.TranTypeId;
-                p.Add("@DocCode", SqlDbType.NVarChar, 100).Value =
-                    (object?)NullIfEmpty(voucher.DocCode) ?? referenceCode.ToString();
-                p.Add("@TranDate", SqlDbType.DateTime).Value = voucher.VoucherDate;
-                p.Add("@Note", SqlDbType.NVarChar, 400).Value = (object?)NullIfEmpty(voucher.Note) ?? DBNull.Value;
-                p.Add("@BranchID", SqlDbType.Int).Value = branchId;
-                p.Add("@UserID_Add", SqlDbType.Int).Value = session.UserId;
-                p.Add("@UserBranch_Add", SqlDbType.Int).Value = branchId;
-                p.Add("@UserMacAddress_Add", SqlDbType.NVarChar, 200).Value = Environment.MachineName;
-            },
-            "@Transn",
-            cancellationToken).ConfigureAwait(false);
-
-        if (headerSerialValue is null or DBNull)
-            throw new InvalidOperationException("لم يُرجع الإجراء رقم السند الجديد (@Transn).");
-        var serial = Convert.ToInt32(headerSerialValue);
-
-        var index = 0;
-        foreach (var line in voucher.Lines)
+        // The header and every detail row must commit or roll back together.
+        // Keep the reference-code range locked while the header is assigned to
+        // avoid duplicate numbering when two users save vouchers concurrently.
+        using (var connection = new SqlConnection(_db.ConnectionString))
         {
-            index++;
-            await _db.ExecuteStoredProcedureNonQueryAsync(
-                "dbo.INSERT_Tran_TranDetails",
-                p =>
+            await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            using (var transaction = connection.BeginTransaction(IsolationLevel.Serializable))
+            {
+                try
                 {
-                    p.Add("@TranSn", SqlDbType.Int).Value = serial;
-                    p.Add("@Account_Sn", SqlDbType.Int).Value = line.AccountSn;
-                    p.Add("@AccounIindex", SqlDbType.Int).Value = index;
-                    p.Add("@TranDesc", SqlDbType.NVarChar, 400).Value =
-                        (object?)NullIfEmpty(line.Description) ?? DBNull.Value;
-                    p.Add("@Debit", SqlDbType.Decimal).Value = line.Debit;
-                    p.Add("@Credit", SqlDbType.Decimal).Value = line.Credit;
-                    p.Add("@CostCentersID", SqlDbType.Int).Value = (object?)line.CostCenterId ?? DBNull.Value;
-                    p.Add("@BranchID", SqlDbType.Int).Value = branchId;
-                },
-                cancellationToken).ConfigureAwait(false);
-        }
+                    int referenceCode;
+                    using (var referenceCommand = new SqlCommand(
+                        @"SELECT ISNULL(MAX(ReferenceCode), 0) + 1
+                          FROM dbo.Tran_Tran WITH (UPDLOCK, HOLDLOCK)
+                          WHERE BranchID = @BranchID AND TranTypeID = @TranTypeID;",
+                        connection,
+                        transaction))
+                    {
+                        referenceCommand.CommandTimeout = 60;
+                        referenceCommand.Parameters.Add("@BranchID", SqlDbType.Int).Value = branchId;
+                        referenceCommand.Parameters.Add("@TranTypeID", SqlDbType.Int).Value = voucher.TranTypeId;
+                        var value = await referenceCommand.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+                        referenceCode = Convert.ToInt32(value);
+                    }
 
-        return serial;
+                    int serial;
+                    using (var headerCommand = new SqlCommand("dbo.Insert_Tran_Tran", connection, transaction))
+                    {
+                        headerCommand.CommandType = CommandType.StoredProcedure;
+                        headerCommand.CommandTimeout = 60;
+                        headerCommand.Parameters.Add("@ReferenceCode", SqlDbType.Int).Value = referenceCode;
+                        headerCommand.Parameters.Add("@ProjectId", SqlDbType.Int).Value =
+                            (object?)voucher.ProjectId ?? DBNull.Value;
+                        var transn = headerCommand.Parameters.Add("@Transn", SqlDbType.Int);
+                        transn.Direction = ParameterDirection.Output;
+                        headerCommand.Parameters.Add("@TranTypeID", SqlDbType.Int).Value = voucher.TranTypeId;
+                        headerCommand.Parameters.Add("@DocCode", SqlDbType.NVarChar, 100).Value =
+                            (object?)NullIfEmpty(voucher.DocCode) ?? referenceCode.ToString();
+                        headerCommand.Parameters.Add("@TranDate", SqlDbType.DateTime).Value = voucher.VoucherDate;
+                        headerCommand.Parameters.Add("@Note", SqlDbType.NVarChar, 400).Value =
+                            (object?)NullIfEmpty(voucher.Note) ?? DBNull.Value;
+                        headerCommand.Parameters.Add("@BranchID", SqlDbType.Int).Value = branchId;
+                        headerCommand.Parameters.Add("@UserID_Add", SqlDbType.Int).Value = session.UserId;
+                        headerCommand.Parameters.Add("@UserBranch_Add", SqlDbType.Int).Value = branchId;
+                        headerCommand.Parameters.Add("@UserMacAddress_Add", SqlDbType.NVarChar, 200).Value =
+                            Environment.MachineName;
+
+                        await headerCommand.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                        if (transn.Value is null or DBNull)
+                            throw new InvalidOperationException(
+                                "لم يُرجع الإجراء رقم السند الجديد (@Transn).");
+
+                        serial = Convert.ToInt32(transn.Value);
+                    }
+
+                    var index = 0;
+                    foreach (var line in voucher.Lines)
+                    {
+                        index++;
+                        using (var detailCommand = new SqlCommand(
+                            "dbo.INSERT_Tran_TranDetails", connection, transaction))
+                        {
+                            detailCommand.CommandType = CommandType.StoredProcedure;
+                            detailCommand.CommandTimeout = 60;
+                            detailCommand.Parameters.Add("@TranSn", SqlDbType.Int).Value = serial;
+                            detailCommand.Parameters.Add("@Account_Sn", SqlDbType.Int).Value = line.AccountSn;
+                            detailCommand.Parameters.Add("@AccounIindex", SqlDbType.Int).Value = index;
+                            detailCommand.Parameters.Add("@TranDesc", SqlDbType.NVarChar, 400).Value =
+                                (object?)NullIfEmpty(line.Description) ?? DBNull.Value;
+                            detailCommand.Parameters.Add("@Debit", SqlDbType.Decimal).Value = line.Debit;
+                            detailCommand.Parameters.Add("@Credit", SqlDbType.Decimal).Value = line.Credit;
+                            detailCommand.Parameters.Add("@CostCentersID", SqlDbType.Int).Value =
+                                (object?)line.CostCenterId ?? DBNull.Value;
+                            detailCommand.Parameters.Add("@BranchID", SqlDbType.Int).Value = branchId;
+
+                            await detailCommand.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                        }
+                    }
+
+                    transaction.Commit();
+                    return serial;
+                }
+                catch
+                {
+                    try { transaction.Rollback(); }
+                    catch { /* Preserve the original SQL exception. */ }
+                    throw;
+                }
+            }
+        }
     }
 
     /// <summary>Deletes a voucher through the original delete procedure
@@ -155,28 +196,6 @@ public sealed class VouchersService
             },
             cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>Voucher serials increment per branch and type, mirroring the
-    /// original numbering behaviour.</summary>
-    private Task<int> NextReferenceCodeAsync(
-        int branchId,
-        int tranTypeId,
-        CancellationToken cancellationToken)
-        => _db.QueryAsync(
-            @"
-SELECT ISNULL(MAX(ReferenceCode), 0) + 1
-FROM dbo.Tran_Tran
-WHERE BranchID = @BranchID AND TranTypeID = @TranTypeID;",
-            p =>
-            {
-                p.Add("@BranchID", SqlDbType.Int).Value = branchId;
-                p.Add("@TranTypeID", SqlDbType.Int).Value = tranTypeId;
-            },
-            cancellationToken).ContinueWith(
-                t => Convert.ToInt32(t.Result.Rows[0][0]),
-                cancellationToken,
-                TaskContinuationOptions.OnlyOnRanToCompletion,
-                TaskScheduler.Default);
 
     private Task<DataTable> ExecuteBranchProcedureAsync(
         string procedureName,

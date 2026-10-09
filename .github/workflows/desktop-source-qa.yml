@@ -35,6 +35,22 @@ jobs:
         shell: pwsh
         run: ./desktop-source/tools/Test-DesktopButtonWiring.ps1
 
+      - name: Validate safe local updater PowerShell syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path ./desktop-source/Apply-Desktop-Update.ps1).Path,
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          Write-Host "PASS: updater PowerShell syntax"
+
       - name: Build WinForms desktop application
         shell: pwsh
         run: dotnet build desktop-source/src/AlSaqarAccounting/AlSaqarAccounting.csproj --configuration Release

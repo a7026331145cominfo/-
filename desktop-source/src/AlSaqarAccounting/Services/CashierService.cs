@@ -16,6 +16,11 @@ public sealed class CashierService
 
     public CashierService(DbExecutor db) => _db = db;
 
+    public Task<SalesEntrySettings> GetEntrySettingsAsync(
+        int branchId,
+        CancellationToken cancellationToken = default)
+        => new SalesService(_db).GetEntrySettingsAsync(branchId, cancellationToken);
+
     #region Sales Operations
 
     /// <summary>
@@ -56,6 +61,7 @@ public sealed class CashierService
         {
             InvoiceDate = order.Purchases_Date.GetValueOrDefault(DateTime.Now),
             PaymentType = order.Order_Paymant_Type.GetValueOrDefault(order.CashMoney.GetValueOrDefault() > 0m ? 1 : 2),
+            OrderCashierType = true,
             CustomerId = order.SupplierID,
             CustomerName = order.SupplierName,
             CustomerPhone = order.SupplierPhone,
@@ -91,7 +97,7 @@ public sealed class CashierService
             sql += " AND Purchases_Date >= @FromDate";
         
         if (toDate.HasValue)
-            sql += " AND Purchases_Date <= @ToDate";
+            sql += " AND Purchases_Date < DATEADD(DAY, 1, @ToDate)";
         
         sql += " ORDER BY Purchases_Date DESC";
 
@@ -114,6 +120,29 @@ public sealed class CashierService
         return _db.QueryAsync(
             "SELECT * FROM dbo.Order_OrdersDetails WHERE Purchese_ID = @SaleId ORDER BY SN",
             p => p.Add("@SaleId", SqlDbType.Int).Value = saleId, cancellationToken);
+    }
+
+    public Task<DataTable> GetSaleDetailsForBranchAsync(
+        int saleId,
+        int branchId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = @"
+SELECT d.*, i.item_Name AS ItemName, i.Item_code AS ItemBarcode
+FROM dbo.Order_OrdersDetails AS d
+LEFT JOIN dbo.Item_Items AS i ON i.ItemId = d.ItemID
+WHERE d.Purchese_ID = @SaleId
+  AND d.BranchID = @BranchID
+ORDER BY d.SN;";
+
+        return _db.QueryAsync(
+            sql,
+            p =>
+            {
+                p.Add("@SaleId", SqlDbType.Int).Value = saleId;
+                p.Add("@BranchID", SqlDbType.Int).Value = branchId;
+            },
+            cancellationToken);
     }
 
     /// <summary>
