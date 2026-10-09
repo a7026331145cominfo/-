@@ -8,6 +8,8 @@ public sealed class ConnectionSettingsForm : Form
     private readonly Action _onSaved;
     private readonly TextBox _server = new() { Dock = DockStyle.Fill };
     private readonly TextBox _database = new() { Dock = DockStyle.Fill };
+    private readonly TextBox _userName = new() { Dock = DockStyle.Fill };
+    private readonly TextBox _password = new() { Dock = DockStyle.Fill, UseSystemPasswordChar = true };
     private readonly CheckBox _integrated = new() { Text = "مصادقة Windows", AutoSize = true };
     private readonly Label _status = new() { AutoSize = true, MaximumSize = new Size(540, 70) };
 
@@ -19,15 +21,21 @@ public sealed class ConnectionSettingsForm : Form
         RightToLeft = RightToLeft.Yes; RightToLeftLayout = true;
         _server.Text = settings.Server;
         _database.Text = settings.Database;
+        _userName.Text = settings.UserName;
+        _password.Text = settings.Password;
         _integrated.Checked = settings.IntegratedSecurity;
-        var form = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 5, Padding = new Padding(14) };
+        var form = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 7, Padding = new Padding(14) };
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         AddField(form, 0, "خادم SQL Server", _server);
         AddField(form, 1, "قاعدة البيانات", _database);
         form.Controls.Add(new Label { Text = "المصادقة", AutoSize = true, Anchor = AnchorStyles.Right }, 0, 2);
         form.Controls.Add(_integrated, 1, 2);
-        form.Controls.Add(_status, 0, 3); form.SetColumnSpan(_status, 2);
+        AddField(form, 3, "اسم مستخدم SQL", _userName);
+        AddField(form, 4, "كلمة مرور SQL", _password);
+        form.Controls.Add(_status, 0, 5); form.SetColumnSpan(_status, 2);
+        _integrated.CheckedChanged += (_, _) => UpdateAuthenticationFields();
+        UpdateAuthenticationFields();
         var buttons = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, FlowDirection = FlowDirection.LeftToRight };
         var test = new Button { Text = "اختبار الاتصال", AutoSize = true };
         test.Click += (_, _) => TestConnection();
@@ -36,7 +44,7 @@ public sealed class ConnectionSettingsForm : Form
         var cancel = new Button { Text = "إلغاء", AutoSize = true };
         cancel.Click += (_, _) => { DialogResult = DialogResult.Cancel; Close(); };
         buttons.Controls.Add(test); buttons.Controls.Add(save); buttons.Controls.Add(cancel);
-        form.Controls.Add(buttons, 0, 4); form.SetColumnSpan(buttons, 2);
+        form.Controls.Add(buttons, 0, 6); form.SetColumnSpan(buttons, 2);
         Controls.Add(form);
     }
 
@@ -51,9 +59,16 @@ public sealed class ConnectionSettingsForm : Form
         Server = _server.Text.Trim(),
         Database = _database.Text.Trim(),
         IntegratedSecurity = _integrated.Checked,
-        UserName = _settings.UserName,
-        EncryptedPassword = _settings.EncryptedPassword
+        UserName = _userName.Text.Trim(),
+        Password = _password.Text
     };
+
+    private void UpdateAuthenticationFields()
+    {
+        var useSqlAuthentication = !_integrated.Checked;
+        _userName.Enabled = useSqlAuthentication;
+        _password.Enabled = useSqlAuthentication;
+    }
 
     private void TestConnection()
     {
@@ -78,6 +93,8 @@ public sealed class ConnectionSettingsForm : Form
             _settings.Server = candidate.Server;
             _settings.Database = candidate.Database;
             _settings.IntegratedSecurity = candidate.IntegratedSecurity;
+            _settings.UserName = candidate.UserName;
+            _settings.Password = candidate.Password;
             _settings.Save();
             _onSaved();
             DialogResult = DialogResult.OK;
