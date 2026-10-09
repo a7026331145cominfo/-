@@ -1,0 +1,670 @@
+using System.Globalization;
+using System.Text;
+using AlSaqarAccounting.Core;
+using AlSaqarAccounting.Forms;
+using AlSaqarAccounting.Services;
+
+namespace AlSaqarAccounting.UI;
+
+/// <summary>
+/// Registry of the migrated real screens. It maps the original screen names
+/// (both Frm* names and Arabic names stored in User_Screens) to their concrete
+/// Form implementations, so the generic OperationalDataScreen / CatalogDataScreen
+/// fallbacks are no longer used for these screens.
+/// </summary>
+public static class RealScreenCatalog
+{
+    private delegate Form ScreenFactory(string connectionString, AppSession session, ScreenAccess access);
+
+    private static DbExecutor CreateDb(string connectionString)
+        => new(new SqlConnectionFactory(connectionString));
+
+    private static readonly Dictionary<string, ScreenFactory> Factories =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["FrmAccountTree"] = (cs, s, a) => new AccountsTreeForm(
+                s, a, new AccountsTreeService(CreateDb(cs))),
+
+            ["شجرة الحسابات"] = (cs, s, a) => new AccountsTreeForm(
+                s, a, new AccountsTreeService(CreateDb(cs))),
+
+            ["الحسابات"] = (cs, s, a) => new AccountsTreeForm(
+                s, a, new AccountsTreeService(CreateDb(cs))),
+
+            // بدائل لأسماء شاشات التصميم القديمة: أي زر/سجل قديم يشير إلى
+            // AccountingForm أو AdvancedItemsForm يُوجَّه إلى الشاشة التشغيلية المثبتة
+            // المقابلة بدل فتح شاشة شكلية تحتوي عمليات غير منفذة.
+            ["AccountingForm"] = (cs, s, a) => new AccountingForm(
+                s, a, new AccountingService(CreateDb(cs))),
+
+            ["النظام المحاسبي"] = (cs, s, a) => new AccountingForm(
+                s, a, new AccountingService(CreateDb(cs))),
+
+            ["FrmAccounting"] = (cs, s, a) => new AccountingForm(
+                s, a, new AccountingService(CreateDb(cs))),
+
+            ["AdvancedItemsForm"] = (cs, s, a) => new AdvancedItemsForm(
+                s, a,
+                new ItemsService(CreateDb(cs)),
+                new ItemUnitService(CreateDb(cs)),
+                new ItemMasterService(CreateDb(cs))),
+
+            // الأمن والصلاحيات — شاشات إدارية حقيقية مرتبطة بجداول User_* الأصلية.
+            ["FrmPassword"] = (cs, s, a) => new ChangePasswordForm(
+                s, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["كلمة المرور"] = (cs, s, a) => new ChangePasswordForm(
+                s, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["تغيير كلمة المرور"] = (cs, s, a) => new ChangePasswordForm(
+                s, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["FrmScreens"] = (cs, s, a) => new UserScreensForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["الشاشات"] = (cs, s, a) => new UserScreensForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["شاشات النظام"] = (cs, s, a) => new UserScreensForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["UserScreensForm"] = (cs, s, a) => new UserScreensForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["FrmPermission"] = (cs, s, a) => new UserPermissionsForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["FrmPermissions"] = (cs, s, a) => new UserPermissionsForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["الصلاحيات"] = (cs, s, a) => new UserPermissionsForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["صلاحيات الشاشات"] = (cs, s, a) => new UserPermissionsForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            ["UserPermissionsForm"] = (cs, s, a) => new UserPermissionsForm(
+                s, a, new SecurityAdministrationService(CreateDb(cs))),
+
+            // العملاء — إضافة/حذف تشغيلية (حساب فرعي تحت الحساب الافتراضي),
+
+            ["FrmCustomer"] = (cs, s, a) => new CustomersForm(
+                s, a, new CustSupService(CreateDb(cs)), new AccountsTreeService(CreateDb(cs))),
+
+            ["العملاء"] = (cs, s, a) => new CustomersForm(
+                s, a, new CustSupService(CreateDb(cs)), new AccountsTreeService(CreateDb(cs))),
+
+            // الموردون — إضافة/تعديل/حذف تشغيلية,
+
+            ["FrmSuppliers"] = (cs, s, a) => new SuppliersForm(
+                s, a, new CustSupService(CreateDb(cs))),
+
+            ["الموردون"] = (cs, s, a) => new SuppliersForm(
+                s, a, new CustSupService(CreateDb(cs))),
+
+            // الفروع,
+
+            ["FrmBranches"] = (cs, s, a) => new BranchesForm(
+                s, a, new BranchService(CreateDb(cs))),
+
+            ["الفروع"] = (cs, s, a) => new BranchesForm(
+                s, a, new BranchService(CreateDb(cs))),
+
+            // المخازن,
+
+            ["FrmStores"] = (cs, s, a) => new StoresForm(
+                s, a, new StoresService(CreateDb(cs))),
+
+            ["المخازن"] = (cs, s, a) => new StoresForm(
+                s, a, new StoresService(CreateDb(cs))),
+
+            // مندوبو المبيعات,
+
+            ["FrmSalesMan"] = (cs, s, a) => new SalesMenForm(
+                s, a, new SalesManService(CreateDb(cs))),
+
+            // مناطق المناديب — الشاشة الأصلية هي FrmPlace وتستخدم dbo.Account_Place.
+            ["FrmPlace"] = (cs, s, a) => new PlacesForm(
+                s, a, new PlacesService(CreateDb(cs))),
+
+            ["مناطق المناديب"] = (cs, s, a) => new PlacesForm(
+                s, a, new PlacesService(CreateDb(cs))),
+
+            // مراكز التكلفة,
+
+            ["FrmCostCenter"] = (cs, s, a) => new CostCentersForm(
+                s, a, new DocumentsService(CreateDb(cs))),
+
+            ["FrmCostCenterTree"] = (cs, s, a) => new CostCentersForm(
+                s, a, new DocumentsService(CreateDb(cs))),
+
+            ["مراكز التكلفة"] = (cs, s, a) => new CostCentersForm(
+                s, a, new DocumentsService(CreateDb(cs))),
+
+            // المشاريع,
+
+            ["FrmProjects"] = (cs, s, a) => new ProjectsForm(
+                s, a, new DocumentsService(CreateDb(cs))),
+
+            ["المشاريع"] = (cs, s, a) => new ProjectsForm(
+                s, a, new DocumentsService(CreateDb(cs))),
+
+            // المبيعات — فاتورة جديدة/حذف تشغيلية عبر Insert_Order_Order_ALL,
+
+            // أسماء شاشات مثبتة من تقرير الربط الحقيقي للمشروع الأصلي.
+            // شاشات البحث التي ثبت التقرير أنها أجزاء مساندة لشاشات تشغيلية موجودة في V4.
+            ["FrmSearchItem"] = (cs, s, a) => new ItemsForm(
+                s, a, new ItemsService(CreateDb(cs))),
+
+            ["FrmItemReader"] = (cs, s, a) => new ItemsForm(
+                s, a, new ItemsService(CreateDb(cs))),
+
+            ["FrmSearchCustomerAll"] = (cs, s, a) => new CustomersForm(
+                s, a,
+                new CustSupService(CreateDb(cs)),
+                new AccountsTreeService(CreateDb(cs))),
+
+            ["FrmSearchDefualtAccount"] = (cs, s, a) => new AccountsTreeForm(
+                s, a, new AccountsTreeService(CreateDb(cs))),
+
+            ["FrmSearchAccountReceipts"] = (cs, s, a) => new AccountsTreeForm(
+                s, a, new AccountsTreeService(CreateDb(cs))),
+
+            ["FrmSearchReceiptsBig"] = (cs, s, a) => new ReceiptsForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["FrmSearchTransferToBranch"] = (cs, s, a) => new TransferToBranchForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmSearchStoreTransfer"] = (cs, s, a) => new StoreTransfersForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmSearchItems1"] = (cs, s, a) => new ItemsForm(
+                s, a, new ItemsService(CreateDb(cs))),
+
+            ["FrmSearchOrders"] = (cs, s, a) => new OrdersForm(
+                s, a,
+                new SalesService(CreateDb(cs)),
+                new StoresService(CreateDb(cs))),
+
+            ["FrmSearchAccount"] = (cs, s, a) => new AccountsTreeForm(
+                s, a, new AccountsTreeService(CreateDb(cs))),
+
+            ["FrmUnit"] = (cs, s, a) => new ItemUnitForm(
+                s, a, new ItemUnitService(CreateDb(cs))),
+
+            ["FrmPaymentBig"] = (cs, s, a) => new ReceiptsForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["FrmReceiptsBig"] = (cs, s, a) => new ReceiptsForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["FrmOrders"] = (cs, s, a) => new OrdersForm(
+                s, a,
+                new SalesService(CreateDb(cs)),
+                new StoresService(CreateDb(cs))),
+
+            ["SalesEntryForm"] = (cs, s, a) => new SalesEntryForm(
+                s, a, new SalesService(CreateDb(cs)), new StoresService(CreateDb(cs))),
+
+            ["FrmSalesEntry"] = (cs, s, a) => new SalesEntryForm(
+                s, a, new SalesService(CreateDb(cs)), new StoresService(CreateDb(cs))),
+
+            ["فاتورة مبيعات جديدة"] = (cs, s, a) => new SalesEntryForm(
+                s, a, new SalesService(CreateDb(cs)), new StoresService(CreateDb(cs))),
+
+            ["المبيعات"] = (cs, s, a) => new OrdersForm(
+                s, a,
+                new SalesService(CreateDb(cs)),
+                new StoresService(CreateDb(cs))),
+
+            // المشتريات — فاتورة جديدة/حذف تشغيلية عبر Insert_Order_Purchases,
+
+            ["FrmPurchases"] = (cs, s, a) => new PurchasesForm(
+                s, a,
+                new PurchasesService(CreateDb(cs)),
+                new StoresService(CreateDb(cs)),
+                new CustSupService(CreateDb(cs))),
+
+            ["المشتريات"] = (cs, s, a) => new PurchasesForm(
+                s, a,
+                new PurchasesService(CreateDb(cs)),
+                new StoresService(CreateDb(cs)),
+                new CustSupService(CreateDb(cs))),
+
+            ["PurchasesEntryForm"] = (cs, s, a) => new PurchasesEntryForm(
+                s, a, new PurchasesService(CreateDb(cs)), new StoresService(CreateDb(cs)), new CustSupService(CreateDb(cs))),
+
+            ["FrmPurchasesEntry"] = (cs, s, a) => new PurchasesEntryForm(
+                s, a, new PurchasesService(CreateDb(cs)), new StoresService(CreateDb(cs)), new CustSupService(CreateDb(cs))),
+
+            ["فاتورة مشتريات جديدة"] = (cs, s, a) => new PurchasesEntryForm(
+                s, a, new PurchasesService(CreateDb(cs)), new StoresService(CreateDb(cs)), new CustSupService(CreateDb(cs))),
+
+            // التحويلات والجرد والمرتجعات وعروض الأسعار والضمانات — شاشات حقيقية مرتبطة بإجراءات GTSdb2026,
+
+            ["FrmTransferToBranch"] = (cs, s, a) => new TransferToBranchForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["تحويل إلى فرع"] = (cs, s, a) => new TransferToBranchForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmTransferFromBranch"] = (cs, s, a) => new TransferFromBranchForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["تحويل من فرع"] = (cs, s, a) => new TransferFromBranchForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmStoreTransfer"] = (cs, s, a) => new StoreTransfersForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmStoreTransfers"] = (cs, s, a) => new StoreTransfersForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["تحويلات المخازن"] = (cs, s, a) => new StoreTransfersForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmOrderReturn"] = (cs, s, a) => new SalesReturnsForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["مرتجعات المبيعات"] = (cs, s, a) => new SalesReturnsForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmPurchasesReturn"] = (cs, s, a) => new PurchaseReturnsForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["مرتجعات المشتريات"] = (cs, s, a) => new PurchaseReturnsForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmPriceOffer"] = (cs, s, a) => new PriceOffersForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["عروض الأسعار"] = (cs, s, a) => new PriceOffersForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmGuarantee"] = (cs, s, a) => new GuaranteesForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["ضمانات العقود"] = (cs, s, a) => new GuaranteesForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmGard"] = (cs, s, a) => new InventoryCountForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["الجرد"] = (cs, s, a) => new InventoryCountForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["كميات المخزون"] = (cs, s, a) => new InventoryStockForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmInventoryStock"] = (cs, s, a) => new InventoryStockForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["بونص العقود"] = (cs, s, a) => new ContractBounceForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["FrmContractBounce"] = (cs, s, a) => new ContractBounceForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            // الكميات الافتتاحية — CRUD فعلي عبر Insert/Update/Delete_OpenQuantity + Items_OpenQuantity,
+
+            ["FrmOpenQuantity"] = (cs, s, a) => new OpenQuantitiesForm(
+                s, a, new OpenQuantityService(CreateDb(cs))),
+
+            ["الكميات الافتتاحية"] = (cs, s, a) => new OpenQuantitiesForm(
+                s, a, new OpenQuantityService(CreateDb(cs))),
+
+            ["كميات افتتاحية"] = (cs, s, a) => new OpenQuantitiesForm(
+                s, a, new OpenQuantityService(CreateDb(cs))),
+
+            // تسوية الجرد بالنقص — قراءة وطباعة بعقد موثق,
+
+            ["FrmInventorySettlementMinus"] = (cs, s, a) => new InventorySettlementMinusForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["تسوية جرد بالنقص"] = (cs, s, a) => new InventorySettlementMinusForm(
+                s, a, new InventoryOperationsService(CreateDb(cs))),
+            // السندات — سند جديد/حذف تشغيلية عبر Insert_Tran_Tran,
+
+            ["FrmReceipts"] = (cs, s, a) => new ReceiptsForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["السندات"] = (cs, s, a) => new ReceiptsForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["VoucherEntryForm"] = (cs, s, a) => new VoucherEntryForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["FrmVoucherEntry"] = (cs, s, a) => new VoucherEntryForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["سند جديد"] = (cs, s, a) => new VoucherEntryForm(
+                s, a, new VouchersService(CreateDb(cs))),
+
+            ["الأصناف"] = (cs, s, a) => new ItemsForm(s, a, new ItemsService(CreateDb(cs))),
+
+            ["الوحدات"] = (cs, s, a) => new ItemUnitForm(s, a, new ItemUnitService(CreateDb(cs))),
+
+            ["الشركات"] = (cs, s, a) => new ItemMasterForm(s, a, new ItemMasterService(CreateDb(cs)), "Item_Company", "الشركات"),
+
+            ["الفئات"] = (cs, s, a) => new ItemMasterForm(s, a, new ItemMasterService(CreateDb(cs)), "Item_Class", "الفئات"),
+
+            ["المجموعات"] = (cs, s, a) => new ItemMasterForm(s, a, new ItemMasterService(CreateDb(cs)), "Item_Groups", "المجموعات"),
+
+            ["FrmContract"] = (cs, s, a) => new ContractsForm(s, a, new ContractService(CreateDb(cs))),
+
+            ["العقود"] = (cs, s, a) => new ContractsForm(s, a, new ContractService(CreateDb(cs))),
+
+            ["المندوبين"] = (cs, s, a) => new SalesMenForm(s, a, new SalesManService(CreateDb(cs))),
+
+            ["المندوبون"] = (cs, s, a) => new SalesMenForm(s, a, new SalesManService(CreateDb(cs))),
+
+            ["المستودعات"] = (cs, s, a) => new StoresForm(s, a, new StoresService(CreateDb(cs))),
+
+            ["الكاشير"] = (cs, s, a) => new CashierForm(s, a, new CashierService(CreateDb(cs)), new ItemsService(CreateDb(cs)), new CustomerService(CreateDb(cs))),
+
+            ["CashierForm"] = (cs, s, a) => new CashierForm(s, a, new CashierService(CreateDb(cs)), new ItemsService(CreateDb(cs)), new CustomerService(CreateDb(cs))),
+
+            ["FrmCashier"] = (cs, s, a) => new CashierForm(s, a, new CashierService(CreateDb(cs)), new ItemsService(CreateDb(cs)), new CustomerService(CreateDb(cs))),
+
+            ["نقطة البيع"] = (cs, s, a) => new CashierForm(s, a, new CashierService(CreateDb(cs)), new ItemsService(CreateDb(cs)), new CustomerService(CreateDb(cs))),
+
+            ["طلب التحويل إلى فرع"] = (cs, s, a) => new TransferToBranchForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["طلب الاستقبال من فرع"] = (cs, s, a) => new TransferFromBranchForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["طلبات التحويل للفروع"] = (cs, s, a) => new StoreTransfersForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["عروض أسعار"] = (cs, s, a) => new PriceOffersForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["مرتجعات المبيعات بفاتورة"] = (cs, s, a) => new SalesReturnsForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["مرتجعات المبيعات بدون فاتورة"] = (cs, s, a) => new SalesReturnsForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["مرتجعات المشتريات بفاتورة"] = (cs, s, a) => new PurchaseReturnsForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["مرتجعات المشتريات بدون فاتورة"] = (cs, s, a) => new PurchaseReturnsForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["تسوية الجرد بالنقص"] = (cs, s, a) => new InventorySettlementMinusForm(s, a, new InventoryOperationsService(CreateDb(cs))),
+
+            ["الطابعات"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+
+            ["الطابعة"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+
+            ["إعدادات الطابعات"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+
+            ["إعدادات طابعة الكاشير"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+
+            ["طابعات الكاشير"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+
+            ["طابعات المطبخ"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+
+            ["طبعات المطبخ"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+
+            ["إعدادات طابعات المطبخ"] = (cs, s, a) => new PrinterSettingsForm(s, a, new PrinterSettingsService(CreateDb(cs))),
+        };
+
+    public static bool TryCreate(string? screenName, string connectionString, AppSession session, ScreenAccess access, out Form? form)
+    {
+        form = null;
+        var raw = screenName?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(raw))
+            return false;
+
+        // First honor the exact database label. This keeps all existing Arabic mappings intact.
+        if (Factories.TryGetValue(raw, out var factory))
+        {
+            form = factory(connectionString, session, access);
+            return form is not null;
+        }
+
+        // Explicit aliases verified from the original GTS ERP wiring report.
+        // These are real V4 operational forms; no dynamic/demo screen is used.
+        if (TryCreateVerifiedAlias(raw, connectionString, session, access, out form))
+            return true;
+
+        var normalized = NormalizeScreenName(raw);
+
+        // The original database can contain hidden Unicode formatting characters or minor
+        // spelling variants. Resolve migrated screens semantically instead of falling back.
+        if (IsItemScreen(normalized))
+        {
+            form = new ItemsForm(session, access, new ItemsService(CreateDb(connectionString)));
+            return true;
+        }
+
+        if (IsUnitScreen(normalized))
+        {
+            form = new ItemUnitForm(session, access, new ItemUnitService(CreateDb(connectionString)));
+            return true;
+        }
+
+        // Resolve common legacy screen-name variants to the concrete ERP Forms
+        // already implemented in this repository. This prevents ordinary Arabic
+        // labels, Frm* aliases and plural/suffix variants from reaching the
+        // generic DynamicErpScreenForm.
+        var db = CreateDb(connectionString);
+
+        if (normalized.IndexOf("عميل", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("عملاء", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("customer", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("cust", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new CustomersForm(session, access, new CustSupService(db), new AccountsTreeService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("مورد", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("موردون", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("supplier", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("supp", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new SuppliersForm(session, access, new CustSupService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("فرع", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("branch", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new BranchesForm(session, access, new BranchService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("مخزن", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("مستودع", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("store", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("warehouse", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new StoresForm(session, access, new StoresService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("مندوب", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("salesman", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new SalesMenForm(session, access, new SalesManService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("مركزالتكلفة", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("مراكزالتكلفة", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("costcenter", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new CostCentersForm(session, access, new DocumentsService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("مشروع", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("project", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new ProjectsForm(session, access, new DocumentsService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("عقد", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("عقود", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("contract", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new ContractsForm(session, access, new ContractService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("شراء", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("مشتريات", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("purchase", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new PurchasesForm(session, access, new PurchasesService(db), new StoresService(db), new CustSupService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("بيع", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("مبيعات", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("order", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("sales", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new OrdersForm(session, access, new SalesService(db), new StoresService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("فاتورة", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("فواتير", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("invoice", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new InvoicesForm(
+                session,
+                access,
+                new InvoiceService(db),
+                new SalesService(db),
+                new StoresService(db),
+                new CustomerService(db),
+                new SupplierService(db),
+                new ItemsService(db),
+                new PurchasesService(db),
+                new CustSupService(db));
+            return true;
+        }
+
+        if (normalized.IndexOf("سند", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("قبض", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("صرف", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("voucher", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("receipt", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            form = new ReceiptsForm(session, access, new VouchersService(db));
+            return true;
+        }
+
+        if ((normalized.IndexOf("حساب", StringComparison.OrdinalIgnoreCase) >= 0 ||
+             normalized.IndexOf("account", StringComparison.OrdinalIgnoreCase) >= 0) &&
+            (normalized.IndexOf("شجر", StringComparison.OrdinalIgnoreCase) >= 0 ||
+             normalized.IndexOf("tree", StringComparison.OrdinalIgnoreCase) >= 0))
+        {
+            form = new AccountsTreeForm(session, access, new AccountsTreeService(db));
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryCreateVerifiedAlias(
+        string raw,
+        string connectionString,
+        AppSession session,
+        ScreenAccess access,
+        out Form? form)
+    {
+        form = null;
+        var db = CreateDb(connectionString);
+        switch (raw)
+        {
+            // Account/card screens in the source are opened from the account tree
+            // and are backed by Account_Accounts / Class_AccountCard.
+            case "FrmCardAccount":
+                form = new AccountsTreeForm(session, access, new AccountsTreeService(db));
+                return true;
+            case "FrmDefualtAccount":
+                form = new AccountsTreeForm(session, access, new AccountsTreeService(db));
+                return true;
+            case "FrmDefualtCustomer":
+                form = new CustomersForm(session, access, new CustSupService(db), new AccountsTreeService(db));
+                return true;
+            case "FrmGuarantee":
+                form = new GuaranteesForm(session, access, new InventoryOperationsService(db));
+                return true;
+
+            // Search dialogs verified in the source as real selectors for the
+            // corresponding operational modules.
+            case "FrmSearchBranch":
+                form = new BranchesForm(session, access, new BranchService(db));
+                return true;
+            case "FrmSearchCustomer":
+                form = new CustomersForm(session, access, new CustSupService(db), new AccountsTreeService(db));
+                return true;
+            case "FrmSearchUnit":
+                form = new ItemUnitForm(session, access, new ItemUnitService(db));
+                return true;
+            case "FrmSearchCostCenter":
+                form = new CostCentersForm(session, access, new DocumentsService(db));
+                return true;
+            case "FrmSearchSalesMan":
+                form = new SalesMenForm(session, access, new SalesManService(db));
+                return true;
+            case "FrmSearchPlace":
+                form = new PlacesForm(session, access, new PlacesService(db));
+                return true;
+            case "FrmSearchStore":
+            case "FrmSearchStores":
+                form = new StoresForm(session, access, new StoresService(db));
+                return true;
+            case "FrmSearchCompany":
+                form = new ItemMasterForm(session, access, new ItemMasterService(db), "Item_Company", "الشركات");
+                return true;
+            case "FrmSearchClass":
+                form = new ItemMasterForm(session, access, new ItemMasterService(db), "Item_Class", "الفئات");
+                return true;
+            case "FrmSearchGroups":
+                form = new ItemMasterForm(session, access, new ItemMasterService(db), "Item_Groups", "المجموعات");
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static bool IsItemScreen(string normalized)
+        => normalized.IndexOf("الاصناف", StringComparison.OrdinalIgnoreCase) >= 0 ||
+           normalized.IndexOf("اصناف", StringComparison.OrdinalIgnoreCase) >= 0 ||
+           normalized.IndexOf("الصنف", StringComparison.OrdinalIgnoreCase) >= 0 ||
+           normalized.Equals("item", StringComparison.OrdinalIgnoreCase) ||
+           normalized.Equals("items", StringComparison.OrdinalIgnoreCase) ||
+           normalized.Equals("frmitms", StringComparison.OrdinalIgnoreCase) ||
+           normalized.Equals("frmitems", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsUnitScreen(string normalized)
+        => normalized.IndexOf("الوحدات", StringComparison.OrdinalIgnoreCase) >= 0 ||
+           normalized.IndexOf("وحدات", StringComparison.OrdinalIgnoreCase) >= 0 ||
+           normalized.Equals("frmunit", StringComparison.OrdinalIgnoreCase);
+
+    private static string NormalizeScreenName(string value)
+    {
+        var form = value.Normalize(NormalizationForm.FormKC);
+        var builder = new StringBuilder(form.Length);
+        foreach (var ch in form)
+        {
+            var category = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (category == UnicodeCategory.Format ||
+                category == UnicodeCategory.NonSpacingMark ||
+                category == UnicodeCategory.SpacingCombiningMark ||
+                char.IsWhiteSpace(ch))
+                continue;
+
+            builder.Append(ch switch
+            {
+                'أ' or 'إ' or 'آ' or 'ٱ' => 'ا',
+                'ى' => 'ي',
+                _ => ch
+            });
+        }
+
+        return builder.ToString();
+    }
+}
