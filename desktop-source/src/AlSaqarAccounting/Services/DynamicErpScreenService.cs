@@ -55,8 +55,25 @@ public sealed class DynamicErpScreenService
         if (!string.IsNullOrWhiteSpace(definition.TableName))
         {
             var table = QuoteIdentifier(definition.TableName!);
+            var key = QuoteIdentifier(definition.KeyColumn ?? definition.Columns.FirstOrDefault()?.Name ?? "1");
+            var branchColumn = definition.Columns.FirstOrDefault(c =>
+                c.Name.Equals("BranchID", StringComparison.OrdinalIgnoreCase) ||
+                c.Name.Equals("Branch_Id", StringComparison.OrdinalIgnoreCase) ||
+                c.Name.Equals("BranchId", StringComparison.OrdinalIgnoreCase));
+
+            if (branchColumn is not null)
+            {
+                if (!branchId.HasValue)
+                    throw new InvalidOperationException("هذه الشاشة مرتبطة بالفروع؛ يجب تسجيل الدخول بفرع محدد لعرض بياناتها.");
+
+                return _db.QueryAsync(
+                    $"SELECT TOP (5000) * FROM dbo.{table} WHERE {QuoteIdentifier(branchColumn.Name)}=@__branch ORDER BY {key};",
+                    p => p.Add("@__branch", SqlDbType.Int).Value = branchId.Value,
+                    cancellationToken);
+            }
+
             return _db.QueryAsync(
-                $"SELECT TOP (5000) * FROM dbo.{table} ORDER BY {QuoteIdentifier(definition.KeyColumn ?? definition.Columns.FirstOrDefault()?.Name ?? "1")};",
+                $"SELECT TOP (5000) * FROM dbo.{table} ORDER BY {key};",
                 cancellationToken: cancellationToken);
         }
 
