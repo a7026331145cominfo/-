@@ -121,6 +121,29 @@ public sealed class CashierService
             p => p.Add("@SaleId", SqlDbType.Int).Value = saleId, cancellationToken);
     }
 
+    public Task<DataTable> GetSaleDetailsForBranchAsync(
+        int saleId,
+        int branchId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = @"
+SELECT d.*, i.item_Name AS ItemName, i.Item_code AS ItemBarcode
+FROM dbo.Order_OrdersDetails AS d
+LEFT JOIN dbo.Item_Items AS i ON i.ItemId = d.ItemID
+WHERE d.Purchese_ID = @SaleId
+  AND d.BranchID = @BranchID
+ORDER BY d.SN;";
+
+        return _db.QueryAsync(
+            sql,
+            p =>
+            {
+                p.Add("@SaleId", SqlDbType.Int).Value = saleId;
+                p.Add("@BranchID", SqlDbType.Int).Value = branchId;
+            },
+            cancellationToken);
+    }
+
     /// <summary>
     /// Get daily cashier summary
     /// </summary>
