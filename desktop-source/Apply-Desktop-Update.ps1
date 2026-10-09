@@ -42,6 +42,7 @@ $files = @(
     @{ Relative = "Forms\RealSalesInvoiceFormFixed.cs"; Marker = "body.Controls.Add(bottom, 0, 3);" },
     @{ Relative = "Forms\ReceiptsForm.cs"; Marker = "ScreenAccess.CleanScreenName(s.ScreenName)" },
     @{ Relative = "Services\CashierService.cs"; Marker = "OrderCashierType = true," },
+    @{ Relative = "Services\DynamicErpScreenService.cs"; Marker = '"@__branch"' },
     @{ Relative = "Services\SalesService.cs"; Marker = 'Set("@OrderCashierType", invoice.OrderCashierType)' },
     @{ Relative = "Services\VouchersService.cs"; Marker = "BeginTransaction(IsolationLevel.Serializable)" },
     @{ Relative = "UI\ErpTheme.cs"; Marker = "ConfigureDashboardButton" },
