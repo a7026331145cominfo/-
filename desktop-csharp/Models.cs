@@ -7,7 +7,7 @@ namespace AlSaqarERP.Desktop;
 
 public sealed class AppSettings
 {
-    public string Server { get; set; } = @".\SQLEXPRESS";
+    public string Server { get; set; } = "DESKTOP-KBU5DH6";
     public string Database { get; set; } = "GTSdb2026";
     public bool IntegratedSecurity { get; set; } = true;
     public string UserName { get; set; } = "";
@@ -43,7 +43,7 @@ public sealed class AppSettings
     {
         var b = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder
         {
-            DataSource = string.IsNullOrWhiteSpace(Server) ? @".\SQLEXPRESS" : Server.Trim(),
+            DataSource = string.IsNullOrWhiteSpace(Server) ? "DESKTOP-KBU5DH6" : Server.Trim(),
             InitialCatalog = string.IsNullOrWhiteSpace(Database) ? "GTSdb2026" : Database.Trim(),
             IntegratedSecurity = IntegratedSecurity,
             TrustServerCertificate = true,
