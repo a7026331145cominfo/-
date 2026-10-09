@@ -195,7 +195,7 @@ public sealed class AdvancedItemsForm : Form
         AddToolbarButton(toolbar, "حفظ", _access.AllowSave, SaveItem); // "حفظ"
         AddToolbarButton(toolbar, "تعديل", _access.AllowEdit, EditItem); // "تعديل"
         AddToolbarButton(toolbar, "حذف", _access.AllowDelete, DeleteItem); // "حذف"
-        AddToolbarButton(toolbar, "استيراد", true, ImportItems); // "استيراد"
+        AddToolbarButton(toolbar, "استيراد", _access.AllowSave, ImportItems); // "استيراد"
         AddToolbarButton(toolbar, "تصدير", _access.AllowExport, ExportItems); // "تصدير"
         AddToolbarButton(toolbar, "طباعة باركود", true, PrintBarcode); // "طباعة باركود"
 
