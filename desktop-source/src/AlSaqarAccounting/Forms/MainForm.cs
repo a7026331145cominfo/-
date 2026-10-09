@@ -574,7 +574,7 @@ public sealed class MainForm : Form
 
         foreach (var name in quickNames)
         {
-            var screen = _screens.FirstOrDefault(s => string.Equals(s.ScreenName, name, StringComparison.OrdinalIgnoreCase));
+            var screen = _screens.FirstOrDefault(s => string.Equals(ScreenAccess.CleanScreenName(s.ScreenName), name, StringComparison.OrdinalIgnoreCase));
             if (screen is null || !screen.AllowEnter) continue;
 
             var button = new Button
