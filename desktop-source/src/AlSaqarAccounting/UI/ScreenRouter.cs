@@ -2,6 +2,7 @@ using AlSaqarAccounting.Core;
 using AlSaqarAccounting.Services;
 using AlSaqarAccounting.Forms;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AlSaqarAccounting.UI;
 
@@ -13,10 +14,10 @@ public sealed class ScreenRouter
     public ScreenRouter(string connectionString, AppSession session)
     { _connectionString = connectionString; _session = session; }
 
-    public bool TryOpen(Form owner, ScreenAccess access, out string message)
+    public async Task<RouteResult> TryOpenAsync(Form owner, ScreenAccess access)
     {
-        message = string.Empty;
-        if (!access.AllowEnter) { message = "لا تملك صلاحية فتح هذه الشاشة."; return false; }
+        if (!access.AllowEnter)
+            return new RouteResult(false, "لا تملك صلاحية فتح هذه الشاشة.");
 
         // Re-check the current permission in the database immediately before
         // opening the form. The menu is only a cached view of the user's access;
@@ -25,28 +26,26 @@ public sealed class ScreenRouter
         {
             var authorization = new AuthorizationService(
                 new DbExecutor(new SqlConnectionFactory(_connectionString)));
-            var allowedNow = authorization
-                .CanAsync(_session, access.Id, PermissionAction.Enter)
-                .GetAwaiter()
-                .GetResult();
+            // Do not block the WinForms UI thread while SQL validates the permission.
+            var allowedNow = await authorization.CanAsync(
+                _session, access.Id, PermissionAction.Enter);
 
             if (!allowedNow)
             {
-                message = "تم تغيير صلاحياتك أو إيقاف هذه الشاشة. أعد تحميل الصلاحيات ثم حاول مرة أخرى.";
-                return false;
+                return new RouteResult(false,
+                    "تم تغيير صلاحياتك أو إيقاف هذه الشاشة. أعد تحميل الصلاحيات ثم حاول مرة أخرى.");
             }
         }
         catch (Exception ex)
         {
-            message = "تعذر التحقق من صلاحية الشاشة من قاعدة البيانات: " + ex.GetBaseException().Message;
-            return false;
+            return new RouteResult(false,
+                "تعذر التحقق من صلاحية الشاشة من قاعدة البيانات: " + ex.GetBaseException().Message);
         }
 
         var screenName = ScreenAccess.CleanScreenName(access.ScreenName);
         if (string.IsNullOrWhiteSpace(screenName))
         {
-            message = "اسم الشاشة غير صالح.";
-            return false;
+            return new RouteResult(false, "اسم الشاشة غير صالح.");
         }
 
         var db = new DbExecutor(new SqlConnectionFactory(_connectionString));
@@ -55,28 +54,28 @@ public sealed class ScreenRouter
             string.Equals(screenName, "التراخيص", StringComparison.OrdinalIgnoreCase))
         {
             using var form = new LicenseManagementForm(_session, new LicenseService(db)) { StartPosition = FormStartPosition.CenterParent };
-            form.ShowDialog(owner); return true;
+            form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
         if (IsPasswordScreen(screenName))
         {
             using var form = new ChangePasswordForm(_session, new SecurityAdministrationService(db))
             { StartPosition = FormStartPosition.CenterParent };
-            form.ShowDialog(owner); return true;
+            form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
         if (IsScreenCatalogScreen(screenName))
         {
             using var form = new UserScreensForm(_session, access, new SecurityAdministrationService(db))
             { StartPosition = FormStartPosition.CenterParent };
-            form.ShowDialog(owner); return true;
+            form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
         if (IsPermissionScreen(screenName))
         {
             using var form = new UserPermissionsForm(_session, access, new SecurityAdministrationService(db))
             { StartPosition = FormStartPosition.CenterParent };
-            form.ShowDialog(owner); return true;
+            form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
         // Original GTSErpSystem places user-management screens in the Security
@@ -84,41 +83,41 @@ public sealed class ScreenRouter
         if (IsUserScreen(screenName))
         {
             using var form = new UserManagementForm(_session, access, new UserManagementService(db)) { StartPosition = FormStartPosition.CenterParent };
-            form.ShowDialog(owner); return true;
+            form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
         if (IsSecurityGroupPermissionScreen(screenName))
         {
             using var form = new UserPermissionsForm(_session, access, new SecurityAdministrationService(db))
             { StartPosition = FormStartPosition.CenterParent };
-            form.ShowDialog(owner); return true;
+            form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
         if (IsUserGroupScreen(screenName))
         {
             using var form = new UserGroupsForm(_session, access, new UserGroupsService(db)) { StartPosition = FormStartPosition.CenterParent };
-            form.ShowDialog(owner); return true;
+            form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
         if (string.Equals(screenName, "FrmUnit", StringComparison.OrdinalIgnoreCase))
         {
             var form = new ItemUnitForm(_session, access, new ItemUnitService(db));
-            return OpenMdi(owner, form);
+            return new RouteResult(OpenMdi(owner, form), string.Empty);
         }
         if (TryResolveItemMaster(screenName, out var tableName, out var displayName))
         {
             var form = new ItemMasterForm(_session, access, new ItemMasterService(db), tableName, displayName);
-            return OpenMdi(owner, form);
+            return new RouteResult(OpenMdi(owner, form), string.Empty);
         }
         if (string.Equals(screenName, "FrmItems", StringComparison.OrdinalIgnoreCase))
         {
             var form = new ItemsForm(_session, access, new ItemsService(db));
-            return OpenMdi(owner, form);
+            return new RouteResult(OpenMdi(owner, form), string.Empty);
         }
         if (string.Equals(screenName, "InvoicesForm", StringComparison.OrdinalIgnoreCase) || string.Equals(screenName, "الفواتير", StringComparison.OrdinalIgnoreCase))
         {
             var form = new InvoicesForm(_session, access, new InvoiceService(db), new SalesService(db), new StoresService(db), new CustomerService(db), new SupplierService(db), new ItemsService(db), new PurchasesService(db), new CustSupService(db));
-            return OpenMdi(owner, form);
+            return new RouteResult(OpenMdi(owner, form), string.Empty);
         }
         // Bind verified legacy ERP screens before the generic catalog/fallback.
         // These mappings use the original GTSdb2026 SELECT procedures and therefore
@@ -126,12 +125,12 @@ public sealed class ScreenRouter
         if (LegacyScreenCatalog.TryCreate(screenName, _connectionString, _session, access, out var legacyScreen)
             && legacyScreen is not null)
         {
-            return OpenMdi(owner, legacyScreen);
+            return new RouteResult(OpenMdi(owner, legacyScreen), string.Empty);
         }
 
         if (RealScreenCatalog.TryCreate(screenName, _connectionString, _session, access, out var realScreen) && realScreen is not null)
         {
-            return OpenMdi(owner, realScreen);
+            return new RouteResult(OpenMdi(owner, realScreen), string.Empty);
         }
         // For names not yet assigned to a specialized form, open a schema-driven
         // database view. It is explicitly read-only until a verified write contract
@@ -144,14 +143,16 @@ public sealed class ScreenRouter
                 new DynamicErpScreenService(db),
                 screenName,
                 readOnlyMode: true);
-            return OpenMdi(owner, dynamicForm);
+            return new RouteResult(OpenMdi(owner, dynamicForm), string.Empty);
         }
         catch (Exception ex)
         {
-            message = $"تعذر تجهيز شاشة «{screenName}»: {ex.GetBaseException().Message}";
-            return false;
+            return new RouteResult(false,
+                $"تعذر تجهيز شاشة «{screenName}»: {ex.GetBaseException().Message}");
         }
     }
+
+    public sealed record RouteResult(bool Opened, string Message);
 
     private static bool OpenMdi(Form owner, Form form)
     {
