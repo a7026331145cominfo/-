@@ -86,9 +86,9 @@ public sealed class DashboardScreen : UserControl, IRefreshable
         var metrics = new (string Table, string Caption)[]
         {
             ("dbo.Account_Accounts","الحسابات"), ("dbo.Account_CustSup","العملاء والموردون"),
-            ("dbo.Item_Items","الأصناف"), ("dbo.Order_Order","فواتير المبيعات"),
+            ("dbo.Item_Items","الأصناف"), ("dbo.Order_Orders","فواتير المبيعات"),
             ("dbo.Order_Purchases","فواتير المشتريات"), ("dbo.Account_Receipts","سندات القبض"),
-            ("dbo.Account_Payment","سندات الصرف"), ("dbo.Tran_Tran","الحركات المحاسبية")
+             ("dbo.Tran_Tran","الحركات المحاسبية")
         };
         try
         {
