@@ -133,11 +133,24 @@ public sealed class ScreenRouter
         {
             return OpenMdi(owner, realScreen);
         }
-        // لا توجد شاشة تجريبية/شكلية كخيار أخير.
-        // أي شاشة لم تُربط بعد بشاشة ERP تشغيلية حقيقية تُرفض بوضوح
-        // بدل عرض DynamicErpScreenForm أو أي صفحة وهمية.
-        message = $"الشاشة «{screenName}» لم تُربط بعد بشاشة تشغيلية حقيقية.";
-        return false;
+        // For names not yet assigned to a specialized form, open a schema-driven
+        // database view. It is explicitly read-only until a verified write contract
+        // is mapped, so unknown labels can be inspected without unsafe generic CRUD.
+        try
+        {
+            var dynamicForm = new DynamicErpScreenForm(
+                _session,
+                access,
+                new DynamicErpScreenService(db),
+                screenName,
+                readOnlyMode: true);
+            return OpenMdi(owner, dynamicForm);
+        }
+        catch (Exception ex)
+        {
+            message = $"تعذر تجهيز شاشة «{screenName}»: {ex.GetBaseException().Message}";
+            return false;
+        }
     }
 
     private static bool OpenMdi(Form owner, Form form)
@@ -150,7 +163,8 @@ public sealed class ScreenRouter
         }
 
         var existing = owner.MdiChildren.FirstOrDefault(x =>
-            string.Equals(x.GetType().FullName, form.GetType().FullName, StringComparison.Ordinal));
+            string.Equals(x.GetType().FullName, form.GetType().FullName, StringComparison.Ordinal) &&
+            string.Equals(x.Text, form.Text, StringComparison.CurrentCultureIgnoreCase));
 
         if (existing is not null)
         {
