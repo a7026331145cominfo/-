@@ -128,7 +128,7 @@ public sealed class MainForm : Form
         _header.Padding = new Padding(18, 10, 18, 10);
         _header.BorderStyle = BorderStyle.None;
 
-        var brandPanel = new Panel { Dock = DockStyle.Right, Width = 238, Padding = new Padding(4) };
+        var brandPanel = new Panel { Dock = DockStyle.Right, Width = 230, Padding = new Padding(4) };
         var brand = new Label
         {
             Text = "الصقر للمحاسبة",
@@ -150,7 +150,7 @@ public sealed class MainForm : Form
         brandPanel.Controls.Add(subtitle);
         brandPanel.Controls.Add(brand);
 
-        var userPanel = new Panel { Dock = DockStyle.Left, Width = 208, Padding = new Padding(6, 2, 6, 2) };
+        var userPanel = new Panel { Dock = DockStyle.Left, Width = 175, Padding = new Padding(6, 2, 6, 2) };
         var userLine = new Label
         {
             Text = $"المستخدم: {_session.UserName}",
@@ -181,16 +181,7 @@ public sealed class MainForm : Form
             Margin = new Padding(8, 0, 8, 0)
         };
 
-        var title = new Label
-        {
-            Text = "مساحة العمل",
-            AutoSize = true,
-            Font = new Font("Tahoma", 10f, FontStyle.Bold),
-            ForeColor = ErpTheme.NavigationMuted,
-            Margin = new Padding(4, 10, 18, 0)
-        };
-
-        _search.Width = 220;
+        _search.Width = 178;
         _search.Height = 28;
         _search.Font = new Font("Tahoma", 9.5f);
         _search.RightToLeft = RightToLeft.Yes;
@@ -215,7 +206,6 @@ public sealed class MainForm : Form
         actions.Controls.Add(CreateHeaderButton("↪  خروج", (_, _) => Close()));
         actions.Controls.Add(searchLabel);
         actions.Controls.Add(_search);
-        actions.Controls.Add(title);
 
         _header.Controls.Add(actions);
         _header.Controls.Add(userPanel);
@@ -277,8 +267,8 @@ public sealed class MainForm : Form
         var button = new Button
         {
             Text = text,
-            Width = primary ? 120 : 105,
-            Height = 34,
+            Width = primary ? 94 : 75,
+            Height = 33,
             Margin = new Padding(4),
             Font = new Font("Tahoma", 8.5f, FontStyle.Bold)
         };
