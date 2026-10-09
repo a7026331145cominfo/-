@@ -97,7 +97,7 @@ public sealed class CashierService
             sql += " AND Purchases_Date >= @FromDate";
         
         if (toDate.HasValue)
-            sql += " AND Purchases_Date <= @ToDate";
+            sql += " AND Purchases_Date < DATEADD(DAY, 1, @ToDate)";
         
         sql += " ORDER BY Purchases_Date DESC";
 
