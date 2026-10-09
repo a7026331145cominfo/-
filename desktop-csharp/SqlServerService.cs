@@ -192,7 +192,7 @@ public sealed class SqlServerService
             var parameter = cmd.Parameters.Add(p.Name, MapSqlType(p.SqlType));
             var trimmed = raw?.Trim() ?? "";
             parameter.Value = trimmed.Length == 0 ? DBNull.Value : ConvertParameter(trimmed, p.SqlType);
-            if (p.MaxLength > 0 && p.MaxLength != -1) parameter.Size = Math.Clamp(p.MaxLength, 1, 4000);
+            if (p.MaxLength > 0 && p.MaxLength != -1) parameter.Size = Math.Clamp((int)p.MaxLength, 1, 4000);
         }
         using var adapter = new SqlDataAdapter(cmd);
         var data = new DataTable(name);
