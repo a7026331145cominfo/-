@@ -539,6 +539,13 @@ public sealed class AdvancedItemsForm : Form
 
     private async void ImportItems()
     {
+        if (!_access.AllowSave)
+        {
+            MessageBox.Show(this, "لا تملك صلاحية استيراد الأصناف.", "استيراد الأصناف",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
         using var dialog = new OpenFileDialog
         {
             Filter = "CSV Files (*.csv)|*.csv|Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls",
