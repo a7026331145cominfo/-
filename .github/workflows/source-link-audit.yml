@@ -1,0 +1,140 @@
+name: Extract native screen-link evidence
+
+on:
+  push:
+    branches: [source-review]
+    paths:
+      - .github/workflows/source-link-audit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract historical reports and identify native routing
+        shell: bash
+        run: |
+          set -euo pipefail
+          COMMIT="3a9492c85ca92a03d9a2b696ec8d351f380526bd"
+          TMP="$RUNNER_TEMP/native-link-audit"
+          mkdir -p "$TMP/unpacked"
+          git cat-file -e "$COMMIT^{commit}"
+          git show "$COMMIT:iLoveZIP_Create(1).zip" > "$TMP/outer.zip"
+          unzip -q -o "$TMP/outer.zip" -d "$TMP/unpacked"
+          for level in 1 2 3 4 5; do
+            found=0
+            while IFS= read -r -d '' z; do
+              found=1
+              d="$(dirname "$z")/__unzipped__"
+              mkdir -p "$d"
+              unzip -q -o "$z" -d "$d"
+              rm -f "$z"
+            done < <(find "$TMP/unpacked" -type f -iname '*.zip' -print0)
+            [ "$found" -eq 0 ] && break
+          done
+          python3 - "$TMP/unpacked" NATIVE_LINK_EVIDENCE.md <<'PY'
+          import pathlib, re, sys
+          root = pathlib.Path(sys.argv[1])
+          out = pathlib.Path(sys.argv[2])
+          all_files = sorted(p for p in root.rglob('*') if p.is_file())
+          report_names = {
+              'MajedSoft-TRUE-Screen-Mapping.txt',
+              '00_REAL_INTERNAL_UI_DESIGN.txt',
+              'GTSErp_SOURCE_MAP.txt',
+              '04_ORIGINAL_ERP_MODULE_FILES.txt',
+              '01_ORIGINAL_PROJECT_TREE.txt',
+              '03_ORIGINAL_SECURITY_TVP_FILES.txt',
+              '05_CORE_SOURCE_REPORT.txt',
+              '06_SALES_PURCHASE_CORE.txt',
+              'AlSaqar_Internal_Source_Map.txt',
+              'MajedSoft_Build_Report.txt',
+          }
+          def decode(path):
+              raw = path.read_bytes()
+              if b'\x00' in raw[:4096]:
+                  try: return raw.decode('utf-16')
+                  except UnicodeError: pass
+              for enc in ('utf-8-sig', 'cp1256', 'latin-1'):
+                  try: return raw.decode(enc)
+                  except UnicodeError: pass
+              return raw.decode('utf-8', errors='replace')
+          lines = [
+              '# Native screen-link evidence extracted from historical source reports',
+              '',
+              'Generated from the historical archive in commit 3a9492c85ca92a03d9a2b696ec8d351f380526bd.',
+              'This is evidence for implementation decisions, not a claim that the original project files were present as loose C# files.',
+              '',
+              f'- Extracted files: {len(all_files)}',
+              f'- Loose C# files: {sum(p.suffix.lower() == ".cs" for p in all_files)}',
+              f'- Loose project files: {sum(p.suffix.lower() in (".csproj", ".sln") for p in all_files)}',
+              '',
+              '## Report inventory',
+              '',
+          ]
+          for p in all_files:
+              if p.name in report_names:
+                  lines.append(f'- {p.relative_to(root)} — {p.stat().st_size:,} bytes')
+          patterns = [
+              ('Screen metadata and access checks', re.compile(r'CheckUserPage|ScreenTypeName|ScreenTypeID|ScreenNum|Screen_Name|User_Screens|User_Permission', re.I)),
+              ('Native type resolution and form launching', re.compile(r'Activator\.CreateInstance|Type\.GetType|Assembly\.Load|ShowDialog\(|Show\(|OpenChildForm|OpenForm|ScreenRouter|FormName', re.I)),
+              ('High-value operational form names', re.compile(r'FrmCashir|FrmPurchases|FrmOrderReturn|FrmPurchasesReturn|FrmReceiptsBig|FrmPaymentBig|FrmDailyRestrictions|FrmRPMovementItem', re.I)),
+              ('Legacy route map keywords', re.compile(r'MajedSoft-TRUE-Screen-Mapping|native form|screen number|screen type|Screen ID|route|mapping', re.I)),
+          ]
+          target_files = [p for p in all_files if p.name in report_names]
+          for heading, regex in patterns:
+              lines.extend(['', f'## {heading}', ''])
+              total = 0
+              for p in target_files:
+                  try:
+                      text = decode(p)
+                  except Exception as exc:
+                      lines.append(f'- Could not decode {p.name}: {exc}')
+                      continue
+                  src = text.splitlines()
+                  per_file = 0
+                  for i, line in enumerate(src):
+                      if not regex.search(line):
+                          continue
+                      if heading == 'Legacy route map keywords' and p.name not in {
+                          'MajedSoft-TRUE-Screen-Mapping.txt', '00_REAL_INTERNAL_UI_DESIGN.txt',
+                          'GTSErp_SOURCE_MAP.txt', '04_ORIGINAL_ERP_MODULE_FILES.txt'
+                      }:
+                          continue
+                      a, b = max(0, i-2), min(len(src), i+3)
+                      excerpt = '\n'.join(f'{j+1}: {src[j][:500]}' for j in range(a,b))
+                      lines.append(f'### {p.name} — line {i+1}')
+                      lines.append('')
+                      lines.append(excerpt)
+                      lines.append('')
+                      per_file += 1
+                      total += 1
+                      if per_file >= 8 or total >= 36:
+                          break
+                  if total >= 36:
+                      break
+              if total == 0:
+                  lines.append('No matching excerpts were found for this pattern set.')
+          lines.extend(['', '## Interpretation guardrail', '',
+              'Use exact names and parameters from these excerpts when mapping screens. Do not infer that a form works merely because its caption or type name resolves.',
+              ''])
+          out.write_text('\n'.join(lines), encoding='utf-8')
+          print(f'Wrote {out} ({out.stat().st_size:,} bytes) from {len(all_files)} extracted files')
+          PY
+
+      - name: Commit native link evidence to source-review
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add NATIVE_LINK_EVIDENCE.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Extract original native screen-link evidence"
+          git push origin HEAD:source-review
