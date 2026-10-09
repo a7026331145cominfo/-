@@ -40,7 +40,7 @@ public sealed class CashierForm : Form
     private decimal _total = 0;
     private decimal _tax = 0;
     private decimal _net = 0;
-    private const decimal _taxRate = 0m;
+    private decimal _taxRate = 0m;
 
     public CashierForm(AppSession session, ScreenAccess access, CashierService cashierService, ItemsService itemsService, CustomerService customerService)
     {
@@ -305,6 +305,12 @@ public sealed class CashierForm : Form
         try
         {
             UseWaitCursor = true;
+            if (!_session.BranchId.HasValue)
+                throw new InvalidOperationException("الكاشير يحتاج إلى فرع فعّال.");
+
+            var settings = await _cashierService.GetEntrySettingsAsync(_session.BranchId.Value);
+            _taxRate = settings.VatEnabled ? settings.VatRate : 0m;
+
             _itemsData = await _itemsService.ListAsync();
             _customersData = await _customerService.ListAsync(_session.BranchId);
             await LoadSalesAsync();
@@ -486,18 +492,36 @@ public sealed class CashierForm : Form
         decimal quantity = 1;
         if (!string.IsNullOrWhiteSpace(_quantityText.Text) && decimal.TryParse(_quantityText.Text, out var qty))
             quantity = qty;
-        
+
         decimal discount = 0;
         if (!string.IsNullOrWhiteSpace(_discountText.Text) && decimal.TryParse(_discountText.Text, out var disc))
             discount = disc;
-        
+
+        if (quantity <= 0m)
+        {
+            MessageBox.Show(this, "الكمية يجب أن تكون أكبر من صفر.", "إضافة صنف",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (price < 0m || discount < 0m || discount > price * quantity)
+        {
+            MessageBox.Show(this, "تحقق من السعر والخصم؛ لا يمكن أن يتجاوز الخصم إجمالي السطر.",
+                "إضافة صنف", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
         // Check if item already in cart
         foreach (DataRow cartRow in _cartData.Rows)
         {
             if (Convert.ToInt32(cartRow["ItemID"]) == itemId)
             {
-                cartRow["Quantity"] = Convert.ToDecimal(cartRow["Quantity"]) + quantity;
-                cartRow["Total"] = CalculateItemTotal(price, Convert.ToDecimal(cartRow["Quantity"]), discount);
+                var combinedQuantity = Convert.ToDecimal(cartRow["Quantity"]) + quantity;
+                var combinedDiscount = Convert.ToDecimal(cartRow["Discount"]) + discount;
+                cartRow["Quantity"] = combinedQuantity;
+                cartRow["Price"] = price;
+                cartRow["Discount"] = combinedDiscount;
+                cartRow["Total"] = CalculateItemTotal(price, combinedQuantity, combinedDiscount);
                 UpdateTotals();
                 ClearItemInputs();
                 return;
@@ -622,7 +646,7 @@ public sealed class CashierForm : Form
                 Quantity = Convert.ToDecimal(row["Quantity"]),
                 UnitPrice = Convert.ToDecimal(row["Price"]),
                 TotalPrice = Convert.ToDecimal(row["Total"]),
-                VAT = Convert.ToDecimal(row["Price"]) * _taxRate, // VAT per item
+                VAT = Convert.ToDecimal(row["Total"]) * _taxRate, // VAT applies to the full discounted line amount
                 ItemUnitType = "قطعة",
                 IsPrint = true
             });
