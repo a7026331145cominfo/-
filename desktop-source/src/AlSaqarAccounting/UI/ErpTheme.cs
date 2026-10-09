@@ -6,18 +6,36 @@ namespace AlSaqarAccounting.UI;
 public static class ErpTheme
 {
     public static readonly Color Surface = Color.White;
-    public static readonly Color SurfaceSoft = Color.FromArgb(243, 247, 253);
-    public static readonly Color Border = Color.FromArgb(220, 229, 242);
-    public static readonly Color Text = Color.FromArgb(24, 42, 69);
-    public static readonly Color Muted = Color.FromArgb(104, 120, 145);
-    public static readonly Color Accent = Color.FromArgb(31, 100, 210);
-    public static readonly Color AccentSoft = Color.FromArgb(232, 241, 255);
-    public static readonly Color Navigation = Color.FromArgb(17, 39, 72);
+    public static readonly Color SurfaceSoft = Color.FromArgb(248, 250, 252); // #f8fafc
+    public static readonly Color Border = Color.FromArgb(203, 213, 225); // #cbd5e1
+    public static readonly Color Text = Color.FromArgb(30, 41, 59); // #1e293b
+    public static readonly Color Muted = Color.FromArgb(100, 116, 139); // #64748b
+    public static readonly Color Accent = Color.FromArgb(0, 90, 158); // #005a9e
+    public static readonly Color AccentBright = Color.FromArgb(0, 120, 215); // #0078d7
+    public static readonly Color AccentSoft = Color.FromArgb(229, 241, 251); // #e5f1fb
+    public static readonly Color Navigation = Color.FromArgb(0, 90, 158);
     public static readonly Color NavigationText = Color.White;
-    public static readonly Color NavigationMuted = Color.FromArgb(186, 204, 231);
+    public static readonly Color NavigationMuted = Color.FromArgb(100, 116, 139);
 
-    public static Font RegularFont => new("Tahoma", 9.5f);
-    public static Font TitleFont => new("Tahoma", 18f, FontStyle.Bold);
+    private static readonly string ArabicFontName = ResolveArabicFont();
+
+    private static string ResolveArabicFont()
+    {
+        var installedFonts = FontFamily.Families
+            .Select(font => font.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var preferred in new[] { "IBM Plex Sans Arabic", "Tajawal", "Segoe UI", "Tahoma" })
+        {
+            if (installedFonts.Contains(preferred))
+                return preferred;
+        }
+
+        return SystemFonts.DefaultFont.FontFamily.Name;
+    }
+
+    public static Font RegularFont => new(ArabicFontName, 9.5f);
+    public static Font TitleFont => new(ArabicFontName, 18f, FontStyle.Bold);
 
     public static void ApplyForm(Form form)
     {
@@ -55,10 +73,10 @@ public static class ErpTheme
         button.FlatStyle = FlatStyle.Flat;
         button.FlatAppearance.BorderSize = 1;
         button.FlatAppearance.BorderColor = primary ? Accent : Border;
-        button.FlatAppearance.MouseOverBackColor = primary ? Color.FromArgb(17, 98, 107) : AccentSoft;
+        button.FlatAppearance.MouseOverBackColor = primary ? AccentBright : AccentSoft;
         button.BackColor = primary ? Accent : Surface;
         button.ForeColor = primary ? Color.White : Text;
-        button.Font = new Font("Tahoma", 9f, FontStyle.Bold);
+        button.Font = new Font(ArabicFontName, 9f, FontStyle.Bold);
         button.Cursor = Cursors.Hand;
     }
 
@@ -81,12 +99,12 @@ public static class ErpTheme
         {
             Text = text, Width = 228, Height = 42,
             Margin = new Padding(6, 3, 6, 3), FlatStyle = FlatStyle.Flat,
-            BackColor = Navigation, ForeColor = NavigationText,
+            BackColor = Color.White, ForeColor = Text,
             TextAlign = ContentAlignment.MiddleRight, Padding = new Padding(12, 0, 12, 0),
-            Cursor = Cursors.Hand, Font = new Font("Tahoma", 9.5f, FontStyle.Regular)
+            Cursor = Cursors.Hand, Font = new Font(ArabicFontName, 9.5f, FontStyle.Regular)
         };
-        button.FlatAppearance.BorderColor = Color.FromArgb(48, 70, 89);
-        button.FlatAppearance.MouseOverBackColor = Color.FromArgb(31, 57, 78);
+        button.FlatAppearance.BorderColor = Border;
+        button.FlatAppearance.MouseOverBackColor = AccentSoft;
         return button;
     }
 
