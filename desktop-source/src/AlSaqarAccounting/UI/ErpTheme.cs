@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -21,9 +22,9 @@ public static class ErpTheme
 
     private static string ResolveArabicFont()
     {
-        var installedFonts = FontFamily.Families
-            .Select(font => font.Name)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var installedFonts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var font in FontFamily.Families)
+            installedFonts.Add(font.Name);
 
         foreach (var preferred in new[] { "IBM Plex Sans Arabic", "Tajawal", "Segoe UI", "Tahoma" })
         {
