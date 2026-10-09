@@ -61,6 +61,7 @@ public sealed class CashierService
         {
             InvoiceDate = order.Purchases_Date.GetValueOrDefault(DateTime.Now),
             PaymentType = order.Order_Paymant_Type.GetValueOrDefault(order.CashMoney.GetValueOrDefault() > 0m ? 1 : 2),
+            OrderCashierType = true,
             CustomerId = order.SupplierID,
             CustomerName = order.SupplierName,
             CustomerPhone = order.SupplierPhone,
