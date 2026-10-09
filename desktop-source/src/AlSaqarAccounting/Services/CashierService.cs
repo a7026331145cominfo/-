@@ -16,6 +16,11 @@ public sealed class CashierService
 
     public CashierService(DbExecutor db) => _db = db;
 
+    public Task<SalesEntrySettings> GetEntrySettingsAsync(
+        int branchId,
+        CancellationToken cancellationToken = default)
+        => new SalesService(_db).GetEntrySettingsAsync(branchId, cancellationToken);
+
     #region Sales Operations
 
     /// <summary>
