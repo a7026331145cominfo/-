@@ -76,7 +76,7 @@ public sealed class PurchasesForm : BrowseScreenBase
             var security = new SecurityService(new SqlConnectionFactory(_purchases.ConnectionString));
             var screens = await security.GetAccessibleScreensAsync(Session);
             var target = screens.FirstOrDefault(s =>
-                string.Equals(s.ScreenName?.Trim(), screenName, StringComparison.OrdinalIgnoreCase));
+                string.Equals(ScreenAccess.CleanScreenName(s.ScreenName), screenName, StringComparison.OrdinalIgnoreCase));
 
             if (target is null)
             {
