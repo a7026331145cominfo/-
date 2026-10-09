@@ -44,18 +44,17 @@ jobs:
           root = pathlib.Path(sys.argv[1])
           out = pathlib.Path(sys.argv[2])
           all_files = sorted(p for p in root.rglob('*') if p.is_file())
-          report_names = {
+          wanted = [
               'MajedSoft-TRUE-Screen-Mapping.txt',
               '00_REAL_INTERNAL_UI_DESIGN.txt',
               'GTSErp_SOURCE_MAP.txt',
+              '05_CORE_SOURCE_REPORT.txt',
+              'AlSaqar_Internal_Source_Map.txt',
+              '06_SALES_PURCHASE_CORE.txt',
               '04_ORIGINAL_ERP_MODULE_FILES.txt',
               '01_ORIGINAL_PROJECT_TREE.txt',
-              '03_ORIGINAL_SECURITY_TVP_FILES.txt',
-              '05_CORE_SOURCE_REPORT.txt',
-              '06_SALES_PURCHASE_CORE.txt',
-              'AlSaqar_Internal_Source_Map.txt',
-              'MajedSoft_Build_Report.txt',
-          }
+          ]
+          by_name = {p.name: p for p in all_files}
           def decode(path):
               raw = path.read_bytes()
               if b'\x00' in raw[:4096]:
@@ -65,67 +64,84 @@ jobs:
                   try: return raw.decode(enc)
                   except UnicodeError: pass
               return raw.decode('utf-8', errors='replace')
+          files = [(name, by_name[name]) for name in wanted if name in by_name]
           lines = [
               '# Native screen-link evidence extracted from historical source reports',
               '',
-              'Generated from the historical archive in commit 3a9492c85ca92a03d9a2b696ec8d351f380526bd.',
-              'This is evidence for implementation decisions, not a claim that the original project files were present as loose C# files.',
+              'Generated from archive commit 3a9492c85ca92a03d9a2b696ec8d351f380526bd.',
+              'The archive is a set of source-analysis reports rather than loose compilable project files; use the excerpts to ground route mappings.',
               '',
               f'- Extracted files: {len(all_files)}',
               f'- Loose C# files: {sum(p.suffix.lower() == ".cs" for p in all_files)}',
               f'- Loose project files: {sum(p.suffix.lower() in (".csproj", ".sln") for p in all_files)}',
               '',
-              '## Report inventory',
+              '## Key report inventory',
               '',
           ]
-          for p in all_files:
-              if p.name in report_names:
-                  lines.append(f'- {p.relative_to(root)} — {p.stat().st_size:,} bytes')
-          patterns = [
-              ('Screen metadata and access checks', re.compile(r'CheckUserPage|ScreenTypeName|ScreenTypeID|ScreenNum|Screen_Name|User_Screens|User_Permission', re.I)),
-              ('Native type resolution and form launching', re.compile(r'Activator\.CreateInstance|Type\.GetType|Assembly\.Load|ShowDialog\(|Show\(|OpenChildForm|OpenForm|ScreenRouter|FormName', re.I)),
-              ('High-value operational form names', re.compile(r'FrmCashir|FrmPurchases|FrmOrderReturn|FrmPurchasesReturn|FrmReceiptsBig|FrmPaymentBig|FrmDailyRestrictions|FrmRPMovementItem', re.I)),
-              ('Legacy route map keywords', re.compile(r'MajedSoft-TRUE-Screen-Mapping|native form|screen number|screen type|Screen ID|route|mapping', re.I)),
+          for name, p in files:
+              lines.append(f'- {name}: {p.stat().st_size:,} bytes')
+          def block(title, path, excerpt):
+              lines.extend(['', f'### {title} — {path.name}', '', excerpt, ''])
+          if 'MajedSoft-TRUE-Screen-Mapping.txt' in by_name:
+              p = by_name['MajedSoft-TRUE-Screen-Mapping.txt']
+              src = decode(p).splitlines()
+              block('Opening of the exact screen map', p, '\n'.join(f'{i+1}: {src[i][:500]}' for i in range(min(100, len(src)))))
+          # Targeted form-name occurrences in the mapping/source reports.
+          targets = [
+              ('sales invoice', re.compile(r'FrmCashir(?!Restaurant|Pharm|Washing|WithOutGroup)', re.I)),
+              ('purchase invoice', re.compile(r'FrmPurchases(?!Return)', re.I)),
+              ('sales return', re.compile(r'FrmOrderReturn', re.I)),
+              ('purchase return', re.compile(r'FrmPurchasesReturn', re.I)),
+              ('receipt voucher', re.compile(r'FrmReceipts(Big)?', re.I)),
+              ('payment voucher', re.compile(r'FrmPayment(Big)?', re.I)),
+              ('journal entry', re.compile(r'FrmDailyRestrictions', re.I)),
+              ('item movement report', re.compile(r'FrmRPMovementItem', re.I)),
           ]
-          target_files = [p for p in all_files if p.name in report_names]
-          for heading, regex in patterns:
-              lines.extend(['', f'## {heading}', ''])
+          source_priority = [
+              'MajedSoft-TRUE-Screen-Mapping.txt',
+              '00_REAL_INTERNAL_UI_DESIGN.txt',
+              'GTSErp_SOURCE_MAP.txt',
+              '05_CORE_SOURCE_REPORT.txt',
+              'AlSaqar_Internal_Source_Map.txt',
+              '06_SALES_PURCHASE_CORE.txt',
+          ]
+          for title, regex in targets:
+              lines.extend(['', f'## {title.title()} — exact references', ''])
               total = 0
-              for p in target_files:
-                  try:
-                      text = decode(p)
-                  except Exception as exc:
-                      lines.append(f'- Could not decode {p.name}: {exc}')
-                      continue
-                  src = text.splitlines()
-                  per_file = 0
-                  for i, line in enumerate(src):
-                      if not regex.search(line):
-                          continue
-                      if heading == 'Legacy route map keywords' and p.name not in {
-                          'MajedSoft-TRUE-Screen-Mapping.txt', '00_REAL_INTERNAL_UI_DESIGN.txt',
-                          'GTSErp_SOURCE_MAP.txt', '04_ORIGINAL_ERP_MODULE_FILES.txt'
-                      }:
-                          continue
+              for name in source_priority:
+                  p = by_name.get(name)
+                  if not p: continue
+                  src = decode(p).splitlines()
+                  hits = [i for i, line in enumerate(src) if regex.search(line)]
+                  # Skip repeated file-inventory matches if a code/source report has real method lines.
+                  for i in hits[:6]:
                       a, b = max(0, i-2), min(len(src), i+3)
-                      excerpt = '\n'.join(f'{j+1}: {src[j][:500]}' for j in range(a,b))
-                      lines.append(f'### {p.name} — line {i+1}')
-                      lines.append('')
-                      lines.append(excerpt)
-                      lines.append('')
-                      per_file += 1
+                      excerpt = '\n'.join(f'{j+1}: {src[j][:400]}' for j in range(a,b))
+                      block(f'Match at line {i+1}', p, excerpt)
                       total += 1
-                      if per_file >= 8 or total >= 36:
-                          break
-                  if total >= 36:
-                      break
+                      if total >= 12: break
+                  if total >= 12: break
               if total == 0:
-                  lines.append('No matching excerpts were found for this pattern set.')
-          lines.extend(['', '## Interpretation guardrail', '',
-              'Use exact names and parameters from these excerpts when mapping screens. Do not infer that a form works merely because its caption or type name resolves.',
-              ''])
+                  lines.append('No exact reference found in the selected source reports.')
+          lines.extend(['', '## Routing and permission implementation references', ''])
+          routing = re.compile(r'CheckUserPage\\(|CheckUserPageEvent(Save|Edit|Delete)|ScreenTypeName|ScreenNum|User_Screens|User_Permission|Form\\.ShowDialog|Activator\\.CreateInstance|Type\\.GetType', re.I)
+          total = 0
+          for name in ['05_CORE_SOURCE_REPORT.txt', 'AlSaqar_Internal_Source_Map.txt', 'GTSErp_SOURCE_MAP.txt', '00_REAL_INTERNAL_UI_DESIGN.txt']:
+              p = by_name.get(name)
+              if not p: continue
+              src = decode(p).splitlines()
+              for i, line in enumerate(src):
+                  if not routing.search(line): continue
+                  # Prefer code excerpts over plain archive paths.
+                  if len(line.strip()) < 8: continue
+                  a, b = max(0, i-2), min(len(src), i+3)
+                  excerpt = '\n'.join(f'{j+1}: {src[j][:450]}' for j in range(a,b))
+                  block(f'Routing match at line {i+1}', p, excerpt)
+                  total += 1
+                  if total >= 32: break
+              if total >= 32: break
           out.write_text('\n'.join(lines), encoding='utf-8')
-          print(f'Wrote {out} ({out.stat().st_size:,} bytes) from {len(all_files)} extracted files')
+          print(f'Wrote {out} ({out.stat().st_size:,} bytes); {len(all_files)} extracted files')
           PY
 
       - name: Commit native link evidence to source-review
