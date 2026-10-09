@@ -25,11 +25,6 @@ public sealed class MainForm : Form
     private readonly ToolStripStatusLabel _clock = new();
 
     private readonly Panel _header = new();
-    private readonly Panel _body = new()
-    {
-        Dock = DockStyle.Fill,
-        BackColor = ErpTheme.SurfaceSoft
-    };
     // Keep the dashboard separate from the MDI client so child screens are visible and clickable.
     private readonly Panel _workspace = new()
     {
@@ -102,12 +97,12 @@ public sealed class MainForm : Form
         BuildStatus();
 
         _workspace.Controls.Add(_home);
-        _body.Controls.Add(_workspace);
-        _body.Controls.Add(_screenBar);
 
-        // Right-to-left ERP shell: fixed module sidebar, top application header,
-        // and a dedicated body that contains the module screens and dashboard.
-        Controls.Add(_body);
+        // Keep the fill-docked dashboard and the top screen bar as siblings of
+        // the MDI client. Hiding _workspace then reveals real MDI forms without
+        // hiding the module's screen buttons.
+        Controls.Add(_workspace);
+        Controls.Add(_screenBar);
         Controls.Add(_servicesBar);
         Controls.Add(_header);
         Controls.Add(_statusStrip);
