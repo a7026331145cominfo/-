@@ -221,7 +221,9 @@ public sealed class SqlServerService
                 {
                     var insertCols = columns.Where(c => !c.Identity && !c.Computed && row.Table.Columns.Contains(c.Name) && row[c.Name] != DBNull.Value).ToArray();
                     if (insertCols.Length == 0) throw new InvalidOperationException("أدخل قيمًا في الصف الجديد قبل الحفظ.");
-                    var sql = $"INSERT INTO {Quote(schema)}.{Quote(name)} ({string.Join(", ", insertCols.Select(c => Quote(c.Name))}) VALUES ({string.Join(", ", insertCols.Select((c, i) => "@v" + i))})";
+                    var columnList = string.Join(", ", insertCols.Select(c => Quote(c.Name)));
+                    var parameterList = string.Join(", ", insertCols.Select((c, i) => "@v" + i));
+                    var sql = $"INSERT INTO {Quote(schema)}.{Quote(name)} ({columnList}) VALUES ({parameterList})";
                     using var command = new SqlCommand(sql, connection, transaction);
                     for (int i = 0; i < insertCols.Length; i++) command.Parameters.AddWithValue("@v" + i, row[insertCols[i].Name] ?? DBNull.Value);
                     saved += command.ExecuteNonQuery();
