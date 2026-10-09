@@ -1,0 +1,50 @@
+name: Import uploaded AlSaqarERP web source
+on:
+  push:
+    branches: [import-web-client-source]
+    paths:
+      - .pending-web-client-source.zip
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout import branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Extract source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s .pending-web-client-source.zip
+          mkdir -p web-client
+          unzip -q .pending-web-client-source.zip -d web-client
+          rm .pending-web-client-source.zip
+          cat > web-client/README.md <<'EOF'
+          # AlSaqar ERP Web Client
+
+          Imported from the user-provided source archive on 2026-10-09.
+
+          ## Run locally
+          Use Bun (the repository includes `bun.lock`):
+          ```bash
+          bun install --frozen-lockfile
+          bun run dev
+          ```
+
+          Build and type-check:
+          ```bash
+          bun run lint
+          bun run build
+          ```
+
+          ## Current data behavior
+          The supplied UI's `src/services/erpDatabase.ts` stores its current data in browser `localStorage`. Importing this frontend does not itself connect it to the SQL Server database used by the desktop application. A server-side API and authentication/authorization layer are required before production database access. Do not put database credentials or AI API keys in the browser bundle; configure secrets only in server-side environments.
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A web-client .pending-web-client-source.zip
+          git commit -m "Import AlSaqarERP React frontend source"
+          git push origin HEAD:import-web-client-source
