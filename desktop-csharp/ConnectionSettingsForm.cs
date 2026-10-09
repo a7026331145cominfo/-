@@ -54,14 +54,26 @@ public sealed class ConnectionSettingsForm : Form
         panel.Controls.Add(control, 1, row);
     }
 
-    private AppSettings Candidate() => new()
+    private AppSettings Candidate()
     {
-        Server = _server.Text.Trim(),
-        Database = _database.Text.Trim(),
-        IntegratedSecurity = _integrated.Checked,
-        UserName = _userName.Text.Trim(),
-        Password = _password.Text
-    };
+        var server = _server.Text.Trim();
+        var database = _database.Text.Trim();
+        var userName = _userName.Text.Trim();
+        if (server.Length == 0)
+            throw new InvalidOperationException("أدخل اسم خادم SQL Server أو اسم المثيل المحلي.");
+        if (database.Length == 0)
+            throw new InvalidOperationException("أدخل اسم قاعدة البيانات.");
+        if (!_integrated.Checked && userName.Length == 0)
+            throw new InvalidOperationException("أدخل اسم مستخدم SQL أو اختر مصادقة Windows.");
+        return new AppSettings
+        {
+            Server = server,
+            Database = database,
+            IntegratedSecurity = _integrated.Checked,
+            UserName = userName,
+            Password = _password.Text
+        };
+    }
 
     private void UpdateAuthenticationFields()
     {
