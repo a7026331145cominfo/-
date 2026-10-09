@@ -36,7 +36,7 @@
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2",
-    "electron": "^44.6.0",
+    "electron": "^44.5.1",
     "electron-builder": "^26.17.0",
     "concurrently": "^9.2.1",
     "wait-on": "^8.0.3"
