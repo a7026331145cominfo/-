@@ -394,14 +394,14 @@ public sealed class VoucherPrintDialog : Form
         doc.PrintPage += (_, e) =>
         {
             var y = 60f;
-            e.Graphics.DrawString(_title, new Font("Segoe UI", 15, FontStyle.Bold), Brushes.Black, 40, y); y += 42;
+            e.Graphics!.DrawString(_title, new Font("Segoe UI", 15, FontStyle.Bold), Brushes.Black, 40, y); y += 42;
             for (int c = 0; c < _data.Columns.Count; c++)
-                e.Graphics.DrawString(_data.Columns[c].ColumnName, new Font("Segoe UI", 8, FontStyle.Bold), Brushes.Black, 40 + c * 110, y);
+                e.Graphics!.DrawString(_data.Columns[c].ColumnName, new Font("Segoe UI", 8, FontStyle.Bold), Brushes.Black, 40 + c * 110, y);
             y += 22;
             while (rowIndex < _data.Rows.Count && y < e.MarginBounds.Bottom)
             {
                 for (int c = 0; c < _data.Columns.Count; c++)
-                    e.Graphics.DrawString(Convert.ToString(_data.Rows[rowIndex][c]) ?? "", new Font("Segoe UI", 8), Brushes.Black, 40 + c * 110, y);
+                    e.Graphics!.DrawString(Convert.ToString(_data.Rows[rowIndex][c]) ?? "", new Font("Segoe UI", 8), Brushes.Black, 40 + c * 110, y);
                 rowIndex++; y += 20;
             }
             e.HasMorePages = rowIndex < _data.Rows.Count;
