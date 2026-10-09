@@ -19,12 +19,24 @@ $exe = Join-Path $project "bin\Release\net48\AlSaqarAccounting.exe"
 if (-not (Test-Path -LiteralPath $project)) {
     throw "لم يتم العثور على مجلد المشروع: $project"
 }
-if (-not (Get-Command git -ErrorAction SilentlyContinue) -and
-    -not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
-    throw "لم يتم العثور على أدوات البناء .NET."
+$dotnetCommand = Get-Command dotnet -ErrorAction SilentlyContinue
+$msbuildCommand = Get-Command msbuild.exe -ErrorAction SilentlyContinue
+if (-not $msbuildCommand) {
+    $msbuildCommand = Get-Command msbuild -ErrorAction SilentlyContinue
 }
-if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
-    throw "dotnet غير موجود في PATH. لم يتم تغيير أي ملف."
+if (-not $msbuildCommand) {
+    $pf86 = [Environment]::GetFolderPath([Environment+SpecialFolder]::ProgramFilesX86)
+    $vswhere = Join-Path $pf86 'Microsoft Visual Studio\Installer\vswhere.exe'
+    if (Test-Path -LiteralPath $vswhere) {
+        $msbuildPath = & $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' 2>$null |
+            Select-Object -First 1
+        if ($msbuildPath -and (Test-Path -LiteralPath $msbuildPath)) {
+            $msbuildCommand = [pscustomobject]@{ Source = $msbuildPath }
+        }
+    }
+}
+if (-not $msbuildCommand -and -not $dotnetCommand) {
+    throw "لم يتم العثور على MSBuild أو dotnet. ثبّت Visual Studio Build Tools أو .NET SDK. لم يتم تغيير أي ملف."
 }
 if (Get-Process -Name "AlSaqarAccounting" -ErrorAction SilentlyContinue) {
     throw "أغلق تطبيق الصقر قبل التحديث، ثم نفذ الأمر مرة أخرى."
@@ -97,9 +109,17 @@ try {
     }
 
     Write-Host "تم تحديث ملفات الواجهة والعمليات؛ جاري بناء التطبيق..." -ForegroundColor Cyan
-    & dotnet build (Join-Path $project "AlSaqarAccounting.csproj") -c Release
-    if ($LASTEXITCODE -ne 0) {
-        throw "فشل بناء المشروع (exit code $LASTEXITCODE)."
+    if ($msbuildCommand) {
+        $solution = Join-Path $ProjectRoot "AlSaqarAccounting.sln"
+        $buildTarget = if (Test-Path -LiteralPath $solution) { $solution } else { Join-Path $project "AlSaqarAccounting.csproj" }
+        & $msbuildCommand.Source $buildTarget /m /t:Build /p:Configuration=Release '/p:Platform=Any CPU' /nologo
+    }
+    else {
+        & $dotnetCommand.Source build (Join-Path $project "AlSaqarAccounting.csproj") -c Release --nologo
+    }
+    $buildExitCode = $LASTEXITCODE
+    if ($buildExitCode -ne 0) {
+        throw "فشل بناء المشروع (exit code $buildExitCode)."
     }
     if (-not (Test-Path -LiteralPath $exe)) {
         throw "نجح أمر البناء لكن ملف EXE غير موجود في المسار المتوقع."
