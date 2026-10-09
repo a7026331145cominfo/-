@@ -8,6 +8,8 @@ $checks = @(
     @{ Name = "Router uses the real screen catalogs"; File = "UI\ScreenRouter.cs"; Pattern = 'RealScreenCatalog\.TryCreate' },
     @{ Name = "Router resolves legacy screens"; File = "UI\ScreenRouter.cs"; Pattern = 'LegacyScreenCatalog\.TryCreate' },
     @{ Name = "Router opens remaining resolvable screens with a read-only schema form"; File = "UI\ScreenRouter.cs"; Pattern = 'new\s+DynamicErpScreenForm\(.*readOnlyMode:\s*true' },
+    @{ Name = "Main form awaits async screen routing without freezing the UI"; File = "Forms\MainForm.cs"; Pattern = 'await\s+_router\.TryOpenAsync\(this,\s*access\)' },
+    @{ Name = "Screen authorization validation is asynchronous"; File = "UI\ScreenRouter.cs"; Pattern = 'await\s+authorization\.CanAsync\(\s*_session,\s*access\.Id,\s*PermissionAction\.Enter\s*\)' },
     @{ Name = "Generic fallback disables editor in read-only mode"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = '_editor\.Visible\s*=\s*!_readOnlyMode' },
     @{ Name = "Dynamic table fallback filters rows by current branch when a branch column exists"; File = "Services\DynamicErpScreenService.cs"; Pattern = 'WHERE \{QuoteIdentifier\(branchColumn\.Name\)\}=@__branch.*p\.Add\("@__branch", SqlDbType\.Int\)\.Value = branchId\.Value' },
     @{ Name = "Generic fallback omits write buttons in read-only mode"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = 'if\s*\(!_readOnlyMode\)\s*\{\s*AddButton\(toolbar,\s*"إضافة".*AddButton\(toolbar,\s*"حذف"' },
@@ -78,6 +80,15 @@ foreach ($check in $checks) {
         $checkFailureCount++
         Write-Host "FAIL: $($check.Name)" -ForegroundColor Red
     }
+}
+
+$routerSource = [System.IO.File]::ReadAllText((Join-Path $sourceRoot "UI\ScreenRouter.cs"), [System.Text.Encoding]::UTF8)
+if ([regex]::IsMatch($routerSource, '\.GetAwaiter\(\)\.GetResult\(\)|\.Wait\(\)\s*;')) {
+    $failed.Add("ScreenRouter blocks the UI thread waiting for an asynchronous operation")
+    Write-Host "FAIL: ScreenRouter has a synchronous wait" -ForegroundColor Red
+}
+else {
+    Write-Host "PASS: ScreenRouter contains no synchronous async waits" -ForegroundColor Green
 }
 
 $allForms = Get-ChildItem -LiteralPath (Join-Path $sourceRoot "Forms") -Filter "*.cs" -File
