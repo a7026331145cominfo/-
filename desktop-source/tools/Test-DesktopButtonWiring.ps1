@@ -25,6 +25,8 @@ $checks = @(
     @{ Name = "Item editor has save/edit/delete/refresh handlers"; File = "Forms\ItemsForm.cs"; Pattern = 'AddToolbarButton\(toolbar,\s*"حفظ الصنف".*SaveItemAsync.*\r?\n.*"تعديل".*EditItemAsync.*\r?\n.*"حذف".*DeleteItemAsync.*\r?\n.*"تحديث".*LoadItemsAsync' },
     @{ Name = "Printer save/delete buttons are wired"; File = "Forms\PrinterSettingsForm.cs"; Pattern = 's\.Click\s*\+=\s*async\s*\(_\s*,\s*_\s*\)\s*=>\s*await\s+SavePrinter\(\).*d\.Click\s*\+=\s*async\s*\(_\s*,\s*_\s*\)\s*=>\s*await\s+DeletePrinter\(\)' },
     @{ Name = "Main navigation uses a right-side vertical module sidebar"; File = "Forms\MainForm.cs"; Pattern = '_servicesBar\.Dock\s*=\s*DockStyle\.Right' },
+    @{ Name = "Open-screen tabs are connected to MDI activation"; File = "Forms\MainForm.cs"; Pattern = 'MdiChildActivate\s*\+=\s*\(_, _\)\s*=>\s*RebuildOpenTabs\(\)' },
+    @{ Name = "Open-screen tabs have select and close actions"; File = "Forms\MainForm.cs"; Pattern = 'select\.Click\s*\+=.*close\.Click\s*\+=' },
     @{ Name = "Dashboard shortcuts use the modern button style"; File = "Forms\MainForm.cs"; Pattern = 'ErpTheme\.ConfigureDashboardButton\(button\)' },
     @{ Name = "ERP theme defines dashboard shortcut styling"; File = "UI\ErpTheme.cs"; Pattern = 'ConfigureDashboardButton' },
     @{ Name = "Cashier VAT is loaded from current database settings"; File = "Forms\CashierForm.cs"; Pattern = '_taxRate\s*=\s*settings\.VatEnabled\s*\?\s*settings\.VatRate\s*:\s*0m' },
