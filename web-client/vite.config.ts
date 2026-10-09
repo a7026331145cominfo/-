@@ -5,6 +5,8 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // Relative asset URLs allow the built UI to load from Electron's file:// scheme.
+    base: './',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

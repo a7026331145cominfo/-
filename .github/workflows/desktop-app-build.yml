@@ -1,0 +1,50 @@
+name: Build AlSaqar ERP Windows Desktop Installer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web-client/**'
+      - '.github/workflows/desktop-app-build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'web-client/**'
+      - '.github/workflows/desktop-app-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: web-client
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Type-check source
+        run: npm run lint
+
+      - name: Build Windows installer
+        run: npm run desktop:dist
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlSaqarERP-Windows-Installer
+          path: web-client/release/*.exe
+          if-no-files-found: error
+          retention-days: 30
