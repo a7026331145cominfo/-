@@ -32,6 +32,7 @@ $checks = @(
     @{ Name = "Cashier sale receipts can load branch-scoped saved details"; File = "Forms\CashierForm.cs"; Pattern = 'GetSaleDetailsForBranchAsync\(' },
     @{ Name = "Cashier invoices preserve their POS transaction type"; File = "Services\SalesService.cs"; Pattern = '\.Set\("@OrderCashierType",\s*invoice\.OrderCashierType\)' },
     @{ Name = "Cashier service marks POS invoices"; File = "Services\CashierService.cs"; Pattern = 'OrderCashierType\s*=\s*true' },
+    @{ Name = "Cashier daily sales includes the full selected day"; File = "Services\CashierService.cs"; Pattern = 'Purchases_Date\s*<\s*DATEADD\(DAY,\s*1,\s*@ToDate\)' },
     @{ Name = "Purchase editor enables update only with edit permission"; File = "Forms\PurchasesEntryForm.cs"; Pattern = '_invoiceId\.HasValue\s*\?\s*_access\.AllowEdit\s*:\s*_access\.AllowSave' },
     @{ Name = "Item editor distinguishes add and edit permissions"; File = "Forms\AdvancedItemsForm.cs"; Pattern = '_selectedItemId\.HasValue\s*\?\s*_access\.AllowEdit\s*:\s*_access\.AllowSave' }
 )
