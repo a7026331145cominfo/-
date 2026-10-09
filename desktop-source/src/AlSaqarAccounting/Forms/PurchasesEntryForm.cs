@@ -220,7 +220,7 @@ public sealed class PurchasesEntryForm : Form
             return button;
         }
 
-        Action("حفظ الفاتورة", 135, _access.AllowSave, () => _ = SaveAsync(), true);
+        Action("حفظ الفاتورة", 135, _invoiceId.HasValue ? _access.AllowEdit : _access.AllowSave, () => _ = SaveAsync(), true);
         Action("حذف السطر", 125, true, RemoveSelectedLine);
         Action("إعادة الحساب", 120, true, UpdateTotals);
         Action("فاتورة جديدة", 120, _access.AllowSave && !_invoiceId.HasValue, NewDraft);
@@ -505,6 +505,11 @@ public sealed class PurchasesEntryForm : Form
     {
         try
         {
+            if (_invoiceId.HasValue && !_access.AllowEdit)
+                throw new UnauthorizedAccessException("لا تملك صلاحية تعديل فاتورة المشتريات.");
+            if (!_invoiceId.HasValue && !_access.AllowSave)
+                throw new UnauthorizedAccessException("لا تملك صلاحية إنشاء فاتورة مشتريات.");
+
             UseWaitCursor = true;
 
             if (_lines.Rows.Count == 0)
