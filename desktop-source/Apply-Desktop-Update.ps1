@@ -34,7 +34,7 @@ $files = @(
     @{ Relative = "Forms\AdvancedItemsForm.cs"; Marker = "_selectedItemId.HasValue ? _access.AllowEdit : _access.AllowSave" },
     @{ Relative = "Forms\CashierForm.cs"; Marker = "GetSaleDetailsForBranchAsync(" },
     @{ Relative = "Forms\DynamicErpScreenForm.cs"; Marker = "private readonly bool _readOnlyMode;" },
-    @{ Relative = "Forms\MainForm.cs"; Marker = "_servicesBar.Dock = DockStyle.Right;" },
+    @{ Relative = "Forms\MainForm.cs"; Marker = "await _router.TryOpenAsync(this, access)" },
     @{ Relative = "Forms\OrdersForm.cs"; Marker = "ScreenAccess.CleanScreenName(s.ScreenName)" },
     @{ Relative = "Forms\PlacesForm.cs"; Marker = "_name.Focus();" },
     @{ Relative = "Forms\PurchasesEntryForm.cs"; Marker = "_invoiceId.HasValue ? _access.AllowEdit : _access.AllowSave" },
@@ -47,7 +47,7 @@ $files = @(
     @{ Relative = "Services\VouchersService.cs"; Marker = "BeginTransaction(IsolationLevel.Serializable)" },
     @{ Relative = "UI\ErpTheme.cs"; Marker = "ConfigureDashboardButton" },
     @{ Relative = "UI\RealScreenCatalog.cs"; Marker = '["SalesInvoiceForm"]' },
-    @{ Relative = "UI\ScreenRouter.cs"; Marker = "readOnlyMode: true" }
+    @{ Relative = "UI\ScreenRouter.cs"; Marker = "await authorization.CanAsync(" }
 )
 
 New-Item -ItemType Directory -Path $work -Force | Out-Null
