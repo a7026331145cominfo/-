@@ -59,8 +59,9 @@ public sealed class ReceiptsForm : BrowseScreenBase
             }
 
             var router = new ScreenRouter(_vouchers.ConnectionString, Session);
-            if (!router.TryOpen(this, target, out var message))
-                Status.Text = string.IsNullOrWhiteSpace(message) ? "تعذر فتح الشاشة المرتبطة." : message;
+            var routeResult = await router.TryOpenAsync(this, target);
+            if (!routeResult.Opened)
+                Status.Text = string.IsNullOrWhiteSpace(routeResult.Message) ? "تعذر فتح الشاشة المرتبطة." : routeResult.Message;
             else
                 Status.Text = $"تم فتح «{screenName}».";
         }
