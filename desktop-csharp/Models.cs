@@ -88,7 +88,7 @@ public static class ErpScreenCatalog
     [
         new("dashboard", "لوحة تشغيل الصقر ERP", "الرئيسية", "ملخص مباشر من قاعدة GTSdb2026.", ["dbo.Account_Accounts","dbo.Account_CustSup","dbo.Item_Items","dbo.Order_Orders","dbo.Order_Purchases"]),
         new("accounting", "مركز المحاسبة", "المحاسبة", "دليل الحسابات والقيود وكشوف الحساب.", ["dbo.Account_Accounts","dbo.Tran_Tran","dbo.Account_CustSup"], AllowMasterDataEdit: true),
-        new("vouchers", "السندات المالية", "السندات", "سندات القبض والصرف والشيكات.", ["dbo.Account_Receipts","dbo.Account_Payment","dbo.Checks_Checks"]),
+        new("vouchers", "السندات المالية", "السندات", "سندات القبض والصرف والشيكات.", ["dbo.Account_Receipts","dbo.Account_ReceiptsDetails","dbo.Tran_Tran","dbo.Tran_TranDetails"]),
         new("sales", "فواتير المبيعات", "المبيعات", "عرض فواتير البيع وتفاصيلها من قاعدة البيانات.", ["dbo.Order_Orders","dbo.Order_OrdersDetails","dbo.Order_OrderReturn","dbo.Order_OrderReturnDetails"]),
         new("purchases", "فواتير المشتريات", "المشتريات", "عرض فواتير الشراء وتفاصيلها من قاعدة البيانات.", ["dbo.Order_Purchases","dbo.Order_PurchasesDetails","dbo.Order_PurchasesReturn","dbo.Order_PurchasesReturnDetails"]),
         new("inventory", "مركز المخزون والأصناف", "المخزون والأصناف", "الأصناف والوحدات والمجموعات والأرصدة والتحويلات.", ["dbo.Item_Items","dbo.Item_Unit","dbo.Item_Groups","dbo.Item_Class","dbo.Order_OpenQuantity","dbo.Order_StoreTransfer"], AllowMasterDataEdit: true),
