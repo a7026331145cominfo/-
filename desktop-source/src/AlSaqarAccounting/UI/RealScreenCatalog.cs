@@ -204,6 +204,16 @@ public static class RealScreenCatalog
                 new SalesService(CreateDb(cs)),
                 new StoresService(CreateDb(cs))),
 
+            // Bind the previous sales-invoice form names to the maintained operational form.
+            ["RealSalesInvoiceForm"] = (cs, s, a) => new RealSalesInvoiceFormFixed(
+                s, a, new SalesService(CreateDb(cs)), new StoresService(CreateDb(cs))),
+
+            ["RealSalesInvoiceFormFixed"] = (cs, s, a) => new RealSalesInvoiceFormFixed(
+                s, a, new SalesService(CreateDb(cs)), new StoresService(CreateDb(cs))),
+
+            ["SalesInvoiceForm"] = (cs, s, a) => new RealSalesInvoiceFormFixed(
+                s, a, new SalesService(CreateDb(cs)), new StoresService(CreateDb(cs))),
+
             ["SalesEntryForm"] = (cs, s, a) => new SalesEntryForm(
                 s, a, new SalesService(CreateDb(cs)), new StoresService(CreateDb(cs))),
 
@@ -509,6 +519,54 @@ public static class RealScreenCatalog
             return true;
         }
 
+        // Resolve invoice labels before generic sales/purchase labels. The previous order
+        // sent names such as "SalesInvoiceForm" or "فاتورة مشتريات جديدة" to invoice lists.
+        if (normalized.IndexOf("فاتورة", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("فواتير", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            normalized.IndexOf("invoice", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            var isNewInvoice =
+                normalized.IndexOf("جديد", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                normalized.IndexOf("اضافه", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                normalized.IndexOf("ادخال", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                normalized.IndexOf("انشاء", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                normalized.IndexOf("new", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                normalized.IndexOf("entry", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                normalized.IndexOf("create", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (isNewInvoice &&
+                (normalized.IndexOf("مبيعات", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 normalized.IndexOf("بيع", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 normalized.IndexOf("sales", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                form = new SalesEntryForm(session, access, new SalesService(db), new StoresService(db));
+                return true;
+            }
+
+            if (isNewInvoice &&
+                (normalized.IndexOf("مشتريات", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 normalized.IndexOf("شراء", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                 normalized.IndexOf("purchase", StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                form = new PurchasesEntryForm(
+                    session, access, new PurchasesService(db), new StoresService(db), new CustSupService(db));
+                return true;
+            }
+
+            form = new InvoicesForm(
+                session,
+                access,
+                new InvoiceService(db),
+                new SalesService(db),
+                new StoresService(db),
+                new CustomerService(db),
+                new SupplierService(db),
+                new ItemsService(db),
+                new PurchasesService(db),
+                new CustSupService(db));
+            return true;
+        }
+
         if (normalized.IndexOf("شراء", StringComparison.OrdinalIgnoreCase) >= 0 ||
             normalized.IndexOf("مشتريات", StringComparison.OrdinalIgnoreCase) >= 0 ||
             normalized.IndexOf("purchase", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -523,24 +581,6 @@ public static class RealScreenCatalog
             normalized.IndexOf("sales", StringComparison.OrdinalIgnoreCase) >= 0)
         {
             form = new OrdersForm(session, access, new SalesService(db), new StoresService(db));
-            return true;
-        }
-
-        if (normalized.IndexOf("فاتورة", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            normalized.IndexOf("فواتير", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            normalized.IndexOf("invoice", StringComparison.OrdinalIgnoreCase) >= 0)
-        {
-            form = new InvoicesForm(
-                session,
-                access,
-                new InvoiceService(db),
-                new SalesService(db),
-                new StoresService(db),
-                new CustomerService(db),
-                new SupplierService(db),
-                new ItemsService(db),
-                new PurchasesService(db),
-                new CustSupService(db));
             return true;
         }
 
