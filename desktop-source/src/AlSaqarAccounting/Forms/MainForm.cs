@@ -99,6 +99,9 @@ public sealed class MainForm : Form
         KeyPreview = true;
 
         ErpTheme.ApplyForm(this);
+        // Keep the shell's DockStyle.Right navigation on the physical right edge.
+        // RightToLeft still controls Arabic text; mirroring the whole form reverses the sidebar.
+        RightToLeftLayout = false;
         BuildShell();
         WireEvents();
         ShowHome();
