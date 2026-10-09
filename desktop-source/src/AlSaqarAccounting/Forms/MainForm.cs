@@ -33,6 +33,7 @@ public sealed class MainForm : Form
         Padding = new Padding(12, 10, 12, 8)
     };
     private readonly FlowLayoutPanel _servicesBar = new();
+    private readonly FlowLayoutPanel _quickBar = new();
     private readonly FlowLayoutPanel _screenBar = new();
     private readonly FlowLayoutPanel _openTabsBar = new();
     private readonly Panel _home = new()
@@ -52,6 +53,19 @@ public sealed class MainForm : Form
         "العملاء والموردون", "الأصناف والمخازن", "التقارير", "العقود",
         "التصنيع", "الإيجارات", "المطاعم", "الموارد البشرية",
         "الصيانة", "الأمن والصلاحيات", "النظام والإعدادات"
+    };
+
+    private static readonly (string Label, string[] Names, bool RequiresSave, bool Primary)[] QuickActions =
+    {
+        ("فاتورة مبيعات", new[] { "SalesEntryForm", "FrmSalesEntry", "فاتورة مبيعات جديدة", "SalesInvoiceForm", "RealSalesInvoiceForm" }, true, true),
+        ("فاتورة مشتريات", new[] { "PurchasesEntryForm", "FrmPurchasesEntry", "فاتورة مشتريات جديدة" }, true, true),
+        ("سند جديد", new[] { "VoucherEntryForm", "FrmVoucherEntry", "سند جديد" }, true, true),
+        ("الكاشير", new[] { "CashierForm", "FrmCashier", "الكاشير", "نقطة البيع" }, true, true),
+        ("دليل الحسابات", new[] { "FrmAccountTree", "شجرة الحسابات", "الحسابات" }, false, false),
+        ("الأصناف", new[] { "FrmItems", "الأصناف", "ItemsForm" }, false, false),
+        ("العملاء", new[] { "FrmCustomer", "العملاء" }, false, false),
+        ("الموردون", new[] { "FrmSuppliers", "الموردون", "الموردين" }, false, false),
+        ("الجرد", new[] { "FrmGard", "الجرد" }, false, false)
     };
 
     private static readonly Dictionary<string, string> ServiceIcons =
@@ -94,6 +108,7 @@ public sealed class MainForm : Form
         BuildHiddenMenu();
         BuildHeader();
         BuildServicesBar();
+        BuildQuickBar();
         BuildScreenBar();
         BuildStatus();
 
@@ -106,6 +121,7 @@ public sealed class MainForm : Form
         Controls.Add(_workspace);
         Controls.Add(_openTabsBar);
         Controls.Add(_screenBar);
+        Controls.Add(_quickBar);
         Controls.Add(_servicesBar);
         Controls.Add(_header);
         Controls.Add(_statusStrip);
@@ -221,6 +237,71 @@ public sealed class MainForm : Form
         _servicesBar.BackColor = ErpTheme.Navigation;
         _servicesBar.RightToLeft = RightToLeft.Yes;
         _servicesBar.BorderStyle = BorderStyle.None;
+    }
+
+    private void BuildQuickBar()
+    {
+        _quickBar.Dock = DockStyle.Top;
+        _quickBar.Height = 44;
+        _quickBar.FlowDirection = FlowDirection.RightToLeft;
+        _quickBar.WrapContents = false;
+        _quickBar.AutoScroll = true;
+        _quickBar.Padding = new Padding(8, 5, 8, 5);
+        _quickBar.BackColor = ErpTheme.SurfaceSoft;
+        _quickBar.RightToLeft = RightToLeft.Yes;
+        _quickBar.BorderStyle = BorderStyle.FixedSingle;
+    }
+
+    private void RebuildQuickBar()
+    {
+        _quickBar.SuspendLayout();
+        try
+        {
+            _quickBar.Controls.Clear();
+            var used = new HashSet<int>();
+
+            foreach (var quickAction in QuickActions)
+            {
+                var screen = _screens.FirstOrDefault(candidate =>
+                    candidate.AllowEnter &&
+                    (!quickAction.RequiresSave || candidate.AllowSave) &&
+                    quickAction.Names.Any(name => string.Equals(
+                        ScreenAccess.CleanScreenName(candidate.ScreenName),
+                        name,
+                        StringComparison.OrdinalIgnoreCase)));
+
+                if (screen is null || !used.Add(screen.Id))
+                    continue;
+
+                var button = new Button
+                {
+                    Text = quickAction.Label,
+                    Width = 124,
+                    Height = 31,
+                    Margin = new Padding(3, 0, 3, 0),
+                    Font = new Font("Tahoma", 8.5f, FontStyle.Bold),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+                ErpTheme.ConfigureToolbarButton(button, quickAction.Primary);
+                button.Click += (_, _) => OpenAccessScreen(screen);
+                _quickBar.Controls.Add(button);
+            }
+
+            if (_quickBar.Controls.Count == 0)
+            {
+                _quickBar.Controls.Add(new Label
+                {
+                    Text = "لا توجد اختصارات تشغيلية متاحة لهذا الحساب.",
+                    AutoSize = true,
+                    ForeColor = ErpTheme.Muted,
+                    Padding = new Padding(8, 5, 8, 0)
+                });
+            }
+        }
+        finally
+        {
+            _quickBar.ResumeLayout(true);
+        }
     }
 
     private void BuildScreenBar()
@@ -554,7 +635,9 @@ public sealed class MainForm : Form
 
             if (string.IsNullOrWhiteSpace(_selectedService)) _selectedService = "الرئيسية";
             RebuildServicesBar();
+            RebuildQuickBar();
             RebuildScreenBar();
+            RebuildOpenTabs();
             BuildDashboard();
         }
         catch (Exception ex)
