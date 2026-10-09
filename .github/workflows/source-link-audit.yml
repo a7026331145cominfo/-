@@ -124,7 +124,7 @@ jobs:
               if total == 0:
                   lines.append('No exact reference found in the selected source reports.')
           lines.extend(['', '## Routing and permission implementation references', ''])
-          routing = re.compile(r'CheckUserPage\\(|CheckUserPageEvent(Save|Edit|Delete)|ScreenTypeName|ScreenNum|User_Screens|User_Permission|Form\\.ShowDialog|Activator\\.CreateInstance|Type\\.GetType', re.I)
+                    routing = re.compile(r'CheckUserPage\(|CheckUserPageEvent(Save|Edit|Delete)|ScreenTypeName|ScreenNum|User_Screens|User_Permission|Form\.ShowDialog|Activator\.CreateInstance|Type\.GetType', re.I)
           total = 0
           for name in ['05_CORE_SOURCE_REPORT.txt', 'AlSaqar_Internal_Source_Map.txt', 'GTSErp_SOURCE_MAP.txt', '00_REAL_INTERNAL_UI_DESIGN.txt']:
               p = by_name.get(name)
