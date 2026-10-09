@@ -20,6 +20,8 @@ $checks = @(
     @{ Name = "Cashier add button is visible in the product-entry row"; File = "Forms\CashierForm.cs"; Pattern = 'itemLayout\.Controls\.Add\(addBtn,\s*8,\s*0\)' },
     @{ Name = "Cashier discount input is visible"; File = "Forms\CashierForm.cs"; Pattern = 'itemLayout\.Controls\.Add\(_discountText,\s*7,\s*0\)' },
     @{ Name = "Cashier honors an entered unit price"; File = "Forms\CashierForm.cs"; Pattern = 'price\s*=\s*enteredPrice' },
+    @{ Name = "Cashier rejects malformed quantity text"; File = "Forms\CashierForm.cs"; Pattern = 'MessageBox\.Show\(this, "أدخل كمية رقمية صحيحة\."' },
+    @{ Name = "Cashier rejects malformed discount text"; File = "Forms\CashierForm.cs"; Pattern = 'MessageBox\.Show\(this, "أدخل خصماً رقمياً صحيحاً\."' },
     @{ Name = "Cashier completion click calls its handler"; File = "Forms\CashierForm.cs"; Pattern = 'completeBtn\.Click\s*\+=\s*async\s*\(_, _\)\s*=>\s*await\s+CompleteSaleAsync\(\)' },
     @{ Name = "Cashier print button is permission gated"; File = "Forms\CashierForm.cs"; Pattern = 'Text\s*=\s*"طباعة"[^;]*Enabled\s*=\s*_access\.AllowPrint' },
     @{ Name = "Invoice list has wired create/edit/delete actions"; File = "Forms\InvoicesForm.cs"; Pattern = 'AddToolbarButton\(toolbar,\s*"جديد".*CreateNewInvoice.*\r?\n.*"عرض التفاصيل".*\r?\n.*"تعديل".*EditInvoice.*\r?\n.*"حذف".*DeleteInvoice' },
