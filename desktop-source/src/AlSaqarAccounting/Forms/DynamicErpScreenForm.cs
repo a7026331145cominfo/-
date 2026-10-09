@@ -17,6 +17,7 @@ public sealed class DynamicErpScreenForm : Form
     private readonly ScreenAccess _access;
     private readonly DynamicErpScreenService _service;
     private readonly string _screenName;
+    private readonly bool _readOnlyMode;
 
     private DynamicErpDefinition? _definition;
     private DataTable? _data;
@@ -61,12 +62,14 @@ public sealed class DynamicErpScreenForm : Form
         AppSession session,
         ScreenAccess access,
         DynamicErpScreenService service,
-        string screenName)
+        string screenName,
+        bool readOnlyMode = false)
     {
         _session = session;
         _access = access;
         _service = service;
         _screenName = screenName;
+        _readOnlyMode = readOnlyMode;
 
         Text = "الصقر للمحاسبة — " + screenName;
         Width = 1380;
@@ -75,6 +78,7 @@ public sealed class DynamicErpScreenForm : Form
         StartPosition = FormStartPosition.CenterParent;
         RightToLeft = RightToLeft.Yes;
         RightToLeftLayout = true;
+        _editor.Visible = !_readOnlyMode;
 
         BuildLayout();
         WireEvents();
@@ -124,9 +128,12 @@ public sealed class DynamicErpScreenForm : Form
             Padding = new Padding(6),
             WrapContents = false
         };
-        AddButton(toolbar, "إضافة", _access.AllowSave, NewRecord);
-        AddButton(toolbar, "تعديل", _access.AllowEdit, BeginEdit);
-        AddButton(toolbar, "حذف", _access.AllowDelete, DeleteAsync);
+        if (!_readOnlyMode)
+        {
+            AddButton(toolbar, "إضافة", _access.AllowSave, NewRecord);
+            AddButton(toolbar, "تعديل", _access.AllowEdit, BeginEdit);
+            AddButton(toolbar, "حذف", _access.AllowDelete, DeleteAsync);
+        }
         AddButton(toolbar, "تصدير CSV", _access.AllowExport, Export);
         AddButton(toolbar, "طباعة", _access.AllowPrint, Print);
 
@@ -183,7 +190,9 @@ public sealed class DynamicErpScreenForm : Form
             _grid.DataSource = _data;
             BuildEditors();
             ApplySearch();
-            _status.Text = $"{_screenName} — إجمالي: {_data.Rows.Count:N0}";
+            _status.Text = _readOnlyMode
+                ? $"{_screenName} — إجمالي: {_data.Rows.Count:N0} — عرض آمن للقراءة فقط"
+                : $"{_screenName} — إجمالي: {_data.Rows.Count:N0}";
         }
         catch (Exception ex)
         {
@@ -202,7 +211,7 @@ public sealed class DynamicErpScreenForm : Form
 
     private void BuildEditors()
     {
-        if (_definition is null || _editor.Controls.Count > 0) return;
+        if (_readOnlyMode || _definition is null || _editor.Controls.Count > 0) return;
 
         _editors.Clear();
         foreach (var column in _definition.Columns.Where(c => c.IsWritable))
@@ -299,6 +308,7 @@ public sealed class DynamicErpScreenForm : Form
 
     private void NewRecord()
     {
+        if (_readOnlyMode) return;
         _selectedId = null;
         foreach (var control in _editors.Values)
         {
@@ -314,6 +324,7 @@ public sealed class DynamicErpScreenForm : Form
 
     private void BeginEdit()
     {
+        if (_readOnlyMode) return;
         if (_selectedId.HasValue)
         {
             _status.Text = $"وضع تعديل السجل {_selectedId.Value}.";
@@ -324,7 +335,7 @@ public sealed class DynamicErpScreenForm : Form
 
     private async Task SaveAsync()
     {
-        if (_definition is null) return;
+        if (_readOnlyMode || _definition is null) return;
 
         if (_selectedId.HasValue && !_access.AllowEdit)
         {
@@ -363,6 +374,7 @@ public sealed class DynamicErpScreenForm : Form
 
     private async Task DeleteAsync()
     {
+        if (_readOnlyMode) return;
         if (!_selectedId.HasValue || _definition is null)
         {
             _status.Text = "حدد سجلاً أولاً.";
