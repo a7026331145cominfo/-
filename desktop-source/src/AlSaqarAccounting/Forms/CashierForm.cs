@@ -124,7 +124,7 @@ public sealed class CashierForm : Form
         _cartGrid.RightToLeft = RightToLeft.Yes;
         _cartGrid.RowHeadersVisible = false;
         _cartGrid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-        _cartGrid.CellClick += (_, e) => { if (e.RowIndex >= 0 && _cartGrid.Columns[e.ColumnIndex].Name == "Delete") RemoveFromCart(e.RowIndex); };
+        _cartGrid.CellClick += (_, e) => { if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && _cartGrid.Columns[e.ColumnIndex].Name == "Delete") RemoveFromCart(e.RowIndex); };
         
         // Add columns to cart grid
         _cartGrid.Columns.Add("Delete", "حذف");
