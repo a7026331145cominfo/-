@@ -17,7 +17,7 @@ public sealed class ConnectionSettingsForm : Form
     {
         _settings = settings; _onSaved = onSaved;
         Text = "إعداد الاتصال بقاعدة البيانات";
-        Width = 620; Height = 300; StartPosition = FormStartPosition.CenterParent;
+        Width = 620; Height = 430; MinimumSize = new Size(600, 400); StartPosition = FormStartPosition.CenterParent;
         RightToLeft = RightToLeft.Yes; RightToLeftLayout = true;
         _server.Text = settings.Server;
         _database.Text = settings.Database;
