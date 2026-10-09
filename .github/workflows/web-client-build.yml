@@ -1,0 +1,35 @@
+name: Build AlSaqarERP Web Client
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web-client/**'
+      - '.github/workflows/web-client-build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'web-client/**'
+      - '.github/workflows/web-client-build.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web-client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Type check
+        run: bun run lint
+      - name: Build web app
+        run: bun run build
