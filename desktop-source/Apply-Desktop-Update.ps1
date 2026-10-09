@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$ProjectRoot = "C:\مجلد جديد\AlSaqarAccountingV4-main",
     [switch]$NoLaunch
 )
@@ -33,6 +33,7 @@ if (Get-Process -Name "AlSaqarAccounting" -ErrorAction SilentlyContinue) {
 $files = @(
     @{ Relative = "Forms\AdvancedItemsForm.cs"; Marker = "_selectedItemId.HasValue ? _access.AllowEdit : _access.AllowSave" },
     @{ Relative = "Forms\CashierForm.cs"; Marker = "GetSaleDetailsForBranchAsync(" },
+    @{ Relative = "Forms\DynamicErpScreenForm.cs"; Marker = "private readonly bool _readOnlyMode;" },
     @{ Relative = "Forms\MainForm.cs"; Marker = "_servicesBar.Dock = DockStyle.Right;" },
     @{ Relative = "Forms\OrdersForm.cs"; Marker = "ScreenAccess.CleanScreenName(s.ScreenName)" },
     @{ Relative = "Forms\PlacesForm.cs"; Marker = "_name.Focus();" },
@@ -45,7 +46,7 @@ $files = @(
     @{ Relative = "Services\VouchersService.cs"; Marker = "BeginTransaction(IsolationLevel.Serializable)" },
     @{ Relative = "UI\ErpTheme.cs"; Marker = "ConfigureDashboardButton" },
     @{ Relative = "UI\RealScreenCatalog.cs"; Marker = '["SalesInvoiceForm"]' },
-    @{ Relative = "UI\ScreenRouter.cs"; Marker = "LegacyScreenCatalog.TryCreate" }
+    @{ Relative = "UI\ScreenRouter.cs"; Marker = "readOnlyMode: true" }
 )
 
 New-Item -ItemType Directory -Path $work -Force | Out-Null
