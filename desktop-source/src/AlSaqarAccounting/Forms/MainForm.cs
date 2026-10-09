@@ -757,7 +757,7 @@ public sealed class MainForm : Form
         finally { UseWaitCursor = false; }
     }
 
-    private void OpenAccessScreen(ScreenAccess access)
+    private async void OpenAccessScreen(ScreenAccess access)
     {
         if (!access.AllowEnter)
         {
@@ -776,7 +776,9 @@ public sealed class MainForm : Form
 
         try
         {
-            var opened = _router.TryOpen(this, access, out var message);
+            var routeResult = await _router.TryOpenAsync(this, access);
+            var opened = routeResult.Opened;
+            var message = routeResult.Message;
 
             if (!opened && string.IsNullOrWhiteSpace(message))
                 message = $"تعذر فتح الشاشة «{ScreenAccess.CleanScreenName(access.ScreenName)}».";
