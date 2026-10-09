@@ -251,7 +251,7 @@ public sealed class CashierForm : Form
         completeBtn.Click += async (_, _) => await CompleteSaleAsync();
         
         var printBtn = new Button { Text = "طباعة", Width = 100, Height = 40, Enabled = _access.AllowPrint };
-        printBtn.Click += (_, _) => PrintReceipt();
+        printBtn.Click += async (_, _) => await PrintReceiptAsync();
         
         var clearBtn = new Button { Text = "مسح السلة", Width = 100, Height = 40 };
         clearBtn.Click += (_, _) => ClearCart();
@@ -658,7 +658,7 @@ public sealed class CashierForm : Form
             var saleId = await _cashierService.CreateSaleAsync(order, details, _session);
             
             // Print receipt
-            PrintReceipt(saleId);
+            await PrintReceiptAsync(saleId);
             
             // Clear and reload
             ClearCart();
@@ -680,7 +680,10 @@ public sealed class CashierForm : Form
             return;
         
         var saleId = Convert.ToInt32(row.Row["ID"]);
-        var details = await _cashierService.GetSaleDetailsAsync(saleId);
+        if (!_session.BranchId.HasValue)
+            throw new InvalidOperationException("لا يوجد فرع محدد لعرض تفاصيل البيع.");
+
+        var details = await _cashierService.GetSaleDetailsForBranchAsync(saleId, _session.BranchId.Value);
         
         using var form = new Form
         {
@@ -711,79 +714,207 @@ public sealed class CashierForm : Form
         form.ShowDialog(this);
     }
 
-    private void PrintReceipt(int? saleId = null)
+    private async Task PrintReceiptAsync(int? saleId = null)
     {
         try
         {
-            var printDoc = new PrintDocument();
-            printDoc.PrintPage += (sender, e) =>
+            var hasCart = _cartData is not null && _cartData.Rows.Count > 0;
+            var printDraft = saleId.HasValue && hasCart;
+            DataRow? saleHeader = null;
+            DataTable? savedLines = null;
+
+            if (!printDraft)
             {
-                var font = new Font("Tahoma", 12);
-                var boldFont = new Font("Tahoma", 14, FontStyle.Bold);
-                var smallFont = new Font("Tahoma", 10);
-                
-                float yPos = 20;
+                if (!saleId.HasValue && _salesGrid.CurrentRow?.DataBoundItem is DataRowView selected)
+                {
+                    saleHeader = selected.Row;
+                    saleId = ReadRowInt(selected.Row, "ID", "PurBranchID");
+                }
+
+                if (!saleId.HasValue && hasCart)
+                {
+                    printDraft = true;
+                }
+                else
+                {
+                    if (!saleId.HasValue || !_session.BranchId.HasValue)
+                    {
+                        MessageBox.Show(this, "حدد فاتورة محفوظة من القائمة أو أضف أصنافاً إلى السلة أولاً.",
+                            "طباعة إيصال", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    savedLines = await _cashierService.GetSaleDetailsForBranchAsync(
+                        saleId.Value, _session.BranchId.Value);
+
+                    if (savedLines.Rows.Count == 0)
+                    {
+                        MessageBox.Show(this, "لا توجد تفاصيل لهذه الفاتورة في الفرع الحالي.",
+                            "طباعة إيصال", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    if (saleHeader is null)
+                    {
+                        var sales = await _cashierService.GetSalesAsync(_session.BranchId);
+                        saleHeader = sales.AsEnumerable().FirstOrDefault(row =>
+                            ReadRowInt(row, "ID", "PurBranchID") == saleId.Value);
+                    }
+
+                    if (saleHeader is null)
+                    {
+                        MessageBox.Show(this, "تعذر العثور على بيانات رأس الفاتورة المحددة.",
+                            "طباعة إيصال", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                }
+            }
+
+            if (printDraft && !hasCart)
+            {
+                MessageBox.Show(this, "السلة فارغة.", "طباعة إيصال",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var rows = printDraft
+                ? _cartData!.Rows.Cast<DataRow>().ToArray()
+                : savedLines!.Rows.Cast<DataRow>().ToArray();
+
+            var customerName = printDraft
+                ? _customerLabel.Text
+                : ReadRowText(saleHeader!, "SupplierName", "CustSuppName", "CustomerName");
+
+            var invoiceNumber = printDraft
+                ? (saleId?.ToString() ?? string.Empty)
+                : ReadRowText(saleHeader!, "NoteNum", "PurBranchID", "ID");
+
+            var invoiceDate = DateTime.Now;
+            var total = _total;
+            var tax = _tax;
+            var net = _net;
+
+            if (!printDraft)
+            {
+                var dateValue = ReadRowText(saleHeader!, "Purchases_Date", "InvoiceDate");
+                if (DateTime.TryParse(dateValue, out var parsedDate))
+                    invoiceDate = parsedDate;
+
+                total = ReadRowDecimal(saleHeader!, "TotalPrices", "CostOrder");
+                tax = ReadRowDecimal(saleHeader!, "Tax");
+                net = ReadRowDecimal(saleHeader!, "Net");
+
+                if (total == 0m)
+                    total = rows.Sum(row => ReadRowDecimal(row, "Total", "TotalPrice", "NetTotalPrice"));
+                if (net == 0m)
+                    net = total + tax;
+            }
+
+            using var printDoc = new PrintDocument();
+            printDoc.DocumentName = $"إيصال بيع {invoiceNumber}".Trim();
+
+            printDoc.PrintPage += (_, e) =>
+            {
+                using var font = new Font("Tahoma", 11);
+                using var boldFont = new Font("Tahoma", 13, FontStyle.Bold);
+                using var smallFont = new Font("Tahoma", 9);
+
                 float x = e.MarginBounds.Left;
-                float y = yPos;
-                
-                // Header
+                float y = e.MarginBounds.Top;
+
                 e.Graphics.DrawString("شركة الصقر", boldFont, Brushes.Black, x, y);
                 y += 30;
                 e.Graphics.DrawString("فاتورة بيع", font, Brushes.Black, x, y);
-                y += 25;
-                e.Graphics.DrawString($"التاريخ: {DateTime.Now:yyyy-MM-dd HH:mm}", smallFont, Brushes.Black, x, y);
+                y += 24;
+                e.Graphics.DrawString($"رقم الفاتورة: {invoiceNumber}", smallFont, Brushes.Black, x, y);
                 y += 20;
-                e.Graphics.DrawString($"العميل: {_customerLabel.Text}", font, Brushes.Black, x, y);
-                y += 25;
-                
-                // Items
-                e.Graphics.DrawString("المنتج", font, Brushes.Black, x, y);
-                e.Graphics.DrawString("الكمية", font, Brushes.Black, x + 300, y);
-                e.Graphics.DrawString("السعر", font, Brushes.Black, x + 400, y);
-                e.Graphics.DrawString("الإجمالي", font, Brushes.Black, x + 500, y);
-                y += 25;
-                
-                if (_cartData != null)
+                e.Graphics.DrawString($"التاريخ: {invoiceDate:yyyy-MM-dd HH:mm}", smallFont, Brushes.Black, x, y);
+                y += 20;
+                e.Graphics.DrawString($"العميل: {customerName}", font, Brushes.Black, x, y);
+                y += 28;
+
+                e.Graphics.DrawString("الصنف", font, Brushes.Black, x, y);
+                e.Graphics.DrawString("الكمية", font, Brushes.Black, x + 290, y);
+                e.Graphics.DrawString("السعر", font, Brushes.Black, x + 380, y);
+                e.Graphics.DrawString("الإجمالي", font, Brushes.Black, x + 475, y);
+                y += 24;
+
+                foreach (var row in rows)
                 {
-                    foreach (DataRow row in _cartData.Rows)
-                    {
-                        var itemName = Convert.ToString(row["ItemName"]);
-                        var quantity = Convert.ToString(row["Quantity"]);
-                        var price = Convert.ToDecimal(row["Price"]).ToString("N2");
-                        var total = Convert.ToDecimal(row["Total"]).ToString("N2");
-                        
-                        e.Graphics.DrawString(itemName, smallFont, Brushes.Black, x, y);
-                        e.Graphics.DrawString(quantity, smallFont, Brushes.Black, x + 300, y);
-                        e.Graphics.DrawString(price, smallFont, Brushes.Black, x + 400, y);
-                        e.Graphics.DrawString(total, smallFont, Brushes.Black, x + 500, y);
-                        y += 20;
-                    }
+                    var name = ReadRowText(row, "ItemName", "item_Name", "ItemID", "ItemId");
+                    var quantity = ReadRowDecimal(row, "Quantity").ToString("N3");
+                    var price = ReadRowDecimal(row, "Price", "UnitPrice", "SmallUnitPrice").ToString("N2");
+                    var lineTotal = ReadRowDecimal(row, "Total", "TotalPrice", "NetTotalPrice").ToString("N2");
+
+                    e.Graphics.DrawString(name, smallFont, Brushes.Black, x, y);
+                    e.Graphics.DrawString(quantity, smallFont, Brushes.Black, x + 290, y);
+                    e.Graphics.DrawString(price, smallFont, Brushes.Black, x + 380, y);
+                    e.Graphics.DrawString(lineTotal, smallFont, Brushes.Black, x + 475, y);
+                    y += 20;
                 }
-                
-                y += 20;
+
+                y += 18;
                 e.Graphics.DrawString("الإجمالي:", font, Brushes.Black, x, y);
-                e.Graphics.DrawString(_total.ToString("N2"), font, Brushes.Black, x + 500, y);
-                y += 25;
+                e.Graphics.DrawString(total.ToString("N2"), font, Brushes.Black, x + 475, y);
+                y += 23;
                 e.Graphics.DrawString("الضريبة:", font, Brushes.Black, x, y);
-                e.Graphics.DrawString(_tax.ToString("N2"), font, Brushes.Black, x + 500, y);
-                y += 25;
+                e.Graphics.DrawString(tax.ToString("N2"), font, Brushes.Black, x + 475, y);
+                y += 23;
                 e.Graphics.DrawString("الصافي:", boldFont, Brushes.Black, x, y);
-                e.Graphics.DrawString(_net.ToString("N2"), boldFont, Brushes.Black, x + 500, y);
-                
-                y += 40;
+                e.Graphics.DrawString(net.ToString("N2"), boldFont, Brushes.Black, x + 475, y);
+                y += 34;
                 e.Graphics.DrawString("شكراً لثقتكم", smallFont, Brushes.Black, x, y);
+                e.HasMorePages = false;
             };
-            
-            var printDialog = new PrintDialog { Document = printDoc };
+
+            using var printDialog = new PrintDialog { Document = printDoc };
             if (printDialog.ShowDialog(this) == DialogResult.OK)
-            {
                 printDoc.Print();
-            }
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, ex.GetBaseException().Message, "خطأ في الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(this, "تعذر طباعة الإيصال:\r\n" + ex.GetBaseException().Message,
+                "الطباعة", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    private static int? ReadRowInt(DataRow row, params string[] columns)
+    {
+        foreach (var column in columns)
+        {
+            if (row.Table.Columns.Contains(column) &&
+                int.TryParse(Convert.ToString(row[column]), out var value))
+                return value;
+        }
+
+        return null;
+    }
+
+    private static string ReadRowText(DataRow row, params string[] columns)
+    {
+        foreach (var column in columns)
+        {
+            if (row.Table.Columns.Contains(column) && row[column] is not DBNull)
+            {
+                var value = Convert.ToString(row[column]);
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    private static decimal ReadRowDecimal(DataRow row, params string[] columns)
+    {
+        foreach (var column in columns)
+        {
+            if (row.Table.Columns.Contains(column) && row[column] is not DBNull &&
+                decimal.TryParse(Convert.ToString(row[column]), out var value))
+                return value;
+        }
+
+        return 0m;
     }
 
     private static string GetMachineMac()
