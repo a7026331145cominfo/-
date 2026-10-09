@@ -757,7 +757,7 @@ public sealed class CashierForm : Form
                     if (saleHeader is null)
                     {
                         var sales = await _cashierService.GetSalesAsync(_session.BranchId);
-                        saleHeader = sales.AsEnumerable().FirstOrDefault(row =>
+                        saleHeader = sales.Rows.Cast<DataRow>().FirstOrDefault(row =>
                             ReadRowInt(row, "ID", "PurBranchID") == saleId.Value);
                     }
 
