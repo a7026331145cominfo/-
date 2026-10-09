@@ -1,0 +1,117 @@
+# Build pipeline for the current .NET Framework 4.8 release path.
+name: AlSaqarAccounting .NET Framework 4.8
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/AlSaqarAccounting-NET48.yml'
+      - 'AlSaqarAccounting.sln'
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore
+        run: msbuild AlSaqarAccounting.sln /t:Restore /p:Configuration=Release /p:Platform="Any CPU" /m
+
+      - name: Build .NET Framework 4.8
+        run: msbuild AlSaqarAccounting.sln /t:Build /p:Configuration=Release /p:Platform="Any CPU" /m /v:minimal
+
+      - name: Resolve build output
+        id: output
+        shell: pwsh
+        run: |
+          $bin = Join-Path $env:GITHUB_WORKSPACE 'src\AlSaqarAccounting\bin'
+          if (-not (Test-Path $bin)) { throw "Build bin directory not found: $bin" }
+
+          $exe = Get-ChildItem -Path $bin -Recurse -File -Filter 'AlSaqarAccounting.exe' |
+            Where-Object { $_.FullName -notmatch '\\obj\\' } |
+            Sort-Object FullName |
+            Select-Object -First 1
+
+          if (-not $exe) {
+            Write-Host "Contents of bin directory:"
+            Get-ChildItem -Path $bin -Recurse -File |
+              Select-Object FullName,Length |
+              Format-Table -AutoSize
+            throw "AlSaqarAccounting.exe not found under: $bin"
+          }
+
+          $output = $exe.Directory.FullName
+          $config = Join-Path $output 'appsettings.json'
+
+          if (-not (Test-Path $config)) {
+            Write-Host "Output directory contents:"
+            Get-ChildItem -Path $output -Recurse -File |
+              Select-Object FullName,Length |
+              Format-Table -AutoSize
+            throw "appsettings.json not found beside EXE: $config"
+          }
+
+          "output=$output" >> $env:GITHUB_OUTPUT
+          Write-Host "Resolved output: $output"
+          Write-Host "EXE: $($exe.FullName)"
+          Write-Host "Config: $config"
+
+      - name: Package Release
+        shell: pwsh
+        run: |
+          $output = '${{ steps.output.outputs.output }}'
+          $out = Join-Path $env:GITHUB_WORKSPACE 'release\AlSaqarAccounting-NET48'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          Copy-Item "$output\*" $out -Recurse -Force
+          $config = Join-Path $out 'appsettings.json'
+          if (-not (Test-Path $config)) { throw "Package config missing: $config" }
+          Compress-Archive -Path "$out\*" -DestinationPath "$env:GITHUB_WORKSPACE\AlSaqarAccounting-NET48.zip" -Force
+
+      - name: Verify package contents
+        shell: pwsh
+        run: |
+          $zip = Join-Path $env:GITHUB_WORKSPACE 'AlSaqarAccounting-NET48.zip'
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [System.IO.Compression.ZipFile]::OpenRead($zip)
+          try {
+            $required = @('AlSaqarAccounting.exe', 'appsettings.json')
+            foreach ($file in $required) {
+              if (-not ($archive.Entries | Where-Object { $_.FullName -eq $file })) {
+                throw "Required file missing from package: $file"
+              }
+            }
+          }
+          finally {
+            $archive.Dispose()
+          }
+
+      - name: Upload Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlSaqarAccounting-NET48
+          path: AlSaqarAccounting-NET48.zip
+
+      - name: Attach package to محاسبة release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view 'محاسبة' --repo '${{ github.repository }}' 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create 'محاسبة' 'AlSaqarAccounting-NET48.zip' --repo '${{ github.repository }}' --target '${{ github.sha }}' --title 'محاسبة' --notes 'AlSaqarAccounting .NET Framework 4.8 release package.'
+          } else {
+            gh release upload 'محاسبة' 'AlSaqarAccounting-NET48.zip' --repo '${{ github.repository }}' --clobber
+          }
+          Write-Host 'Release asset uploaded successfully.'
