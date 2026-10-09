@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$sourceRoot = Join-Path $PSScriptRoot "src\AlSaqarAccounting"
+$sourceRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\src\AlSaqarAccounting"))
 $checks = @(
     @{ Name = "Main screen buttons route to the screen opener"; File = "Forms\MainForm.cs"; Pattern = 'button\.Click\s*\+=\s*\(_, _\)\s*=> OpenAccessScreen\(screen\);' },
     @{ Name = "Workspace is hidden when opening screens"; File = "Forms\MainForm.cs"; Pattern = '_workspace\.Visible\s*=\s*false\s*;' },
@@ -27,6 +27,7 @@ $checks = @(
 )
 
 $failed = [System.Collections.Generic.List[string]]::new()
+$checkFailureCount = 0
 foreach ($check in $checks) {
     $path = Join-Path $sourceRoot $check.File
     if (-not (Test-Path -LiteralPath $path)) {
@@ -40,6 +41,7 @@ foreach ($check in $checks) {
     }
     else {
         $failed.Add($check.Name)
+        $checkFailureCount++
         Write-Host "FAIL: $($check.Name)" -ForegroundColor Red
     }
 }
@@ -57,7 +59,7 @@ else {
 }
 
 Write-Host ""
-Write-Host ("Button-wiring source checks: {0} passed, {1} failed" -f ($checks.Count - $failed.Count), $failed.Count)
+Write-Host ("Button-wiring source checks: {0} passed, {1} failed" -f ($checks.Count - $checkFailureCount), $failed.Count)
 if ($failed.Count -gt 0) {
     $failed | ForEach-Object { Write-Error $_ }
     exit 1
