@@ -25,6 +25,13 @@ public sealed class MainForm : Form
     private readonly ToolStripStatusLabel _clock = new();
 
     private readonly Panel _header = new();
+    // Keep the dashboard separate from the MDI client so child screens are visible and clickable.
+    private readonly Panel _workspace = new()
+    {
+        Dock = DockStyle.Fill,
+        BackColor = Color.White,
+        Padding = new Padding(12, 10, 12, 8)
+    };
     private readonly FlowLayoutPanel _servicesBar = new();
     private readonly FlowLayoutPanel _screenBar = new();
     private readonly Panel _home = new()
@@ -89,15 +96,8 @@ public sealed class MainForm : Form
         BuildScreenBar();
         BuildStatus();
 
-        var workspace = new Panel
-        {
-            Dock = DockStyle.Fill,
-            BackColor = Color.White,
-            Padding = new Padding(12, 10, 12, 8)
-        };
-
-        workspace.Controls.Add(_home);
-        Controls.Add(workspace);
+        _workspace.Controls.Add(_home);
+        Controls.Add(_workspace);
         Controls.Add(_screenBar);
         Controls.Add(_servicesBar);
         Controls.Add(_header);
@@ -308,6 +308,7 @@ public sealed class MainForm : Form
             button.Click += (_, _) =>
             {
                 _selectedService = service;
+                _status.Text = $"القسم المحدد: {service}";
                 if (service == "الرئيسية") ShowHome();
                 else { RebuildScreenBar(); HideHomeForService(); }
                 RebuildServicesBar();
@@ -377,7 +378,10 @@ public sealed class MainForm : Form
     private void HideHomeForService()
     {
         _home.Visible = false;
-        _home.SendToBack();
+
+        // Hide the whole fill-docked dashboard container. Hiding only _home left
+        // an empty panel over the MDI client, making opened forms seem unresponsive.
+        _workspace.Visible = false;
     }
 
     private void WireEvents()
@@ -449,14 +453,44 @@ public sealed class MainForm : Form
             return;
         }
 
+        var fromHome = string.Equals(_selectedService, "الرئيسية", StringComparison.OrdinalIgnoreCase)
+            && ActiveMdiChild is null;
+
         UseWaitCursor = true;
+        _status.Text = $"جاري فتح الشاشة: {ScreenAccess.CleanScreenName(access.ScreenName)}";
+        _home.Visible = false;
+        _workspace.Visible = false;
+
         try
         {
-            _router.TryOpen(this, access, out var message);
+            var opened = _router.TryOpen(this, access, out var message);
+
+            if (!opened && string.IsNullOrWhiteSpace(message))
+                message = $"تعذر فتح الشاشة «{ScreenAccess.CleanScreenName(access.ScreenName)}».";
+
             if (!string.IsNullOrWhiteSpace(message))
-                MessageBox.Show(this, message, "فتح الشاشة", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, message, "فتح الشاشة",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            if (fromHome && (!opened || ActiveMdiChild is null))
+                ShowHome();
+            else if (opened)
+                _status.Text = $"تم فتح الشاشة: {ScreenAccess.CleanScreenName(access.ScreenName)}";
         }
-        finally { UseWaitCursor = false; }
+        catch (Exception ex)
+        {
+            _status.Text = $"فشل فتح الشاشة: {ScreenAccess.CleanScreenName(access.ScreenName)}";
+            MessageBox.Show(this,
+                "تعذر فتح الشاشة:\r\n" + ex.GetBaseException().Message,
+                "فتح الشاشة", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            if (fromHome)
+                ShowHome();
+        }
+        finally
+        {
+            UseWaitCursor = false;
+        }
     }
 
     private void CloseCurrentScreen()
@@ -484,6 +518,7 @@ public sealed class MainForm : Form
     {
         _selectedService = "الرئيسية";
         foreach (var child in MdiChildren) child.Close();
+        _workspace.Visible = true;
         _home.Visible = true;
         _home.BringToFront();
         RebuildServicesBar();
