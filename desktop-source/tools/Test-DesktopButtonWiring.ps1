@@ -23,7 +23,7 @@ $checks = @(
     @{ Name = "Voucher save button calls SaveAsync"; File = "Forms\VoucherEntryForm.cs"; Pattern = 'Action\("حفظ السند".*SaveAsync\(\)' },
     @{ Name = "Places double-click focuses the edit field"; File = "Forms\PlacesForm.cs"; Pattern = '_grid\.CellDoubleClick\s*\+=\s*\(_, e\)\s*=>\s*\{\s*if\s*\(e\.RowIndex\s*<\s*0\s*\|\|\s*!_access\.AllowEdit\)\s*return;\s*LoadSelected\(\);\s*_name\.Focus\(\);\s*_name\.SelectAll\(\);' },
     @{ Name = "Item editor has save/edit/delete/refresh handlers"; File = "Forms\ItemsForm.cs"; Pattern = 'AddToolbarButton\(toolbar,\s*"حفظ الصنف".*SaveItemAsync.*\r?\n.*"تعديل".*EditItemAsync.*\r?\n.*"حذف".*DeleteItemAsync.*\r?\n.*"تحديث".*LoadItemsAsync' },
-    @{ Name = "Printer save/delete buttons are wired"; File = "Forms\PrinterSettingsForm.cs"; Pattern = 's\.Click\+=async\(_, _\)=>await SavePrinter\(\).*d\.Click\+=async\(_, _\)=>await DeletePrinter\(\)' }
+    @{ Name = "Printer save/delete buttons are wired"; File = "Forms\PrinterSettingsForm.cs"; Pattern = 's\.Click\s*\+=\s*async\s*\(_\s*,\s*_\s*\)\s*=>\s*await\s+SavePrinter\(\).*d\.Click\s*\+=\s*async\s*\(_\s*,\s*_\s*\)\s*=>\s*await\s+DeletePrinter\(\)' }
 )
 
 $failed = [System.Collections.Generic.List[string]]::new()
