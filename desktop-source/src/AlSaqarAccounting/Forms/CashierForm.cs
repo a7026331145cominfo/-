@@ -146,13 +146,16 @@ public sealed class CashierForm : Form
         
         // Cart Controls Panel
         var cartControls = new Panel { Dock = DockStyle.Bottom, Height = 60, Padding = new Padding(8), BackColor = Color.FromArgb(240, 248, 255) };
-        var itemLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 6, RowCount = 1 };
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        var itemLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 9, RowCount = 1 };
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 88));
         itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 52));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 64));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 48));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 68));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 48));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 68));
+        itemLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 102));
         
         var barcodeLabel = new Label { Text = "باركود:", Width = 100, TextAlign = ContentAlignment.MiddleRight };
         _barcodeText.Dock = DockStyle.Fill;
@@ -167,8 +170,8 @@ public sealed class CashierForm : Form
         var priceLabel = new Label { Text = "سعر:", Width = 60, TextAlign = ContentAlignment.MiddleRight };
         _priceText.Width = 60;
         _priceText.TextAlign = HorizontalAlignment.Right;
-        
-        var discountLabel = new Label { Text = "خصم:", Width = 60, TextAlign = ContentAlignment.MiddleRight };
+
+        var discountLabel = new Label { Text = "خصم:", Width = 48, TextAlign = ContentAlignment.MiddleRight };
         _discountText.Width = 60;
         _discountText.Text = "0";
         _discountText.TextAlign = HorizontalAlignment.Right;
@@ -182,6 +185,9 @@ public sealed class CashierForm : Form
         itemLayout.Controls.Add(_quantityText, 3, 0);
         itemLayout.Controls.Add(priceLabel, 4, 0);
         itemLayout.Controls.Add(_priceText, 5, 0);
+        itemLayout.Controls.Add(discountLabel, 6, 0);
+        itemLayout.Controls.Add(_discountText, 7, 0);
+        itemLayout.Controls.Add(addBtn, 8, 0);
         cartControls.Controls.Add(itemLayout);
         cartPanel.Controls.Add(cartControls);
         
@@ -443,38 +449,78 @@ public sealed class CashierForm : Form
     private void AddItemByBarcode()
     {
         var barcode = _barcodeText.Text.Trim();
-        if (string.IsNullOrWhiteSpace(barcode)) return;
-        
-        if (_itemsData == null) return;
-        
-        var row = _itemsData.Select("Item_code = '" + barcode.Replace("'", "''") + "'").FirstOrDefault();
-        if (row != null)
+        if (string.IsNullOrWhiteSpace(barcode) || _itemsData is null) return;
+
+        var rows = FindItemsByBarcode(barcode);
+        if (rows.Length > 0)
         {
-            AddItemToCart(row);
+            AddItemToCart(rows[0]);
+            return;
         }
-        else
-        {
-            MessageBox.Show(this, "الباركود غير موجود", "البحث", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
+
+        MessageBox.Show(this, "الباركود غير موجود", "البحث", MessageBoxButtons.OK, MessageBoxIcon.Warning);
     }
 
     private void AddItemToCart()
     {
-        if (_itemsData == null) return;
-        
-        var itemName = _barcodeText.Text.Trim();
-        if (string.IsNullOrWhiteSpace(itemName)) return;
-        
-        // Search by name
-        var rows = _itemsData.Select("item_Name LIKE '%" + itemName.Replace("'", "''") + "%'");
-        if (rows.Length == 0)
+        if (_itemsData is null) return;
+
+        var search = _barcodeText.Text.Trim();
+        if (string.IsNullOrWhiteSpace(search)) return;
+
+        // A cashier may scan a barcode or type a product name into the same field.
+        var exactBarcodeMatches = FindItemsByBarcode(search);
+        if (exactBarcodeMatches.Length > 0)
         {
-            MessageBox.Show(this, "المنتج غير موجود", "البحث", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            AddItemToCart(exactBarcodeMatches[0]);
             return;
         }
-        
-        // Use first match
+
+        var escaped = search.Replace("'", "''");
+        var rows = _itemsData.Columns.Contains("item_Name")
+            ? _itemsData.Select("item_Name LIKE '%" + escaped + "%'")
+            : Array.Empty<DataRow>();
+
+        if (rows.Length == 0)
+        {
+            MessageBox.Show(this, "لم يتم العثور على الصنف بالباركود أو الاسم.", "البحث",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        if (rows.Length > 1)
+        {
+            MessageBox.Show(this, "وجدت عدة أصناف مطابقة؛ استخدم الباركود لتحديد الصنف بدقة.",
+                "اختيار الصنف", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
         AddItemToCart(rows[0]);
+    }
+
+    private DataRow[] FindItemsByBarcode(string barcode)
+    {
+        if (_itemsData is null || string.IsNullOrWhiteSpace(barcode))
+            return Array.Empty<DataRow>();
+
+        var escaped = barcode.Trim().Replace("'", "''");
+        var columns = new[]
+        {
+            "Item_code", "SmallBarCode1", "SmallBarCode2", "SmallBarCode3",
+            "MediumBarCode1", "MediumBarCode2", "MediumBarCode3",
+            "BigBarCode1", "BigBarCode2", "BigBarCode3"
+        };
+
+        var predicates = columns
+            .Where(name => _itemsData.Columns.Contains(name) &&
+                           _itemsData.Columns[name]!.DataType == typeof(string))
+            .Select(name => name + " = '" + escaped + "'")
+            .ToArray();
+
+        if (predicates.Length == 0)
+            return Array.Empty<DataRow>();
+
+        return _itemsData.Select(string.Join(" OR ", predicates));
     }
 
     private void AddItemToCart(DataRow itemRow)
@@ -486,16 +532,26 @@ public sealed class CashierForm : Form
         var barcode = Convert.ToString(itemRow["Item_code"]);
         
         decimal price = 0;
-        if (itemRow["SellPriceSmall"] != DBNull.Value)
+        if (itemRow.Table.Columns.Contains("SellPriceSmall") &&
+            itemRow["SellPriceSmall"] is not DBNull)
             price = Convert.ToDecimal(itemRow["SellPriceSmall"]);
-        
-        decimal quantity = 1;
-        if (!string.IsNullOrWhiteSpace(_quantityText.Text) && decimal.TryParse(_quantityText.Text, out var qty))
-            quantity = qty;
 
-        decimal discount = 0;
-        if (!string.IsNullOrWhiteSpace(_discountText.Text) && decimal.TryParse(_discountText.Text, out var disc))
-            discount = disc;
+        if (!string.IsNullOrWhiteSpace(_priceText.Text))
+        {
+            if (!decimal.TryParse(_priceText.Text, out var enteredPrice))
+            {
+                MessageBox.Show(this, "أدخل سعرًا رقميًا صحيحًا.", "سعر الصنف",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            price = enteredPrice;
+        }
+
+        if (!decimal.TryParse(_quantityText.Text, out var quantity))
+            quantity = 1m;
+
+        if (!decimal.TryParse(_discountText.Text, out var discount))
+            discount = 0m;
 
         if (quantity <= 0m)
         {
@@ -511,15 +567,22 @@ public sealed class CashierForm : Form
             return;
         }
 
-        // Check if item already in cart
+        // Merge only when both item and unit price match; different prices stay on separate lines.
         foreach (DataRow cartRow in _cartData.Rows)
         {
-            if (Convert.ToInt32(cartRow["ItemID"]) == itemId)
+            if (Convert.ToInt32(cartRow["ItemID"]) == itemId &&
+                Convert.ToDecimal(cartRow["Price"]) == price)
             {
                 var combinedQuantity = Convert.ToDecimal(cartRow["Quantity"]) + quantity;
                 var combinedDiscount = Convert.ToDecimal(cartRow["Discount"]) + discount;
+                if (combinedDiscount > price * combinedQuantity)
+                {
+                    MessageBox.Show(this, "مجموع الخصم أكبر من إجمالي السطر.", "خصم الصنف",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 cartRow["Quantity"] = combinedQuantity;
-                cartRow["Price"] = price;
                 cartRow["Discount"] = combinedDiscount;
                 cartRow["Total"] = CalculateItemTotal(price, combinedQuantity, combinedDiscount);
                 UpdateTotals();
