@@ -9,6 +9,7 @@ $checks = @(
     @{ Name = "Router resolves legacy screens"; File = "UI\ScreenRouter.cs"; Pattern = 'LegacyScreenCatalog\.TryCreate' },
     @{ Name = "Router opens remaining resolvable screens with a read-only schema form"; File = "UI\ScreenRouter.cs"; Pattern = 'new\s+DynamicErpScreenForm\(.*readOnlyMode:\s*true' },
     @{ Name = "Generic fallback disables editor in read-only mode"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = '_editor\.Visible\s*=\s*!_readOnlyMode' },
+    @{ Name = "Dynamic table fallback filters rows by current branch when a branch column exists"; File = "Services\DynamicErpScreenService.cs"; Pattern = 'WHERE \{QuoteIdentifier\(branchColumn\.Name\)\}=@__branch.*p\.Add\("@__branch", SqlDbType\.Int\)\.Value = branchId\.Value' },
     @{ Name = "Generic fallback omits write buttons in read-only mode"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = 'if\s*\(!_readOnlyMode\)\s*\{\s*AddButton\(toolbar,\s*"إضافة".*AddButton\(toolbar,\s*"حذف"' },
     @{ Name = "Generic fallback guards direct save and delete calls"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = 'if\s*\(_readOnlyMode\s*\|\|\s*_definition\s+is\s+null\)\s*return;.*if\s*\(_readOnlyMode\)\s*return;' },
     @{ Name = "MDI tabs distinguish screens of the same form type by title"; File = "UI\ScreenRouter.cs"; Pattern = 'string\.Equals\(x\.Text,\s*form\.Text,\s*StringComparison\.CurrentCultureIgnoreCase\)' },
