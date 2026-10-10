@@ -46,7 +46,7 @@ $files = @(
     @{ Relative = "Forms\AdvancedItemsForm.cs"; Marker = "_selectedItemId.HasValue ? _access.AllowEdit : _access.AllowSave" },
     @{ Relative = "Forms\ItemsForm.cs"; Marker = 'AddNumericField(editor, "سعر التكلفة"' },
     @{ Relative = "Forms\CashierForm.cs"; Marker = "GetSaleDetailsForBranchAsync(" },
-    @{ Relative = "Forms\DynamicErpScreenForm.cs"; Marker = "KeepSafeProgramSettingsColumns" },
+    @{ Relative = "Forms\DynamicErpScreenForm.cs"; Marker = "DynamicErpDefinition? initialDefinition = null" },
     @{ Relative = "Forms\MainForm.cs"; Marker = "await _router.TryOpenAsync(this, access)" },
     @{ Relative = "Forms\OrdersForm.cs"; Marker = "await router.TryOpenAsync(this, target)" },
     @{ Relative = "Forms\PurchasesForm.cs"; Marker = "await router.TryOpenAsync(this, target)" },
@@ -59,13 +59,13 @@ $files = @(
     @{ Relative = "Forms\ReceiptsForm.cs"; Marker = "ScreenAccess.CleanScreenName(s.ScreenName)" },
     @{ Relative = "Services\CashierService.cs"; Marker = "OrderCashierType = true," },
     @{ Relative = "Services\ItemsService.cs"; Marker = "public Task<DataTable> ListUnitsAsync" },
-    @{ Relative = "Services\DynamicErpScreenService.cs"; Marker = '"@__branch"' },
+    @{ Relative = "Services\DynamicErpScreenService.cs"; Marker = "ProgramSettingsSafety.IsSafeColumn(c.Name)" },
     @{ Relative = "Services\SalesService.cs"; Marker = 'Set("@OrderCashierType", invoice.OrderCashierType)' },
     @{ Relative = "Services\VouchersService.cs"; Marker = "BeginTransaction(IsolationLevel.Serializable)" },
     @{ Relative = "UI\ErpTheme.cs"; Marker = "ConfigureDashboardButton" },
     @{ Relative = "UI\RealScreenCatalog.cs"; Marker = '["SalesInvoiceForm"]' },
     @{ Relative = "UI\ScreenEntityMap.cs"; Marker = '["إعدادات البرنامج"] = "TblSetting"' },
-    @{ Relative = "UI\ScreenRouter.cs"; Marker = "await authorization.CanAsync(" }
+    @{ Relative = "UI\ScreenRouter.cs"; Marker = 'var sourceName = isProgramSettings ? "TblSetting" : screenName;' }
 )
 
 New-Item -ItemType Directory -Path $work -Force | Out-Null
