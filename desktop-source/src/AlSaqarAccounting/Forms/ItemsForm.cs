@@ -90,7 +90,7 @@ public sealed class ItemsForm : Form
         AddField(editor, "كود الصنف", _code, 0, 0);
         AddField(editor, "اسم الصنف", _name, 1, 0);
         AddField(editor, "الاسم الإنجليزي", _englishName, 2, 0);
-        AddField(editor, "نوع الصنف", _itemType, 3, 0);
+        AddField(editor, "نوع الصنف (كود)", _itemType, 3, 0);
 
         AddField(editor, "الوحدة الصغرى", _unitSmall, 0, 1);
         AddField(editor, "الوحدة المتوسطة", _unitMedium, 1, 1);
@@ -361,20 +361,23 @@ public sealed class ItemsForm : Form
             ["SmallUnitQuantity3"] = "كمية الوحدة الكبرى"
         };
 
+        var visibleFields = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "ItemId", "Item_code", "item_Name", "item_Name_English", "item_Type",
+            "UnitSmall", "UnitMedium", "UnitLarge", "LastCost", "SellPriceSmall",
+            "SellPriceMedium", "SellpriceLarge", "Is_Tax", "Tax_Value",
+            "SmallUnitQuantity", "SmallUnitQuantity2", "SmallUnitQuantity3"
+        };
+
         foreach (DataGridViewColumn column in _grid.Columns)
         {
             if (headers.TryGetValue(column.Name, out var caption))
                 column.HeaderText = caption;
 
-            if (column.Name.StartsWith("UserID_", StringComparison.OrdinalIgnoreCase) ||
-                column.Name.StartsWith("UserBranch_", StringComparison.OrdinalIgnoreCase) ||
-                column.Name.StartsWith("UserMacAddress_", StringComparison.OrdinalIgnoreCase) ||
-                column.Name.StartsWith("UserDate_", StringComparison.OrdinalIgnoreCase) ||
-                column.Name.IndexOf("BarCode", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                column.Name.StartsWith("Location", StringComparison.OrdinalIgnoreCase) ||
-                column.Name.Equals("Image", StringComparison.OrdinalIgnoreCase) ||
-                column.Name.Equals("ConString", StringComparison.OrdinalIgnoreCase))
-                column.Visible = false;
+            // Keep the list focused on useful item data, not audit, barcode and
+            // internal integration fields. The selected item's live stock total
+            // is shown in the details row above the grid.
+            column.Visible = visibleFields.Contains(column.Name);
         }
     }
 
@@ -493,12 +496,21 @@ public sealed class ItemsForm : Form
     }
 
     private Item_Items BuildEditorItem()
-        => new()
+    {
+        int? itemType = null;
+        if (!string.IsNullOrWhiteSpace(_itemType.Text))
+        {
+            if (!int.TryParse(_itemType.Text.Trim(), out var parsedType))
+                throw new ArgumentException("نوع الصنف يجب أن يكون كوداً رقمياً صحيحاً.");
+            itemType = parsedType;
+        }
+
+        return new Item_Items
         {
             Item_code = _code.Text.Trim(),
             item_Name = _name.Text.Trim(),
             item_Name_English = _englishName.Text.Trim(),
-            item_Type = ParseNullableInt(_itemType.Text),
+            item_Type = itemType,
             UnitSmall = SelectedUnitId(_unitSmall),
             UnitMedium = SelectedUnitId(_unitMedium),
             UnitLarge = SelectedUnitId(_unitLarge),
@@ -509,6 +521,7 @@ public sealed class ItemsForm : Form
             Is_Tax = _taxEnabled.Checked,
             Tax_Value = _tax.Value
         };
+    }
 
     private void ClearEditor()
     {
