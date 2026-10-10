@@ -14,8 +14,13 @@ namespace AlSaqarAccounting.Services;
 public sealed class DynamicErpScreenService
 {
     private readonly DbExecutor _db;
+    private readonly AuthorizationService _authorization;
 
-    public DynamicErpScreenService(DbExecutor db) => _db = db;
+    public DynamicErpScreenService(DbExecutor db)
+    {
+        _db = db;
+        _authorization = new AuthorizationService(db);
+    }
 
     public async Task<DynamicErpDefinition> ResolveAsync(
         string screenName,
@@ -109,12 +114,28 @@ public sealed class DynamicErpScreenService
         IReadOnlyDictionary<string, object?> values,
         int? key,
         AppSession session,
+        int screenId,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(definition.TableName))
             throw new InvalidOperationException("هذه الشاشة مرتبطة بإجراء قراءة فقط، وليس بجدول CRUD مباشر.");
 
-        var writable = definition.Columns.Where(c => c.IsWritable).ToArray();
+        var isSettingsTable = ProgramSettingsSafety.IsSettingsTable(definition.TableName);
+        if (isSettingsTable)
+        {
+            if (!key.HasValue || !session.BranchId.HasValue || key.Value != session.BranchId.Value)
+                throw new InvalidOperationException("تعديل الإعدادات مسموح لفرع تسجيل الدخول فقط.");
+        }
+
+        await _authorization.RequireAsync(
+            session,
+            screenId,
+            key.HasValue ? PermissionAction.Edit : PermissionAction.Save,
+            cancellationToken).ConfigureAwait(false);
+
+        var writable = definition.Columns
+            .Where(c => c.IsWritable && (!isSettingsTable || ProgramSettingsSafety.IsSafeColumn(c.Name)))
+            .ToArray();
         if (writable.Length == 0)
             throw new InvalidOperationException("لا توجد أعمدة قابلة للتحرير في هذا الكيان.");
 
@@ -169,18 +190,26 @@ public sealed class DynamicErpScreenService
         await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    public Task DeleteAsync(
+    public async Task DeleteAsync(
         DynamicErpDefinition definition,
         int key,
+        AppSession session,
+        int screenId,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(definition.TableName) || string.IsNullOrWhiteSpace(definition.KeyColumn))
             throw new InvalidOperationException("هذا الكيان لا يدعم حذفاً عاماً آمناً.");
 
-        return _db.ExecuteAsync(
+        if (ProgramSettingsSafety.IsSettingsTable(definition.TableName))
+            throw new InvalidOperationException("لا يمكن حذف إعدادات الفرع من شاشة الإعدادات.");
+
+        await _authorization.RequireAsync(
+            session, screenId, PermissionAction.Delete, cancellationToken).ConfigureAwait(false);
+
+        await _db.ExecuteAsync(
             $"DELETE FROM dbo.{QuoteIdentifier(definition.TableName!)} WHERE {QuoteIdentifier(definition.KeyColumn!)}=@ID;",
             p => p.Add("@ID", SqlDbType.Int).Value = key,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<DynamicErpDefinition> BuildTableDefinitionAsync(
@@ -435,6 +464,40 @@ ORDER BY CASE
 
     private static bool Has(DynamicErpColumn[] columns, string name)
         => columns.Any(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+}
+
+
+internal static class ProgramSettingsSafety
+{
+    private static readonly HashSet<string> SafeColumns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ID", "CompanyNameAr", "CompanyNameEn", "CompanyNamePrintFatora",
+        "VatNum", "CommercialRegister", "Bank", "Phone", "Fax", "Mobile",
+        "Web", "Address", "BuildingNum", "Street", "District", "City",
+        "Country", "PostalCode", "AdditionalNum", "Currency_Dividing",
+        "IsVat", "PerVat", "Tafqit_ID", "StoreID", "StoreIDWaiying",
+        "StoreIDPurches", "IsPrintSecondCasheir", "IsPrintSecondFatoraCasheir",
+        "IsTakeDateApp", "GroupSize", "GroupColor", "GroupFontColor",
+        "ItemSize", "ItemColor", "ItemFontColor", "IsItemNameAR",
+        "IsItemNameEN", "IsItemShowPrice", "ItemNameAR", "ItemNameEN",
+        "ItemShowPrice", "IsRestaurant", "IsBackupwhenClose", "IsItemExpire",
+        "IsTobacc", "IsImage", "IsShowRoomInFormRestaurant", "DiscountDecimal",
+        "NoDiscountDecimal", "DiscountDecimalForCustomer", "IsPrintCashier",
+        "IsPrintOrder", "IsPrintReturnOrder", "IsPrintItemCook", "IsPharmacy",
+        "DiscountForRestaurant", "IsSecureCashier", "IsMizanWeight",
+        "Hasm", "OrderStore", "Gabr", "Qty_Dividing", "IsTimeInRestaurant",
+        "ItemTotalWithVat", "MinTobaccoTax", "CloseYear", "FontSize",
+        "ISBouns", "ImageShape", "DisCode", "InstallationAll", "Glasses",
+        "DisPerCashier", "BondTax", "SplitMizan", "BasicContractTerms",
+        "BarcodeResturant", "CkShowFatoraElctornc", "ShowRoom", "AlItemInRow",
+        "Calendar", "GridWidth", "IsElectronicInvoice"
+    };
+
+    public static bool IsSettingsTable(string? tableName)
+        => string.Equals(tableName, "TblSetting", StringComparison.OrdinalIgnoreCase);
+
+    public static bool IsSafeColumn(string columnName)
+        => SafeColumns.Contains(columnName);
 }
 
 public sealed record DynamicErpDefinition(
