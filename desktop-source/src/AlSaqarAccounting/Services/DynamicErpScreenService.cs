@@ -54,6 +54,19 @@ public sealed class DynamicErpScreenService
     {
         if (!string.IsNullOrWhiteSpace(definition.TableName))
         {
+            // TblSetting is branch-scoped by its ID in the legacy database.
+            // Do not show settings rows for other branches.
+            if (definition.TableName.Equals("TblSetting", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!branchId.HasValue)
+                    throw new InvalidOperationException("يجب تحديد الفرع لعرض إعدادات البرنامج.");
+
+                return _db.QueryAsync(
+                    "SELECT TOP (1) * FROM dbo.TblSetting WHERE ID = @__branch;",
+                    p => p.Add("@__branch", SqlDbType.Int).Value = branchId.Value,
+                    cancellationToken);
+            }
+
             var table = QuoteIdentifier(definition.TableName!);
             var key = QuoteIdentifier(definition.KeyColumn ?? definition.Columns.FirstOrDefault()?.Name ?? "1");
             var branchColumn = definition.Columns.FirstOrDefault(c =>
