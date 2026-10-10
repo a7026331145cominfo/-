@@ -44,6 +44,7 @@ if (Get-Process -Name "AlSaqarAccounting" -ErrorAction SilentlyContinue) {
 
 $files = @(
     @{ Relative = "Forms\AdvancedItemsForm.cs"; Marker = "_selectedItemId.HasValue ? _access.AllowEdit : _access.AllowSave" },
+    @{ Relative = "Forms\ItemsForm.cs"; Marker = 'AddNumericField(editor, "سعر التكلفة"' },
     @{ Relative = "Forms\CashierForm.cs"; Marker = "GetSaleDetailsForBranchAsync(" },
     @{ Relative = "Forms\DynamicErpScreenForm.cs"; Marker = "private readonly bool _readOnlyMode;" },
     @{ Relative = "Forms\MainForm.cs"; Marker = "await _router.TryOpenAsync(this, access)" },
@@ -57,6 +58,7 @@ $files = @(
     @{ Relative = "Forms\RealSalesInvoiceFormFixed.cs"; Marker = "body.Controls.Add(bottom, 0, 3);" },
     @{ Relative = "Forms\ReceiptsForm.cs"; Marker = "ScreenAccess.CleanScreenName(s.ScreenName)" },
     @{ Relative = "Services\CashierService.cs"; Marker = "OrderCashierType = true," },
+    @{ Relative = "Services\ItemsService.cs"; Marker = "public Task<DataTable> ListUnitsAsync" },
     @{ Relative = "Services\DynamicErpScreenService.cs"; Marker = '"@__branch"' },
     @{ Relative = "Services\SalesService.cs"; Marker = 'Set("@OrderCashierType", invoice.OrderCashierType)' },
     @{ Relative = "Services\VouchersService.cs"; Marker = "BeginTransaction(IsolationLevel.Serializable)" },
