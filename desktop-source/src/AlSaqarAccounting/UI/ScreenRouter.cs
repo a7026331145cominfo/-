@@ -99,21 +99,6 @@ public sealed class ScreenRouter
             form.ShowDialog(owner); return new RouteResult(true, string.Empty);
         }
 
-        if (string.Equals(screenName, "FrmUnit", StringComparison.OrdinalIgnoreCase))
-        {
-            var form = new ItemUnitForm(_session, access, new ItemUnitService(db));
-            return new RouteResult(OpenMdi(owner, form), string.Empty);
-        }
-        if (TryResolveItemMaster(screenName, out var tableName, out var displayName))
-        {
-            var form = new ItemMasterForm(_session, access, new ItemMasterService(db), tableName, displayName);
-            return new RouteResult(OpenMdi(owner, form), string.Empty);
-        }
-        if (string.Equals(screenName, "FrmItems", StringComparison.OrdinalIgnoreCase))
-        {
-            var form = new ItemsForm(_session, access, new ItemsService(db));
-            return new RouteResult(OpenMdi(owner, form), string.Empty);
-        }
         if (string.Equals(screenName, "InvoicesForm", StringComparison.OrdinalIgnoreCase) || string.Equals(screenName, "الفواتير", StringComparison.OrdinalIgnoreCase))
         {
             var form = new InvoicesForm(_session, access, new InvoiceService(db), new SalesService(db), new StoresService(db), new CustomerService(db), new SupplierService(db), new ItemsService(db), new PurchasesService(db), new CustSupService(db));
@@ -132,27 +117,49 @@ public sealed class ScreenRouter
         {
             return new RouteResult(OpenMdi(owner, realScreen), string.Empty);
         }
-        // For names not yet assigned to a specialized form, open a schema-driven
-        // database view. It is explicitly read-only until a verified write contract
-        // is mapped, so unknown labels can be inspected without unsafe generic CRUD.
+        // The only fallback is schema-driven and read-only. Resolve its data source
+        // before creating a window, so missing mappings produce a useful message
+        // instead of an empty gray screen.
         try
         {
+            var service = new DynamicErpScreenService(db);
+            var isProgramSettings = IsProgramSettingsScreen(screenName);
+            var sourceName = isProgramSettings ? "TblSetting" : screenName;
+            var definition = await service.ResolveAsync(sourceName);
+
+            var readOnly = !isProgramSettings || !access.AllowEdit;
             var dynamicForm = new DynamicErpScreenForm(
                 _session,
                 access,
-                new DynamicErpScreenService(db),
+                service,
                 screenName,
-                readOnlyMode: true);
+                readOnlyMode: readOnly,
+                initialDefinition: definition);
+
             return new RouteResult(OpenMdi(owner, dynamicForm), string.Empty);
         }
         catch (Exception ex)
         {
             return new RouteResult(false,
-                $"تعذر تجهيز شاشة «{screenName}»: {ex.GetBaseException().Message}");
+                $"الشاشة «{screenName}» غير مرتبطة بمصدر بيانات صالح، لذلك لم تُفتح نافذة فارغة. السبب: {ex.GetBaseException().Message}");
         }
     }
 
     public sealed record RouteResult(bool Opened, string Message);
+
+    private static bool IsProgramSettingsScreen(string screenName)
+    {
+        if (string.Equals(ScreenEntityMap.Resolve(screenName), "TblSetting", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        var normalized = screenName.Normalize(System.Text.NormalizationForm.FormKC)
+            .Replace(" ", string.Empty)
+            .Replace("أ", "ا")
+            .Replace("إ", "ا")
+            .Replace("آ", "ا");
+        return normalized.IndexOf("اعداداتالبرنامج", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               normalized.IndexOf("اعداداتالشركة", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
 
     private static bool OpenMdi(Form owner, Form form)
     {
@@ -243,21 +250,6 @@ public sealed class ScreenRouter
         return n.Equals("مجموعات المستخدمين", StringComparison.OrdinalIgnoreCase) ||
                n.Equals("مجموعة المستخدمين", StringComparison.OrdinalIgnoreCase) ||
                n.Equals("UserGroupsForm", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool TryResolveItemMaster(string screenName, out string tableName, out string displayName)
-    {
-        tableName = string.Empty; displayName = string.Empty;
-        switch (screenName.Trim())
-        {
-            case "FrmCompany": tableName = "Item_Company"; displayName = "الشركات"; return true;
-            case "FrmClass": tableName = "Item_Class"; displayName = "الفئات"; return true;
-            case "FrmGroups": tableName = "Item_Groups"; displayName = "المجموعات"; return true;
-            case "GroupsForm": tableName = "Item_Groups"; displayName = "المجموعات"; return true;
-            case "FrmCountry": tableName = "Item_Country"; displayName = "الدول"; return true;
-            case "FrmDoctor": tableName = "Item_Doctor"; displayName = "الأطباء"; return true;
-            default: return false;
-        }
     }
 
 }
