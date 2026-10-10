@@ -46,7 +46,7 @@ $files = @(
     @{ Relative = "Forms\AdvancedItemsForm.cs"; Marker = "_selectedItemId.HasValue ? _access.AllowEdit : _access.AllowSave" },
     @{ Relative = "Forms\ItemsForm.cs"; Marker = 'AddNumericField(editor, "سعر التكلفة"' },
     @{ Relative = "Forms\CashierForm.cs"; Marker = "GetSaleDetailsForBranchAsync(" },
-    @{ Relative = "Forms\DynamicErpScreenForm.cs"; Marker = "private readonly bool _readOnlyMode;" },
+    @{ Relative = "Forms\DynamicErpScreenForm.cs"; Marker = "KeepSafeProgramSettingsColumns" },
     @{ Relative = "Forms\MainForm.cs"; Marker = "await _router.TryOpenAsync(this, access)" },
     @{ Relative = "Forms\OrdersForm.cs"; Marker = "await router.TryOpenAsync(this, target)" },
     @{ Relative = "Forms\PurchasesForm.cs"; Marker = "await router.TryOpenAsync(this, target)" },
@@ -64,6 +64,7 @@ $files = @(
     @{ Relative = "Services\VouchersService.cs"; Marker = "BeginTransaction(IsolationLevel.Serializable)" },
     @{ Relative = "UI\ErpTheme.cs"; Marker = "ConfigureDashboardButton" },
     @{ Relative = "UI\RealScreenCatalog.cs"; Marker = '["SalesInvoiceForm"]' },
+    @{ Relative = "UI\ScreenEntityMap.cs"; Marker = '["إعدادات البرنامج"] = "TblSetting"' },
     @{ Relative = "UI\ScreenRouter.cs"; Marker = "await authorization.CanAsync(" }
 )
 
