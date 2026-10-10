@@ -20,13 +20,22 @@ public sealed class ItemsForm : Form
     private readonly TextBox _code = new();
     private readonly TextBox _name = new();
     private readonly TextBox _englishName = new();
-    private readonly NumericUpDown _unitSmall = new();
-    private readonly NumericUpDown _unitMedium = new();
-    private readonly NumericUpDown _unitLarge = new();
+    private readonly ComboBox _unitSmall = new() { DropDownStyle = ComboBoxStyle.DropDownList, RightToLeft = RightToLeft.Yes };
+    private readonly ComboBox _unitMedium = new() { DropDownStyle = ComboBoxStyle.DropDownList, RightToLeft = RightToLeft.Yes };
+    private readonly ComboBox _unitLarge = new() { DropDownStyle = ComboBoxStyle.DropDownList, RightToLeft = RightToLeft.Yes };
+    private readonly TextBox _itemType = new() { RightToLeft = RightToLeft.Yes };
+    private readonly NumericUpDown _costPrice = new();
     private readonly NumericUpDown _sellPrice = new();
+    private readonly NumericUpDown _sellPriceMedium = new();
+    private readonly NumericUpDown _sellPriceLarge = new();
+    private readonly CheckBox _taxEnabled = new() { Text = "خاضع للضريبة", AutoSize = true, RightToLeft = RightToLeft.Yes };
     private readonly NumericUpDown _tax = new();
+    private readonly TextBox _currentStock = new() { ReadOnly = true, RightToLeft = RightToLeft.Yes };
     private DataTable? _items;
+    private DataTable? _units;
     private int? _selectedItemId;
+    private int _selectionVersion;
+    private bool _changingSelection;
 
     public ItemsForm(AppSession session, ScreenAccess access, ItemsService service)
     {
@@ -68,9 +77,9 @@ public sealed class ItemsForm : Form
         var editor = new TableLayoutPanel
         {
             Dock = DockStyle.Top,
-            Height = 170,
+            Height = 228,
             ColumnCount = 4,
-            RowCount = 3,
+            RowCount = 4,
             Padding = new Padding(8)
         };
         editor.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25));
@@ -81,11 +90,20 @@ public sealed class ItemsForm : Form
         AddField(editor, "كود الصنف", _code, 0, 0);
         AddField(editor, "اسم الصنف", _name, 1, 0);
         AddField(editor, "الاسم الإنجليزي", _englishName, 2, 0);
-        AddNumericField(editor, "الوحدة الصغرى", _unitSmall, 0, 1);
-        AddNumericField(editor, "الوحدة المتوسطة", _unitMedium, 1, 1);
-        AddNumericField(editor, "الوحدة الكبرى", _unitLarge, 2, 1);
-        AddNumericField(editor, "سعر البيع", _sellPrice, 0, 2, 4);
-        AddNumericField(editor, "الضريبة %", _tax, 1, 2, 2);
+        AddField(editor, "نوع الصنف", _itemType, 3, 0);
+
+        AddField(editor, "الوحدة الصغرى", _unitSmall, 0, 1);
+        AddField(editor, "الوحدة المتوسطة", _unitMedium, 1, 1);
+        AddField(editor, "الوحدة الكبرى", _unitLarge, 2, 1);
+        AddField(editor, "الكمية الحالية بالمخازن", _currentStock, 3, 1);
+
+        AddNumericField(editor, "سعر التكلفة", _costPrice, 0, 2, 4);
+        AddNumericField(editor, "سعر البيع للوحدة الصغرى", _sellPrice, 1, 2, 4);
+        AddNumericField(editor, "سعر البيع للوحدة المتوسطة", _sellPriceMedium, 2, 2, 4);
+        AddNumericField(editor, "سعر البيع للوحدة الكبرى", _sellPriceLarge, 3, 2, 4);
+
+        AddField(editor, "الضريبة", _taxEnabled, 0, 3);
+        AddNumericField(editor, "قيمة الضريبة %", _tax, 1, 3, 2);
         Controls.Add(editor);
 
         _grid.Dock = DockStyle.Fill;
@@ -95,7 +113,7 @@ public sealed class ItemsForm : Form
         _grid.AutoGenerateColumns = true;
         _grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         _grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-        _grid.SelectionChanged += (_, _) => LoadSelectedItem();
+        _grid.SelectionChanged += async (_, _) => await LoadSelectedItemAsync();
         ErpTheme.ConfigureGrid(_grid);
         Controls.Add(_grid);
 
@@ -165,40 +183,128 @@ public sealed class ItemsForm : Form
     private void NewItem()
     {
         _selectedItemId = null;
-        ClearEditor();
-        _grid.ClearSelection();
+        _changingSelection = true;
+        try
+        {
+            ClearEditor();
+            _grid.ClearSelection();
+        }
+        finally
+        {
+            _changingSelection = false;
+        }
         _code.Focus();
     }
 
-    private void LoadSelectedItem()
+    private async Task LoadSelectedItemAsync()
     {
-        if (_grid.CurrentRow?.DataBoundItem is not DataRowView row)
+        if (_changingSelection || _grid.CurrentRow?.DataBoundItem is not DataRowView row)
             return;
 
-        if (!int.TryParse(Convert.ToString(row.Row["ItemId"]), out var id) || id <= 0)
+        var rawId = RowValue(row.Row, "ItemId");
+        if (!int.TryParse(Convert.ToString(rawId), out var id) || id <= 0)
             return;
 
         _selectedItemId = id;
-        _code.Text = Convert.ToString(row.Row["Item_code"]) ?? string.Empty;
-        _name.Text = Convert.ToString(row.Row["item_Name"]) ?? string.Empty;
-        _englishName.Text = Convert.ToString(row.Row["item_Name_English"]) ?? string.Empty;
-        _unitSmall.Value = ToDecimalValue(row.Row["UnitSmall"]);
-        _unitMedium.Value = ToDecimalValue(row.Row["UnitMedium"]);
-        _unitLarge.Value = ToDecimalValue(row.Row["UnitLarge"]);
-        _sellPrice.Value = ToDecimalValue(row.Row["SellPriceSmall"]);
-        _tax.Value = ToDecimalValue(row.Row["Tax_Value"]);
+        _code.Text = StringValue(row.Row, "Item_code");
+        _name.Text = StringValue(row.Row, "item_Name");
+        _englishName.Text = StringValue(row.Row, "item_Name_English");
+        _itemType.Text = StringValue(row.Row, "item_Type");
+        SetComboValue(_unitSmall, RowValue(row.Row, "UnitSmall"));
+        SetComboValue(_unitMedium, RowValue(row.Row, "UnitMedium"));
+        SetComboValue(_unitLarge, RowValue(row.Row, "UnitLarge"));
+        SetNumericValue(_costPrice, RowValue(row.Row, "LastCost"));
+        SetNumericValue(_sellPrice, RowValue(row.Row, "SellPriceSmall"));
+        SetNumericValue(_sellPriceMedium, RowValue(row.Row, "SellPriceMedium"));
+        SetNumericValue(_sellPriceLarge, RowValue(row.Row, "SellpriceLarge", "SellPriceLarge"));
+        _taxEnabled.Checked = ToBooleanValue(RowValue(row.Row, "Is_Tax"));
+        SetNumericValue(_tax, RowValue(row.Row, "Tax_Value"));
+        _currentStock.Text = "جاري تحميل الكمية...";
+
+        var version = Interlocked.Increment(ref _selectionVersion);
+        try
+        {
+            var stock = await _service.ListStockAsync(id, _session);
+            if (version != _selectionVersion || IsDisposed)
+                return;
+
+            decimal quantity = 0m;
+            if (stock.Columns.Contains("CurrentBalance"))
+            {
+                foreach (DataRow stockRow in stock.Rows)
+                {
+                    if (stockRow["CurrentBalance"] != DBNull.Value)
+                        quantity += Convert.ToDecimal(stockRow["CurrentBalance"]);
+                }
+            }
+            _currentStock.Text = quantity.ToString("N3");
+        }
+        catch
+        {
+            if (version == _selectionVersion && !IsDisposed)
+                _currentStock.Text = "تعذر تحميل الكمية";
+        }
     }
 
-    private static decimal ToDecimalValue(object value)
-        => value == DBNull.Value || value is null ? 0m : Math.Max(0m, Convert.ToDecimal(value));
+    private static object? RowValue(DataRow row, params string[] names)
+    {
+        foreach (var name in names)
+            if (row.Table.Columns.Contains(name))
+                return row[name] == DBNull.Value ? null : row[name];
+        return null;
+    }
+
+    private static string StringValue(DataRow row, params string[] names)
+        => Convert.ToString(RowValue(row, names)) ?? string.Empty;
+
+    private static decimal ToDecimalValue(object? value)
+    {
+        try { return value is null || value == DBNull.Value ? 0m : Math.Max(0m, Convert.ToDecimal(value)); }
+        catch { return 0m; }
+    }
+
+    private static bool ToBooleanValue(object? value)
+    {
+        try { return value is not null && value != DBNull.Value && Convert.ToBoolean(value); }
+        catch { return false; }
+    }
+
+    private static void SetNumericValue(NumericUpDown control, object? value)
+    {
+        var numeric = ToDecimalValue(value);
+        control.Value = Math.Min(control.Maximum, Math.Max(control.Minimum, numeric));
+    }
+
+    private static void SetComboValue(ComboBox combo, object? value)
+    {
+        combo.SelectedIndex = -1;
+        if (value is null || value == DBNull.Value)
+            return;
+        try { combo.SelectedValue = Convert.ToInt32(value); }
+        catch { combo.SelectedIndex = -1; }
+    }
+
+    private static int? SelectedUnitId(ComboBox combo)
+    {
+        try { return combo.SelectedValue is null ? null : Convert.ToInt32(combo.SelectedValue); }
+        catch { return null; }
+    }
+
+    private static int? ParseNullableInt(string? value)
+        => int.TryParse(value, out var parsed) ? parsed : null;
 
     private async Task LoadItemsAsync()
     {
         try
         {
             Cursor = Cursors.WaitCursor;
+            _units ??= await _service.ListUnitsAsync();
+            BindUnitCombo(_unitSmall);
+            BindUnitCombo(_unitMedium);
+            BindUnitCombo(_unitLarge);
             _items = await _service.ListAsync();
             ApplyFilter();
+            FormatGridColumns();
         }
         catch (Exception ex)
         {
@@ -210,14 +316,78 @@ public sealed class ItemsForm : Form
         }
     }
 
+    private void BindUnitCombo(ComboBox combo)
+    {
+        if (_units is null) return;
+        combo.DataSource = new DataView(_units);
+        combo.DisplayMember = "Name";
+        combo.ValueMember = "ID";
+        combo.DropDownStyle = ComboBoxStyle.DropDownList;
+    }
+
+    private void FormatGridColumns()
+    {
+        var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ItemId"] = "رقم الصنف",
+            ["Item_code"] = "كود الصنف",
+            ["item_Name"] = "اسم الصنف",
+            ["item_Name_English"] = "الاسم الإنجليزي",
+            ["item_Type"] = "نوع الصنف",
+            ["UnitSmall"] = "الوحدة الصغرى",
+            ["UnitMedium"] = "الوحدة المتوسطة",
+            ["UnitLarge"] = "الوحدة الكبرى",
+            ["LastCost"] = "سعر التكلفة",
+            ["SellPriceSmall"] = "سعر البيع للصغرى",
+            ["SellPriceMedium"] = "سعر البيع للمتوسطة",
+            ["SellpriceLarge"] = "سعر البيع للكبرى",
+            ["SellPriceLarge"] = "سعر البيع للكبرى",
+            ["Is_Tax"] = "خاضع للضريبة",
+            ["Tax_Value"] = "قيمة الضريبة %",
+            ["SmallUnitQuantity"] = "كمية الوحدة الصغرى",
+            ["SmallUnitQuantity2"] = "كمية الوحدة المتوسطة",
+            ["SmallUnitQuantity3"] = "كمية الوحدة الكبرى"
+        };
+
+        foreach (DataGridViewColumn column in _grid.Columns)
+        {
+            if (headers.TryGetValue(column.Name, out var caption))
+                column.HeaderText = caption;
+
+            if (column.Name.StartsWith("UserID_", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.StartsWith("UserBranch_", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.StartsWith("UserMacAddress_", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.StartsWith("UserDate_", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.Contains("BarCode", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.StartsWith("Location", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.Equals("Image", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.Equals("ConString", StringComparison.OrdinalIgnoreCase))
+                column.Visible = false;
+        }
+    }
+
     private void ApplyFilter()
     {
         if (_items is null) return;
         var view = new DataView(_items);
-        var term = _search.Text.Trim().Replace("'", "''");
+        var term = _search.Text.Trim()
+            .Replace("'", "''")
+            .Replace("[", "[[]")
+            .Replace("%", "[%]")
+            .Replace("*", "[*]");
         if (term.Length > 0)
-            view.RowFilter = $"Convert(ItemId, 'System.String') LIKE '%{term}%' OR Convert(Item_code, 'System.String') LIKE '%{term}%' OR Convert(item_Name, 'System.String') LIKE '%{term}%'";
+        {
+            var filters = new List<string>();
+            foreach (var name in new[] { "ItemId", "Item_code", "item_Name", "item_Name_English" })
+            {
+                if (_items.Columns.Contains(name))
+                    filters.Add($"Convert([{name}], 'System.String') LIKE '%{term}%'");
+            }
+            if (filters.Count > 0)
+                view.RowFilter = string.Join(" OR ", filters);
+        }
         _grid.DataSource = view;
+        FormatGridColumns();
     }
 
     private async Task SaveItemAsync()
@@ -316,11 +486,15 @@ public sealed class ItemsForm : Form
             Item_code = _code.Text.Trim(),
             item_Name = _name.Text.Trim(),
             item_Name_English = _englishName.Text.Trim(),
-            UnitSmall = ToNullableInt(_unitSmall.Value),
-            UnitMedium = ToNullableInt(_unitMedium.Value),
-            UnitLarge = ToNullableInt(_unitLarge.Value),
+            item_Type = ParseNullableInt(_itemType.Text),
+            UnitSmall = SelectedUnitId(_unitSmall),
+            UnitMedium = SelectedUnitId(_unitMedium),
+            UnitLarge = SelectedUnitId(_unitLarge),
+            LastCost = _costPrice.Value,
             SellPriceSmall = _sellPrice.Value,
-            Is_Tax = _tax.Value > 0,
+            SellPriceMedium = _sellPriceMedium.Value,
+            SellpriceLarge = _sellPriceLarge.Value,
+            Is_Tax = _taxEnabled.Checked,
             Tax_Value = _tax.Value
         };
 
@@ -329,12 +503,16 @@ public sealed class ItemsForm : Form
         _code.Clear();
         _name.Clear();
         _englishName.Clear();
-        _unitSmall.Value = 0;
-        _unitMedium.Value = 0;
-        _unitLarge.Value = 0;
+        _itemType.Clear();
+        _unitSmall.SelectedIndex = -1;
+        _unitMedium.SelectedIndex = -1;
+        _unitLarge.SelectedIndex = -1;
+        _costPrice.Value = 0;
         _sellPrice.Value = 0;
+        _sellPriceMedium.Value = 0;
+        _sellPriceLarge.Value = 0;
+        _taxEnabled.Checked = false;
         _tax.Value = 0;
+        _currentStock.Clear();
     }
-
-    private static int? ToNullableInt(decimal value) => value <= 0 ? null : Convert.ToInt32(value);
 }
