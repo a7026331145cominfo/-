@@ -69,16 +69,6 @@ public sealed class MainForm : Form
         ("الجرد", new[] { "FrmGard", "الجرد" }, false, false)
     };
 
-    private static readonly Dictionary<string, string> ServiceIcons =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["الرئيسية"] = "⌂", ["الحسابات"] = "▦", ["العملاء والموردون"] = "◎",
-            ["الأصناف والمخازن"] = "▤", ["المبيعات والمشتريات"] = "▣",
-            ["المخزون"] = "⇄", ["التصنيع"] = "⚙", ["العقود"] = "□",
-            ["الإيجارات"] = "⌂", ["المطاعم"] = "◈", ["الموارد البشرية"] = "♙",
-            ["الصيانة"] = "🔧", ["التقارير"] = "▥", ["الأمن والصلاحيات"] = "⚿",
-            ["النظام والإعدادات"] = "☰"
-        };
 
     public MainForm(AppSession session, SchemaService schema, StoredProcedureExecutor sp,
         SecurityService security, string connectionString)
@@ -633,8 +623,6 @@ public sealed class MainForm : Form
         button.Padding = new Padding(12, 0, 12, 0);
     }
 
-    private string GetServiceIcon(string service)
-        => ServiceIcons.TryGetValue(service, out var icon) ? icon : "•";
 
     private void RebuildScreenBar()
     {
