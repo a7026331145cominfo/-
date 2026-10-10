@@ -370,7 +370,7 @@ public sealed class ItemsForm : Form
                 column.Name.StartsWith("UserBranch_", StringComparison.OrdinalIgnoreCase) ||
                 column.Name.StartsWith("UserMacAddress_", StringComparison.OrdinalIgnoreCase) ||
                 column.Name.StartsWith("UserDate_", StringComparison.OrdinalIgnoreCase) ||
-                column.Name.Contains("BarCode", StringComparison.OrdinalIgnoreCase) ||
+                column.Name.IndexOf("BarCode", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 column.Name.StartsWith("Location", StringComparison.OrdinalIgnoreCase) ||
                 column.Name.Equals("Image", StringComparison.OrdinalIgnoreCase) ||
                 column.Name.Equals("ConString", StringComparison.OrdinalIgnoreCase))
