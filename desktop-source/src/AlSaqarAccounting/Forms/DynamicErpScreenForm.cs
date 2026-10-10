@@ -186,8 +186,12 @@ public sealed class DynamicErpScreenForm : Form
             UseWaitCursor = true;
             _definition ??= await _service.ResolveAsync(_screenName);
             _data = await _service.LoadAsync(_definition, _session.BranchId);
+            if (IsProgramSettingsScreen())
+                KeepSafeProgramSettingsColumns(_data);
             ScreenToolbox.TranslateCommonColumns(_data);
             _grid.DataSource = _data;
+            if (IsProgramSettingsScreen())
+                ConfigureProgramSettingsHeaders();
             BuildEditors();
             ApplySearch();
             _status.Text = _readOnlyMode
@@ -207,6 +211,86 @@ public sealed class DynamicErpScreenForm : Form
         {
             UseWaitCursor = false;
         }
+    }
+
+    private bool IsProgramSettingsScreen()
+    {
+        var normalized = (_screenName ?? string.Empty)
+            .Replace(" ", string.Empty)
+            .Replace("أ", "ا")
+            .Replace("إ", "ا")
+            .Replace("آ", "ا");
+        return normalized.IndexOf("اعداداتالبرنامج", StringComparison.OrdinalIgnoreCase) >= 0 ||
+               normalized.IndexOf("اعداداتالشركة", StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private static void KeepSafeProgramSettingsColumns(DataTable table)
+    {
+        // TblSetting also contains connection strings, credentials, private/public
+        // keys and integration tokens. The generic settings viewer intentionally
+        // exposes only ordinary company/branch settings.
+        var safeColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "ID", "CompanyNameAr", "CompanyNameEn", "CompanyNamePrintFatora",
+            "VatNum", "CommercialRegister", "Bank", "Phone", "Fax", "Mobile",
+            "Web", "Address", "BuildingNum", "Street", "District", "City",
+            "Country", "PostalCode", "AdditionalNum", "Currency_Dividing",
+            "IsVat", "PerVat", "Tafqit_ID", "StoreID", "StoreIDWaiying",
+            "StoreIDPurches", "IsPrintSecondCasheir", "IsPrintSecondFatoraCasheir",
+            "IsTakeDateApp", "GroupSize", "GroupColor", "GroupFontColor",
+            "ItemSize", "ItemColor", "ItemFontColor", "IsItemNameAR",
+            "IsItemNameEN", "IsItemShowPrice", "ItemNameAR", "ItemNameEN",
+            "ItemShowPrice", "IsRestaurant", "IsBackupwhenClose", "IsItemExpire",
+            "IsTobacc", "IsImage", "IsShowRoomInFormRestaurant", "DiscountDecimal",
+            "NoDiscountDecimal", "DiscountDecimalForCustomer", "IsPrintCashier",
+            "IsPrintOrder", "IsPrintReturnOrder", "IsPrintItemCook", "IsPharmacy",
+            "DiscountForRestaurant", "IsSecureCashier", "IsMizanWeight",
+            "StoreIDPurches", "Hasm", "OrderStore", "Gabr", "Qty_Dividing",
+            "IsTimeInRestaurant", "ItemTotalWithVat", "MinTobaccoTax", "CloseYear",
+            "FontSize", "ISBouns", "ImageShape", "DisCode", "InstallationAll",
+            "Glasses", "DisPerCashier", "BondTax", "SplitMizan",
+            "BasicContractTerms", "BarcodeResturant", "CkShowFatoraElctornc",
+            "ShowRoom", "AlItemInRow", "Calendar", "GridWidth"
+        };
+
+        foreach (DataColumn column in table.Columns.Cast<DataColumn>().ToArray())
+        {
+            if (!safeColumns.Contains(column.ColumnName))
+                table.Columns.Remove(column);
+        }
+    }
+
+    private void ConfigureProgramSettingsHeaders()
+    {
+        var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["ID"] = "رقم الفرع",
+            ["CompanyNameAr"] = "اسم الشركة بالعربية",
+            ["CompanyNameEn"] = "اسم الشركة بالإنجليزية",
+            ["CompanyNamePrintFatora"] = "اسم الشركة على الفاتورة",
+            ["VatNum"] = "الرقم الضريبي",
+            ["CommercialRegister"] = "السجل التجاري",
+            ["Bank"] = "البنك",
+            ["Phone"] = "الهاتف",
+            ["Fax"] = "الفاكس",
+            ["Mobile"] = "الجوال",
+            ["Web"] = "الموقع الإلكتروني",
+            ["Address"] = "العنوان",
+            ["City"] = "المدينة",
+            ["Country"] = "الدولة",
+            ["PostalCode"] = "الرمز البريدي",
+            ["Currency_Dividing"] = "تقسيم العملة",
+            ["IsVat"] = "تفعيل ضريبة القيمة المضافة",
+            ["PerVat"] = "نسبة الضريبة",
+            ["StoreID"] = "المخزن الافتراضي",
+            ["StoreIDWaiying"] = "مخزن الانتظار",
+            ["StoreIDPurches"] = "مخزن المشتريات",
+            ["IsElectronicInvoice"] = "الفاتورة الإلكترونية"
+        };
+
+        foreach (DataGridViewColumn column in _grid.Columns)
+            if (headers.TryGetValue(column.Name, out var caption))
+                column.HeaderText = caption;
     }
 
     private void BuildEditors()
