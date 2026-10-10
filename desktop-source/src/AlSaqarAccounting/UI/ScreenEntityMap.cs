@@ -64,6 +64,8 @@ public static class ScreenEntityMap
             ["FrmZatcaIntgration"] = "ResultElectronicInvoiceXmls",
             ["الأصناف"] = "Item_Items",
             ["الصنف"] = "Item_Items",
+            ["إعدادات البرنامج"] = "TblSetting",
+            ["إعدادات الشركة"] = "TblSetting",
             ["الوحدات"] = "Item_Unit",
             ["الشركات"] = "Item_Company",
             ["الفئات"] = "Item_Class",
@@ -145,6 +147,8 @@ public static class ScreenEntityMap
         if (n.IndexOf("مجموعاتالمستخدمين", StringComparison.OrdinalIgnoreCase) >= 0 || n.IndexOf("مجموعةالمستخدمين", StringComparison.OrdinalIgnoreCase) >= 0) return "User_Groups";
         if (n.IndexOf("مستخدمين", StringComparison.OrdinalIgnoreCase) >= 0 || n.IndexOf("مستخدمون", StringComparison.OrdinalIgnoreCase) >= 0 || n.IndexOf("مستخدمجديد", StringComparison.OrdinalIgnoreCase) >= 0) return "User_Login";
         if (n.IndexOf("شاشاتالنظام", StringComparison.OrdinalIgnoreCase) >= 0 || n.Equals("الشاشات", StringComparison.OrdinalIgnoreCase) || n.IndexOf("الشاشات", StringComparison.OrdinalIgnoreCase) >= 0) return "User_Screens";
+        if (n.IndexOf("اعداداتالبرنامج", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            n.IndexOf("اعداداتالشركة", StringComparison.OrdinalIgnoreCase) >= 0) return "TblSetting";
         if (n.IndexOf("اصناف", StringComparison.OrdinalIgnoreCase) >= 0 || n.IndexOf("الصنف", StringComparison.OrdinalIgnoreCase) >= 0) return "Item_Items";
         if (n.IndexOf("وحدات", StringComparison.OrdinalIgnoreCase) >= 0 || n.IndexOf("الوحدات", StringComparison.OrdinalIgnoreCase) >= 0) return "Item_Unit";
         if (n.IndexOf("شركة", StringComparison.OrdinalIgnoreCase) >= 0 || n.IndexOf("شركات", StringComparison.OrdinalIgnoreCase) >= 0) return "Item_Company";
