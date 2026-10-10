@@ -206,24 +206,37 @@ public sealed class ItemsForm : Form
             return;
 
         _selectedItemId = id;
-        _code.Text = StringValue(row.Row, "Item_code");
-        _name.Text = StringValue(row.Row, "item_Name");
-        _englishName.Text = StringValue(row.Row, "item_Name_English");
-        _itemType.Text = StringValue(row.Row, "item_Type");
-        SetComboValue(_unitSmall, RowValue(row.Row, "UnitSmall"));
-        SetComboValue(_unitMedium, RowValue(row.Row, "UnitMedium"));
-        SetComboValue(_unitLarge, RowValue(row.Row, "UnitLarge"));
-        SetNumericValue(_costPrice, RowValue(row.Row, "LastCost"));
-        SetNumericValue(_sellPrice, RowValue(row.Row, "SellPriceSmall"));
-        SetNumericValue(_sellPriceMedium, RowValue(row.Row, "SellPriceMedium"));
-        SetNumericValue(_sellPriceLarge, RowValue(row.Row, "SellpriceLarge", "SellPriceLarge"));
-        _taxEnabled.Checked = ToBooleanValue(RowValue(row.Row, "Is_Tax"));
-        SetNumericValue(_tax, RowValue(row.Row, "Tax_Value"));
-        _currentStock.Text = "جاري تحميل الكمية...";
-
         var version = Interlocked.Increment(ref _selectionVersion);
+        _currentStock.Text = "جاري تحميل التفاصيل...";
+
         try
         {
+            // Load the canonical table row instead of depending on which columns
+            // the legacy Get_All_Items procedure happens to return.
+            var details = await _service.GetByIdAsync(id);
+            if (version != _selectionVersion || IsDisposed)
+                return;
+            if (details.Rows.Count == 0)
+            {
+                _currentStock.Text = "لم تعد بيانات الصنف موجودة";
+                return;
+            }
+
+            var item = details.Rows[0];
+            _code.Text = StringValue(item, "Item_code");
+            _name.Text = StringValue(item, "item_Name");
+            _englishName.Text = StringValue(item, "item_Name_English");
+            _itemType.Text = StringValue(item, "item_Type");
+            SetComboValue(_unitSmall, RowValue(item, "UnitSmall"));
+            SetComboValue(_unitMedium, RowValue(item, "UnitMedium"));
+            SetComboValue(_unitLarge, RowValue(item, "UnitLarge"));
+            SetNumericValue(_costPrice, RowValue(item, "LastCost"));
+            SetNumericValue(_sellPrice, RowValue(item, "SellPriceSmall"));
+            SetNumericValue(_sellPriceMedium, RowValue(item, "SellPriceMedium"));
+            SetNumericValue(_sellPriceLarge, RowValue(item, "SellpriceLarge"));
+            _taxEnabled.Checked = ToBooleanValue(RowValue(item, "Is_Tax"));
+            SetNumericValue(_tax, RowValue(item, "Tax_Value"));
+
             var stock = await _service.ListStockAsync(id, _session);
             if (version != _selectionVersion || IsDisposed)
                 return;
@@ -239,10 +252,10 @@ public sealed class ItemsForm : Form
             }
             _currentStock.Text = quantity.ToString("N3");
         }
-        catch
+        catch (Exception ex)
         {
             if (version == _selectionVersion && !IsDisposed)
-                _currentStock.Text = "تعذر تحميل الكمية";
+                _currentStock.Text = "تعذر التحميل: " + ex.GetBaseException().Message;
         }
     }
 
