@@ -24,6 +24,11 @@ public sealed class ItemsService
     public Task<DataTable> ListAsync(CancellationToken cancellationToken = default)
         => _db.ExecuteStoredProcedureAsync("dbo.Get_All_Items", cancellationToken: cancellationToken);
 
+    public Task<DataTable> ListUnitsAsync(CancellationToken cancellationToken = default)
+        => _db.QueryAsync(
+            "SELECT ID, Name FROM dbo.Item_Unit ORDER BY Name, ID;",
+            cancellationToken: cancellationToken);
+
     public Task<DataTable> ListStockAsync(
         int itemId,
         AppSession session,
@@ -103,10 +108,14 @@ ORDER BY s.Store_Name, s.ID;";
               SET Item_code = @ItemCode,
                   item_Name = @ItemName,
                   item_Name_English = @EnglishName,
+                  item_Type = @ItemType,
                   UnitSmall = @UnitSmall,
                   UnitMedium = @UnitMedium,
                   UnitLarge = @UnitLarge,
+                  LastCost = @LastCost,
                   SellPriceSmall = @SellPriceSmall,
+                  SellPriceMedium = @SellPriceMedium,
+                  SellpriceLarge = @SellpriceLarge,
                   Is_Tax = @IsTax,
                   Tax_Value = @TaxValue,
                   UserID_Update = @UserID,
@@ -120,10 +129,14 @@ ORDER BY s.Store_Name, s.ID;";
                 p.Add("@ItemCode", SqlDbType.NVarChar, 100).Value = item.Item_code.Trim();
                 p.Add("@ItemName", SqlDbType.NVarChar, 300).Value = item.item_Name.Trim();
                 p.Add("@EnglishName", SqlDbType.NVarChar, 300).Value = (object?)item.item_Name_English ?? DBNull.Value;
+                p.Add("@ItemType", SqlDbType.Int).Value = (object?)item.item_Type ?? DBNull.Value;
                 p.Add("@UnitSmall", SqlDbType.Int).Value = (object?)item.UnitSmall ?? DBNull.Value;
                 p.Add("@UnitMedium", SqlDbType.Int).Value = (object?)item.UnitMedium ?? DBNull.Value;
                 p.Add("@UnitLarge", SqlDbType.Int).Value = (object?)item.UnitLarge ?? DBNull.Value;
+                p.Add("@LastCost", SqlDbType.Decimal).Value = (object?)item.LastCost ?? DBNull.Value;
                 p.Add("@SellPriceSmall", SqlDbType.Decimal).Value = (object?)item.SellPriceSmall ?? DBNull.Value;
+                p.Add("@SellPriceMedium", SqlDbType.Decimal).Value = (object?)item.SellPriceMedium ?? DBNull.Value;
+                p.Add("@SellpriceLarge", SqlDbType.Decimal).Value = (object?)item.SellpriceLarge ?? DBNull.Value;
                 p.Add("@IsTax", SqlDbType.Bit).Value = (object?)item.Is_Tax ?? DBNull.Value;
                 p.Add("@TaxValue", SqlDbType.Decimal).Value = (object?)item.Tax_Value ?? DBNull.Value;
                 p.Add("@UserID", SqlDbType.Int).Value = session.UserId;
