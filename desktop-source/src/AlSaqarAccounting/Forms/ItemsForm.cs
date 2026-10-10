@@ -341,7 +341,6 @@ public sealed class ItemsForm : Form
             ["SellPriceSmall"] = "سعر البيع للصغرى",
             ["SellPriceMedium"] = "سعر البيع للمتوسطة",
             ["SellpriceLarge"] = "سعر البيع للكبرى",
-            ["SellPriceLarge"] = "سعر البيع للكبرى",
             ["Is_Tax"] = "خاضع للضريبة",
             ["Tax_Value"] = "قيمة الضريبة %",
             ["SmallUnitQuantity"] = "كمية الوحدة الصغرى",
