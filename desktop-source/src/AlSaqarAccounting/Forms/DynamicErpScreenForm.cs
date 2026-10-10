@@ -63,13 +63,15 @@ public sealed class DynamicErpScreenForm : Form
         ScreenAccess access,
         DynamicErpScreenService service,
         string screenName,
-        bool readOnlyMode = false)
+        bool readOnlyMode = false,
+        DynamicErpDefinition? initialDefinition = null)
     {
         _session = session;
         _access = access;
         _service = service;
         _screenName = screenName;
         _readOnlyMode = readOnlyMode;
+        _definition = initialDefinition;
 
         Text = "الصقر للمحاسبة — " + screenName;
         Width = 1380;
@@ -130,9 +132,17 @@ public sealed class DynamicErpScreenForm : Form
         };
         if (!_readOnlyMode)
         {
-            AddButton(toolbar, "إضافة", _access.AllowSave, NewRecord);
-            AddButton(toolbar, "تعديل", _access.AllowEdit, BeginEdit);
-            AddButton(toolbar, "حذف", _access.AllowDelete, DeleteAsync);
+            if (IsProgramSettingsScreen())
+            {
+                // Branch settings are edited in place; never add/delete TblSetting rows here.
+                AddButton(toolbar, "حفظ الإعدادات", _access.AllowEdit, SaveAsync);
+            }
+            else
+            {
+                AddButton(toolbar, "إضافة", _access.AllowSave, NewRecord);
+                AddButton(toolbar, "تعديل", _access.AllowEdit, BeginEdit);
+                AddButton(toolbar, "حذف", _access.AllowDelete, DeleteAsync);
+            }
         }
         AddButton(toolbar, "تصدير CSV", _access.AllowExport, Export);
         AddButton(toolbar, "طباعة", _access.AllowPrint, Print);
@@ -185,14 +195,29 @@ public sealed class DynamicErpScreenForm : Form
         {
             UseWaitCursor = true;
             _definition ??= await _service.ResolveAsync(_screenName);
+            if (IsProgramSettingsScreen())
+            {
+                _definition = _definition with
+                {
+                    Columns = _definition.Columns
+                        .Where(column => ProgramSettingsSafety.IsSafeColumn(column.Name))
+                        .ToArray()
+                };
+            }
+
             _data = await _service.LoadAsync(_definition, _session.BranchId);
             if (IsProgramSettingsScreen())
                 KeepSafeProgramSettingsColumns(_data);
+
             ScreenToolbox.TranslateCommonColumns(_data);
             _grid.DataSource = _data;
             if (IsProgramSettingsScreen())
                 ConfigureProgramSettingsHeaders();
             BuildEditors();
+
+            if (_grid.Rows.Count > 0 && _grid.CurrentCell is null)
+                _grid.CurrentCell = _grid.Rows[0].Cells[0];
+            BindSelectedRow();
             ApplySearch();
             _status.Text = _readOnlyMode
                 ? $"{_screenName} — إجمالي: {_data.Rows.Count:N0} — عرض آمن للقراءة فقط"
@@ -226,36 +251,10 @@ public sealed class DynamicErpScreenForm : Form
 
     private static void KeepSafeProgramSettingsColumns(DataTable table)
     {
-        // TblSetting also contains connection strings, credentials, private/public
-        // keys and integration tokens. The generic settings viewer intentionally
-        // exposes only ordinary company/branch settings.
-        var safeColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "ID", "CompanyNameAr", "CompanyNameEn", "CompanyNamePrintFatora",
-            "VatNum", "CommercialRegister", "Bank", "Phone", "Fax", "Mobile",
-            "Web", "Address", "BuildingNum", "Street", "District", "City",
-            "Country", "PostalCode", "AdditionalNum", "Currency_Dividing",
-            "IsVat", "PerVat", "Tafqit_ID", "StoreID", "StoreIDWaiying",
-            "StoreIDPurches", "IsPrintSecondCasheir", "IsPrintSecondFatoraCasheir",
-            "IsTakeDateApp", "GroupSize", "GroupColor", "GroupFontColor",
-            "ItemSize", "ItemColor", "ItemFontColor", "IsItemNameAR",
-            "IsItemNameEN", "IsItemShowPrice", "ItemNameAR", "ItemNameEN",
-            "ItemShowPrice", "IsRestaurant", "IsBackupwhenClose", "IsItemExpire",
-            "IsTobacc", "IsImage", "IsShowRoomInFormRestaurant", "DiscountDecimal",
-            "NoDiscountDecimal", "DiscountDecimalForCustomer", "IsPrintCashier",
-            "IsPrintOrder", "IsPrintReturnOrder", "IsPrintItemCook", "IsPharmacy",
-            "DiscountForRestaurant", "IsSecureCashier", "IsMizanWeight",
-            "StoreIDPurches", "Hasm", "OrderStore", "Gabr", "Qty_Dividing",
-            "IsTimeInRestaurant", "ItemTotalWithVat", "MinTobaccoTax", "CloseYear",
-            "FontSize", "ISBouns", "ImageShape", "DisCode", "InstallationAll",
-            "Glasses", "DisPerCashier", "BondTax", "SplitMizan",
-            "BasicContractTerms", "BarcodeResturant", "CkShowFatoraElctornc",
-            "ShowRoom", "AlItemInRow", "Calendar", "GridWidth"
-        };
-
+        // Keep the same allowlist for visible fields and writable fields.
         foreach (DataColumn column in table.Columns.Cast<DataColumn>().ToArray())
         {
-            if (!safeColumns.Contains(column.ColumnName))
+            if (!ProgramSettingsSafety.IsSafeColumn(column.ColumnName))
                 table.Columns.Remove(column);
         }
     }
@@ -421,6 +420,14 @@ public sealed class DynamicErpScreenForm : Form
     {
         if (_readOnlyMode || _definition is null) return;
 
+        if (IsProgramSettingsScreen() && !_selectedId.HasValue)
+        {
+            MessageBox.Show(this,
+                "لا توجد إعدادات مسجلة للفرع الحالي. اطلب من مسؤول النظام تهيئتها أولاً.",
+                "إعدادات البرنامج", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
         if (_selectedId.HasValue && !_access.AllowEdit)
         {
             MessageBox.Show(this, "لا تملك صلاحية التعديل.", "الصلاحيات",
@@ -437,10 +444,11 @@ public sealed class DynamicErpScreenForm : Form
             foreach (var column in _definition.Columns.Where(c => _editors.ContainsKey(c.Name)))
                 values[column.Name] = ReadValue(_editors[column.Name], column);
 
+            var editingExisting = _selectedId.HasValue;
             UseWaitCursor = true;
-            await _service.SaveAsync(_definition, values, _selectedId, _session);
+            await _service.SaveAsync(_definition, values, _selectedId, _session, _access.Id);
             await LoadAsync();
-            _status.Text = _selectedId.HasValue ? "تم تعديل السجل." : "تم حفظ السجل.";
+            _status.Text = editingExisting ? "تم تعديل السجل." : "تم حفظ السجل.";
         }
         catch (Exception ex)
         {
@@ -479,7 +487,7 @@ public sealed class DynamicErpScreenForm : Form
         try
         {
             UseWaitCursor = true;
-            await _service.DeleteAsync(_definition, _selectedId.Value);
+            await _service.DeleteAsync(_definition, _selectedId.Value, _session, _access.Id);
             _selectedId = null;
             await LoadAsync();
         }
