@@ -29,6 +29,19 @@ public sealed class ItemsService
             "SELECT ID, Name FROM dbo.Item_Unit ORDER BY Name, ID;",
             cancellationToken: cancellationToken);
 
+    public Task<DataTable> GetByIdAsync(
+        int itemId,
+        CancellationToken cancellationToken = default)
+    {
+        if (itemId <= 0)
+            throw new ArgumentException("معرف الصنف غير صالح.", nameof(itemId));
+
+        return _db.QueryAsync(
+            "SELECT TOP (1) * FROM dbo.Item_Items WHERE ItemId = @ItemId;",
+            p => p.Add("@ItemId", SqlDbType.Int).Value = itemId,
+            cancellationToken);
+    }
+
     public Task<DataTable> ListStockAsync(
         int itemId,
         AppSession session,
