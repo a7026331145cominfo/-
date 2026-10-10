@@ -7,7 +7,7 @@ $checks = @(
     @{ Name = "Workspace is restored on Home"; File = "Forms\MainForm.cs"; Pattern = '_workspace\.Visible\s*=\s*true\s*;' },
     @{ Name = "Program settings are mapped to the branch settings entity"; File = "UI\ScreenEntityMap.cs"; Pattern = 'إعدادات البرنامج.*TblSetting' },
     @{ Name = "Program settings viewer filters out secret configuration fields"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = 'KeepSafeProgramSettingsColumns' },
-    @{ Name = "Item form includes cost, unit prices, tax and current stock"; File = "Forms\ItemsForm.cs"; Pattern = 'سعر التكلفة.*سعر البيع للوحدة الصغرى.*سعر البيع للوحدة المتوسطة.*سعر البيع للوحدة الكبرى.*الكمية الحالية بالمخازن' },
+    @{ Name = "Item form includes cost, unit prices, tax and current stock"; File = "Forms\ItemsForm.cs"; Pattern = 'الكمية الحالية بالمخازن.*سعر التكلفة.*سعر البيع للوحدة الصغرى.*سعر البيع للوحدة المتوسطة.*سعر البيع للوحدة الكبرى' },
     @{ Name = "Item unit dropdowns are populated from the real unit table"; File = "Services\ItemsService.cs"; Pattern = 'SELECT ID, Name FROM dbo\.Item_Unit ORDER BY Name, ID' },
     @{ Name = "Sidebar navigation captions are plain text without decorative icons"; File = "Forms\MainForm.cs"; Pattern = 'Text\s*=\s*service,' },
     @{ Name = "Router uses the real screen catalogs"; File = "UI\ScreenRouter.cs"; Pattern = 'RealScreenCatalog\.TryCreate' },
