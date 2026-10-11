@@ -5,8 +5,30 @@ $checks = @(
     @{ Name = "Main screen buttons route to the screen opener"; File = "Forms\MainForm.cs"; Pattern = 'button\.Click\s*\+=\s*\(_, _\)\s*=> OpenAccessScreen\(screen\);' },
     @{ Name = "Workspace is hidden when opening screens"; File = "Forms\MainForm.cs"; Pattern = '_workspace\.Visible\s*=\s*false\s*;' },
     @{ Name = "Workspace is restored on Home"; File = "Forms\MainForm.cs"; Pattern = '_workspace\.Visible\s*=\s*true\s*;' },
+    @{ Name = "Program settings are mapped to the branch settings entity"; File = "UI\ScreenEntityMap.cs"; Pattern = 'إعدادات البرنامج.*TblSetting' },
+    @{ Name = "Program settings viewer filters out secret configuration fields"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = 'KeepSafeProgramSettingsColumns' },
+    @{ Name = "Program settings are resolved explicitly before opening a screen"; File = "UI\ScreenRouter.cs"; Pattern = 'var sourceName = isProgramSettings \? "TblSetting" : screenName;.*await service\.ResolveAsync\(sourceName\)' },
+    @{ Name = "Program settings are scoped to the logged-in branch"; File = "Services\DynamicErpScreenService.cs"; Pattern = 'FROM dbo\.TblSetting WHERE ID = @__branch' },
+    @{ Name = "Program settings edits use the safe column allowlist"; File = "Services\DynamicErpScreenService.cs"; Pattern = 'isSettingsTable \|\| ProgramSettingsSafety\.IsSafeColumn\(c\.Name\)' },
+    @{ Name = "Generic saves re-check database permissions"; File = "Services\DynamicErpScreenService.cs"; Pattern = '_authorization\.RequireAsync.*key\.HasValue \? PermissionAction\.Edit : PermissionAction\.Save' },
+    @{ Name = "Generic fallback resolves data before creating its window"; File = "UI\ScreenRouter.cs"; Pattern = 'await service\.ResolveAsync\(sourceName\).*new DynamicErpScreenForm' },
+
+    @{ Name = "Item form includes cost, unit prices, tax and current stock"; File = "Forms\ItemsForm.cs"; Pattern = 'الكمية الحالية بالمخازن.*سعر التكلفة.*سعر البيع للوحدة الصغرى.*سعر البيع للوحدة المتوسطة.*سعر البيع للوحدة الكبرى' },
+    @{ Name = "Item unit dropdowns are populated from the real unit table"; File = "Services\ItemsService.cs"; Pattern = 'SELECT ID, Name FROM dbo\.Item_Unit ORDER BY Name, ID' },
+    @{ Name = "Sidebar navigation captions are plain text without decorative icons"; File = "Forms\MainForm.cs"; Pattern = 'Text\s*=\s*service,' },
     @{ Name = "Router uses the real screen catalogs"; File = "UI\ScreenRouter.cs"; Pattern = 'RealScreenCatalog\.TryCreate' },
     @{ Name = "Router resolves legacy screens"; File = "UI\ScreenRouter.cs"; Pattern = 'LegacyScreenCatalog\.TryCreate' },
+    @{ Name = "Router opens remaining resolvable screens with a read-only schema form"; File = "UI\ScreenRouter.cs"; Pattern = 'var readOnly = !isProgramSettings \|\| !access\.AllowEdit;.*new DynamicErpScreenForm\(.*readOnlyMode: readOnly' },
+    @{ Name = "Main form awaits async screen routing without freezing the UI"; File = "Forms\MainForm.cs"; Pattern = 'await\s+_router\.TryOpenAsync\(this,\s*access\)' },
+    @{ Name = "Screen authorization validation is asynchronous"; File = "UI\ScreenRouter.cs"; Pattern = 'await\s+authorization\.CanAsync\(\s*_session,\s*access\.Id,\s*PermissionAction\.Enter\s*\)' },
+    @{ Name = "Sales related screens use async routing"; File = "Forms\OrdersForm.cs"; Pattern = 'await\s+router\.TryOpenAsync\(this,\s*target\)' },
+    @{ Name = "Purchase related screens use async routing"; File = "Forms\PurchasesForm.cs"; Pattern = 'await\s+router\.TryOpenAsync\(this,\s*target\)' },
+    @{ Name = "Voucher related screens use async routing"; File = "Forms\ReceiptsForm.cs"; Pattern = 'await\s+router\.TryOpenAsync\(this,\s*target\)' },
+    @{ Name = "Generic fallback disables editor in read-only mode"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = '_editor\.Visible\s*=\s*!_readOnlyMode' },
+    @{ Name = "Dynamic table fallback filters rows by current branch when a branch column exists"; File = "Services\DynamicErpScreenService.cs"; Pattern = 'WHERE \{QuoteIdentifier\(branchColumn\.Name\)\}=@__branch.*p\.Add\("@__branch", SqlDbType\.Int\)\.Value = branchId\.Value' },
+    @{ Name = "Generic fallback omits write buttons in read-only mode"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = 'if\s*\(!_readOnlyMode\)\s*\{.*AddButton\(toolbar,\s*"إضافة".*AddButton\(toolbar,\s*"حذف"' },
+    @{ Name = "Generic fallback guards direct save and delete calls"; File = "Forms\DynamicErpScreenForm.cs"; Pattern = 'if\s*\(_readOnlyMode\s*\|\|\s*_definition\s+is\s+null\)\s*return;.*if\s*\(_readOnlyMode\)\s*return;' },
+    @{ Name = "MDI tabs distinguish screens of the same form type by title"; File = "UI\ScreenRouter.cs"; Pattern = 'string\.Equals\(x\.Text,\s*form\.Text,\s*StringComparison\.CurrentCultureIgnoreCase\)' },
     @{ Name = "Sales invoice button has a click action"; File = "Forms\OrdersForm.cs"; Pattern = 'AddButton\(toolbar,\s*"فاتورة جديدة",\s*Access\.AllowSave' },
     @{ Name = "Sales deletion goes through SalesService"; File = "Forms\OrdersForm.cs"; Pattern = 'await\s+_sales\.DeleteAsync\(' },
     @{ Name = "Purchase edit button checks edit permission"; File = "Forms\PurchasesForm.cs"; Pattern = 'AddButton\(toolbar,\s*"تعديل الفاتورة",\s*Access\.AllowEdit' },
@@ -20,8 +42,8 @@ $checks = @(
     @{ Name = "Cashier add button is visible in the product-entry row"; File = "Forms\CashierForm.cs"; Pattern = 'itemLayout\.Controls\.Add\(addBtn,\s*8,\s*0\)' },
     @{ Name = "Cashier discount input is visible"; File = "Forms\CashierForm.cs"; Pattern = 'itemLayout\.Controls\.Add\(_discountText,\s*7,\s*0\)' },
     @{ Name = "Cashier honors an entered unit price"; File = "Forms\CashierForm.cs"; Pattern = 'price\s*=\s*enteredPrice' },
-    @{ Name = "Cashier rejects malformed quantity text"; File = "Forms\CashierForm.cs"; Pattern = 'MessageBox\.Show\(this, "أدخل كمية رقمية صحيحة\."' },
-    @{ Name = "Cashier rejects malformed discount text"; File = "Forms\CashierForm.cs"; Pattern = 'MessageBox\.Show\(this, "أدخل خصماً رقمياً صحيحاً\."' },
+    @{ Name = "Cashier rejects malformed quantity text"; File = "Forms\CashierForm.cs"; Pattern = 'MessageBox\.Show\(this,.*أدخل كمية رقمية صحيحة' },
+    @{ Name = "Cashier rejects malformed discount text"; File = "Forms\CashierForm.cs"; Pattern = 'MessageBox\.Show\(this,.*أدخل خصماً رقمياً صحيحاً' },
     @{ Name = "Cashier completion click calls its handler"; File = "Forms\CashierForm.cs"; Pattern = 'completeBtn\.Click\s*\+=\s*async\s*\(_, _\)\s*=>\s*await\s+CompleteSaleAsync\(\)' },
     @{ Name = "Cashier print button is permission gated"; File = "Forms\CashierForm.cs"; Pattern = 'Text\s*=\s*"طباعة"[^;]*Enabled\s*=\s*_access\.AllowPrint' },
     @{ Name = "Invoice list has wired create/edit/delete actions"; File = "Forms\InvoicesForm.cs"; Pattern = 'AddToolbarButton\(toolbar,\s*"جديد".*CreateNewInvoice.*\r?\n.*"عرض التفاصيل".*\r?\n.*"تعديل".*EditInvoice.*\r?\n.*"حذف".*DeleteInvoice' },
@@ -72,6 +94,15 @@ foreach ($check in $checks) {
         $checkFailureCount++
         Write-Host "FAIL: $($check.Name)" -ForegroundColor Red
     }
+}
+
+$routerSource = [System.IO.File]::ReadAllText((Join-Path $sourceRoot "UI\ScreenRouter.cs"), [System.Text.Encoding]::UTF8)
+if ([regex]::IsMatch($routerSource, '\.GetAwaiter\(\)\.GetResult\(\)|\.Wait\(\)\s*;')) {
+    $failed.Add("ScreenRouter blocks the UI thread waiting for an asynchronous operation")
+    Write-Host "FAIL: ScreenRouter has a synchronous wait" -ForegroundColor Red
+}
+else {
+    Write-Host "PASS: ScreenRouter contains no synchronous async waits" -ForegroundColor Green
 }
 
 $allForms = Get-ChildItem -LiteralPath (Join-Path $sourceRoot "Forms") -Filter "*.cs" -File

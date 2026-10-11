@@ -31,6 +31,21 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Validate button-wiring test syntax
+        shell: pwsh
+        run: |
+          $testPath = (Resolve-Path ./desktop-source/tools/Test-DesktopButtonWiring.ps1).Path
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile($testPath, [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object {
+              Write-Error ("Line {0}: {1}" -f $_.Extent.StartLineNumber, $_.Message)
+            }
+            exit 1
+          }
+          Write-Host "PASS: button-wiring test PowerShell syntax"
+
       - name: Check button wiring and permissions
         shell: pwsh
         run: ./desktop-source/tools/Test-DesktopButtonWiring.ps1

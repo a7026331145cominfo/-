@@ -1,0 +1,31 @@
+name: Validate Desktop Health Check Script
+
+on:
+  push:
+    branches:
+      - ai-desktop-source-20261009-160047
+    paths:
+      - 'tools/Run-Desktop-HealthCheck.ps1'
+      - '.github/workflows/validate-desktop-health-check.yml'
+  workflow_dispatch:
+
+jobs:
+  powershell-parse:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Parse health-check script
+        shell: pwsh
+        run: |
+          $path = Join-Path $env:GITHUB_WORKSPACE 'tools/Run-Desktop-HealthCheck.ps1'
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object {
+              Write-Error ("Line {0}: {1}" -f $_.Extent.StartLineNumber, $_.Message)
+            }
+            exit 1
+          }
+          Write-Host 'PowerShell parser reported no syntax errors.'

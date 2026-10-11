@@ -69,16 +69,6 @@ public sealed class MainForm : Form
         ("الجرد", new[] { "FrmGard", "الجرد" }, false, false)
     };
 
-    private static readonly Dictionary<string, string> ServiceIcons =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["الرئيسية"] = "⌂", ["الحسابات"] = "▦", ["العملاء والموردون"] = "◎",
-            ["الأصناف والمخازن"] = "▤", ["المبيعات والمشتريات"] = "▣",
-            ["المخزون"] = "⇄", ["التصنيع"] = "⚙", ["العقود"] = "□",
-            ["الإيجارات"] = "⌂", ["المطاعم"] = "◈", ["الموارد البشرية"] = "♙",
-            ["الصيانة"] = "🔧", ["التقارير"] = "▥", ["الأمن والصلاحيات"] = "⚿",
-            ["النظام والإعدادات"] = "☰"
-        };
 
     public MainForm(AppSession session, SchemaService schema, StoredProcedureExecutor sp,
         SecurityService security, string connectionString)
@@ -315,13 +305,13 @@ public sealed class MainForm : Form
             Margin = new Padding(4, 10, 4, 0)
         };
 
-        actions.Controls.Add(CreateHeaderButton("⌂  الرئيسية", (_, _) => ShowHome(), true));
-        actions.Controls.Add(CreateHeaderButton("↻  تحديث", async (_, _) => await LoadSecurityAsync()));
-        actions.Controls.Add(CreateHeaderButton("×  إغلاق", (_, _) => CloseCurrentScreen()));
-        actions.Controls.Add(CreateHeaderButton("◉  اتصال", async (_, _) => await CheckConnectionAsync()));
+        actions.Controls.Add(CreateHeaderButton("الرئيسية", (_, _) => ShowHome(), true));
+        actions.Controls.Add(CreateHeaderButton("تحديث", async (_, _) => await LoadSecurityAsync()));
+        actions.Controls.Add(CreateHeaderButton("إغلاق", (_, _) => CloseCurrentScreen()));
+        actions.Controls.Add(CreateHeaderButton("اتصال", async (_, _) => await CheckConnectionAsync()));
         if (_session.GroupId == 1)
-            actions.Controls.Add(CreateHeaderButton("⚿  التراخيص", (_, _) => OpenLicenseManagement()));
-        actions.Controls.Add(CreateHeaderButton("↪  خروج", (_, _) => Close()));
+            actions.Controls.Add(CreateHeaderButton("التراخيص", (_, _) => OpenLicenseManagement()));
+        actions.Controls.Add(CreateHeaderButton("خروج", (_, _) => Close()));
         actions.Controls.Add(searchLabel);
         actions.Controls.Add(_search);
 
@@ -525,13 +515,13 @@ public sealed class MainForm : Form
         _statusStrip.SizingGrip = false;
 
         _statusStrip.Items.Add(_status);
-        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = "│", ForeColor = Color.Black });
+        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = string.Empty });
         _statusStrip.Items.Add(_screenCount);
-        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = "│", ForeColor = Color.Black });
+        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = string.Empty });
         _statusStrip.Items.Add(new ToolStripStatusLabel { Text = $"الفرع: {_session.BranchId?.ToString() ?? "-"}", ForeColor = Color.Black });
-        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = "│", ForeColor = Color.Black });
+        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = string.Empty });
         _statusStrip.Items.Add(new ToolStripStatusLabel { Text = $"المجموعة: {_session.GroupId?.ToString() ?? "-"}", ForeColor = Color.Black });
-        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = "│", ForeColor = Color.Black });
+        _statusStrip.Items.Add(new ToolStripStatusLabel { Text = string.Empty });
         _statusStrip.Items.Add(_clock);
     }
 
@@ -595,7 +585,7 @@ public sealed class MainForm : Form
             var active = string.Equals(service, _selectedService, StringComparison.OrdinalIgnoreCase);
             var button = new Button
             {
-                Text = $"{GetServiceIcon(service)}    {service}",
+                Text = service,
                 Tag = service,
                 Width = 214,
                 Height = 44,
@@ -633,8 +623,6 @@ public sealed class MainForm : Form
         button.Padding = new Padding(12, 0, 12, 0);
     }
 
-    private string GetServiceIcon(string service)
-        => ServiceIcons.TryGetValue(service, out var icon) ? icon : "•";
 
     private void RebuildScreenBar()
     {
@@ -757,7 +745,7 @@ public sealed class MainForm : Form
         finally { UseWaitCursor = false; }
     }
 
-    private void OpenAccessScreen(ScreenAccess access)
+    private async void OpenAccessScreen(ScreenAccess access)
     {
         if (!access.AllowEnter)
         {
@@ -776,7 +764,9 @@ public sealed class MainForm : Form
 
         try
         {
-            var opened = _router.TryOpen(this, access, out var message);
+            var routeResult = await _router.TryOpenAsync(this, access);
+            var opened = routeResult.Opened;
+            var message = routeResult.Message;
 
             if (!opened && string.IsNullOrWhiteSpace(message))
                 message = $"تعذر فتح الشاشة «{ScreenAccess.CleanScreenName(access.ScreenName)}».";
@@ -930,7 +920,7 @@ public sealed class MainForm : Form
 
             var button = new Button
             {
-                Text = $"{GetServiceIcon(name == "الكاشير" ? "المبيعات والمشتريات" : name)}   {name}",
+                Text = name,
                 Width = 190,
                 Height = 54,
                 Margin = new Padding(5),
